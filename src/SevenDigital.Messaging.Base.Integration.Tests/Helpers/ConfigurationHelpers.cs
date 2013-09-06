@@ -18,6 +18,15 @@ namespace Messaging.Base.Integration.Tests
 			return new RabbitMqQuery("http://" + hostUri + ":55672", username, password, vhost); // before RMQ 3
 		}
 
+		public static RabbitMqConnection RabbitMqConnectionWithConfigSettings()
+		{
+			var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
+			var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
+			var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
+
+			return new RabbitMqConnection(hostUri, vhost);
+		}
+
 		static readonly IRabbitMqConnection conn;
 		static ConfigurationHelpers()
 		{

@@ -8,6 +8,7 @@ using StructureMap;
 namespace Messaging.Base.Unit.Tests.Configuration
 {
 	[TestFixture]
+	[Obsolete("To be removed with MessagingBaseConfiguration().WithConnectionFromAppConfig()")]
     public class RabbitConnectionConfigurationTests
     {
 		IRabbitMqConnection connection;

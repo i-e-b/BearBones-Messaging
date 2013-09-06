@@ -17,9 +17,8 @@ namespace Messaging.Base.Integration.Tests
 		{
 			new MessagingBaseConfiguration()
 				.WithDefaults()
-				.WithConnectionFromAppConfig();
+				.WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
-			
 			_conn = ObjectFactory.GetInstance<IChannelAction>();
 		}
 
@@ -35,9 +34,8 @@ namespace Messaging.Base.Integration.Tests
 
 			new MessagingBaseConfiguration()
 				.WithDefaults()
-				.WithConnectionFromAppConfig();
+				.WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
-			
 			var anyFails = false;
 
 			var b = new Thread(() =>

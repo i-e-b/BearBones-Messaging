@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Example.Types;
 using NUnit.Framework;
@@ -21,7 +20,7 @@ namespace Messaging.Base.Integration.Tests
 		{
 			new MessagingBaseConfiguration()
 				.WithDefaults()
-				.WithConnectionFromAppConfig();
+				.WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
 			messaging = ObjectFactory.GetInstance<IMessagingBase>();
 

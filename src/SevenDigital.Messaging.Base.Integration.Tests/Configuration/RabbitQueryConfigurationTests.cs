@@ -8,6 +8,7 @@ using StructureMap;
 namespace Messaging.Base.Unit.Tests.Configuration
 {
 	[TestFixture]
+	[Obsolete("To be removed along with MessagingBaseConfiguration().WithRabbitManagementFromAppConfig()")]
 	public class RabbitQueryConfigurationTests
 	{
 		IRabbitMqQuery query;
