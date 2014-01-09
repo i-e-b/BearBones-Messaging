@@ -6,3 +6,5 @@ obj
 _ReSharper.*
 *.ReSharper
 *.crunch*
+packages/
+.nuget/*.exe

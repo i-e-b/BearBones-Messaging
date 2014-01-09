@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SevenDigital.Messaging.Base", "src\SevenDigital.Messaging.Base\SevenDigital.Messaging.Base.csproj", "{405A9DE3-4315-4E02-B504-7AD4BE58353A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging.Base.Integration.Tests", "src\SevenDigital.Messaging.Base.Integration.Tests\Messaging.Base.Integration.Tests.csproj", "{08004102-E7A3-4324-B505-4E13DCA7258B}"
@@ -16,6 +18,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{7072CACC
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleTypes", "src\ExampleTypes\ExampleTypes.csproj", "{FDDEE721-C397-4A8A-9C50-A24503BB6C5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E4D6F762-C475-4A80-9D74-4B3D62427863}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

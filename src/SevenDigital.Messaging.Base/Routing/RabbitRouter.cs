@@ -16,7 +16,7 @@ namespace SevenDigital.Messaging.Base.Routing
 	{
 		readonly ISet<string> queues;
 		readonly ISet<string> exchanges;
-		readonly IDictionary noOptions;
+		readonly IDictionary<string, object> noOptions;
 		readonly IChannelAction _longTermConnection;
 		readonly IRabbitMqConnection _shortTermConnection;
 		readonly object _lockObject;
@@ -31,7 +31,7 @@ namespace SevenDigital.Messaging.Base.Routing
 			_shortTermConnection = shortTermConnection;
 			queues = new HashSet<string>();
 			exchanges = new HashSet<string>();
-			noOptions = new Dictionary<string, string>();
+			noOptions = new Dictionary<string, object>();
 		}
 
 		/// <summary>
