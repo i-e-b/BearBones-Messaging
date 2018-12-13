@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SevenDigital.Messaging.Base
+﻿namespace SevenDigital.Messaging.Base
 {
 	/// <summary>
 	/// Helper for formatting file sizes
@@ -20,7 +18,7 @@ namespace SevenDigital.Messaging.Base
 				++unit;
 			}
 
-			return String.Format("{0:G4} {1}", size, units[unit]);
+			return string.Format("{0:G4} {1}", size, units[unit]);
 		}
 	}
 }

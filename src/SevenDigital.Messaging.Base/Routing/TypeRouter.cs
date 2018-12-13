@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace SevenDigital.Messaging.Base.Routing
 {
@@ -7,7 +8,7 @@ namespace SevenDigital.Messaging.Base.Routing
 	/// </summary>
 	public class TypeRouter : ITypeRouter
 	{
-		readonly IMessageRouter router;
+		[NotNull] readonly IMessageRouter router;
 
 		/// <summary>
 		/// Create a type router to drive the given message router.
@@ -15,22 +16,26 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public TypeRouter(IMessageRouter router)
 		{
-			this.router = router;
+			this.router = router ?? throw new ArgumentNullException(nameof(router));
 		}
 
 		/// <summary>
 		/// Build all dependant types into the messaging server
 		/// </summary>
 		/// <param name="type"></param>
-		public void BuildRoutes(Type type)
+		public void BuildRoutes([NotNull] Type type)
 		{
+            if (type == null) throw new ArgumentNullException(nameof(type));
 			if (type.IsInterface) router.AddSource(type.FullName);
 			AddSourcesAndRoute(type);
 		}
 
-		void AddSourcesAndRoute(Type type)
+		void AddSourcesAndRoute([NotNull] Type type)
 		{
-			foreach (var interfaceType in type.DirectlyImplementedInterfaces())
+            var interfaces = type.DirectlyImplementedInterfaces();
+            if (interfaces == null) return;
+
+			foreach (var interfaceType in interfaces)
 			{
 				router.AddSource(interfaceType.FullName);
 				router.RouteSources(type.FullName, interfaceType.FullName);

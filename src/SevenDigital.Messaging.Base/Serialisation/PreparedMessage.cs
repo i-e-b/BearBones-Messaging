@@ -25,7 +25,7 @@ namespace SevenDigital.Messaging.Base.Serialisation
 		/// </summary>
 		public static PreparedMessage FromBytes(byte[] bytes)
 		{
-			var concatMsg = Encoding.UTF8.GetString(bytes);
+			var concatMsg = (bytes == null) ? "" : Encoding.UTF8.GetString(bytes);
 			var parts = concatMsg.Split(new []{"|"}, 2, StringSplitOptions.None);
 			if (parts.Length < 2) throw new Exception("Invalid prepared message");
 			return new PreparedMessage(parts[0], parts[1]);

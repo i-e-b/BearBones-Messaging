@@ -21,8 +21,11 @@ namespace SevenDigital.Messaging.Base
 		/// </summary>
 		public MessagingBaseConfiguration WithDefaults()
 		{
+            // ReSharper disable PossibleNullReferenceException
 			ObjectFactory.Configure(map =>
 			{
+                if (map == null) throw new Exception("StructureMap configuration failure");
+
 				map.For<IMessageSerialiser>().Use<MessageSerialiser>();
 				map.For<ITypeRouter>().Use<TypeRouter>();
 				map.For<IMessagingBase>().Use<MessagingBase>();
@@ -30,6 +33,7 @@ namespace SevenDigital.Messaging.Base
 				map.For<IMessageRouter>().Singleton().Use<RabbitRouter>();
 				map.For<IChannelAction>().Singleton().Use<LongTermRabbitConnection>();
 			});
+            // ReSharper restore PossibleNullReferenceException
 
 			return this;
 		}
@@ -40,7 +44,9 @@ namespace SevenDigital.Messaging.Base
 		public MessagingBaseConfiguration WithConnection(IRabbitMqConnection connection)
 		{
 			configuredConnection = connection;
+            // ReSharper disable PossibleNullReferenceException
 			ObjectFactory.Configure(map => map.For<IRabbitMqConnection>().Use(() => configuredConnection));
+            // ReSharper restore PossibleNullReferenceException
 			return this;
 		}
 
@@ -61,9 +67,11 @@ namespace SevenDigital.Messaging.Base
 		/// </summary>
 		public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
 		{
-			ObjectFactory.Configure(map => map.For<IRabbitMqQuery>().Use(() =>
-				new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)));
-			return this;
+            // ReSharper disable PossibleNullReferenceException
+            ObjectFactory.Configure(map => map.For<IRabbitMqQuery>().Use(() =>
+                new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)));
+            // ReSharper restore PossibleNullReferenceException
+            return this;
 		}
 	}
 }

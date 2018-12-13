@@ -1,10 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Framing.v0_9_1;
+using RabbitMQ.Client.Framing;
 using SevenDigital.Messaging.Base.RabbitMq;
 
 namespace SevenDigital.Messaging.Base.Routing
@@ -14,12 +14,12 @@ namespace SevenDigital.Messaging.Base.Routing
 	/// </summary>
 	public class RabbitRouter : IMessageRouter
 	{
-		readonly ISet<string> queues;
-		readonly ISet<string> exchanges;
-		readonly IDictionary<string, object> noOptions;
-		readonly IChannelAction _longTermConnection;
-		readonly IRabbitMqConnection _shortTermConnection;
-		readonly object _lockObject;
+        [NotNull] readonly ISet<string> queues;
+        [NotNull] readonly ISet<string> exchanges;
+        [NotNull] readonly IDictionary<string, object> noOptions;
+		[NotNull] readonly IChannelAction _longTermConnection;
+		[NotNull] readonly IRabbitMqConnection _shortTermConnection;
+		[NotNull] readonly object _lockObject;
 
 		/// <summary>
 		/// Create a new router from config settings
@@ -27,8 +27,10 @@ namespace SevenDigital.Messaging.Base.Routing
 		public RabbitRouter(IChannelAction longTermConnection, IRabbitMqConnection shortTermConnection)
 		{
 			_lockObject = new object();
-			_longTermConnection = longTermConnection;
-			_shortTermConnection = shortTermConnection;
+
+            _longTermConnection = longTermConnection ?? throw new ArgumentNullException(nameof(longTermConnection));
+			_shortTermConnection = shortTermConnection ?? throw new ArgumentNullException(nameof(shortTermConnection));
+
 			queues = new HashSet<string>();
 			exchanges = new HashSet<string>();
 			noOptions = new Dictionary<string, object>();
@@ -39,6 +41,8 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public void RemoveRouting(Func<string, bool> filter)
 		{
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
+
 			lock (_lockObject)
 			{
 				MessagingBase.InternalResetCaches();
@@ -65,9 +69,11 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public void AddSource(string name)
 		{
+            if (string.IsNullOrWhiteSpace(name)) throw new Exception("source name is not valid");
+
 			lock (_lockObject)
 			{
-				_shortTermConnection.WithChannel(channel => channel.ExchangeDeclare(name, "direct", true, false, noOptions));
+				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(name, "direct", true, false, noOptions));
 				exchanges.Add(name);
 			}
 		}
@@ -78,9 +84,11 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public void AddBroadcastSource(string className)
 		{
+            if (string.IsNullOrWhiteSpace(className)) throw new Exception("class name is not valid");
+
 			lock (_lockObject)
 			{
-				_shortTermConnection.WithChannel(channel => channel.ExchangeDeclare(className, "fanout", true, false, noOptions));
+				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(className, "fanout", true, false, noOptions));
 				exchanges.Add(className);
 			}
 		}
@@ -90,9 +98,11 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public void AddDestination(string name)
 		{
+            if (string.IsNullOrWhiteSpace(name)) throw new Exception("source name is not valid");
+
 			lock (_lockObject)
 			{
-				_shortTermConnection.WithChannel(channel => channel.QueueDeclare(name, true, false, false, noOptions));
+				_shortTermConnection.WithChannel(channel => channel?.QueueDeclare(name, true, false, false, noOptions));
 				queues.Add(name);
 			}
 		}
@@ -125,24 +135,28 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// </summary>
 		public void Send(string sourceName, string data)
 		{
-			_longTermConnection.WithChannel(channel => channel.BasicPublish(
-				sourceName, "", false, false, EmptyBasicProperties(),
-				Encoding.UTF8.GetBytes(data))
-				);
-		}
+            if (data == null) data = "";
 
-		/// <summary>
-		/// Get a message from a destination. This removes the message from the destination
-		/// </summary>
-		public string Get(string destinationName, out ulong deliveryTag)
+            _longTermConnection.WithChannel(channel => channel?.BasicPublish(
+                sourceName, "", false, EmptyBasicProperties(),
+                Encoding.UTF8.GetBytes(data))
+                );
+        }
+
+        /// <summary>
+        /// Get a message from a destination. This removes the message from the destination
+        /// </summary>
+        public string Get(string destinationName, out ulong deliveryTag)
 		{
-			var result = _longTermConnection.GetWithChannel(channel => channel.BasicGet(destinationName, false));
+			var result = _longTermConnection.GetWithChannel(channel => channel?.BasicGet(destinationName, false));
 			if (result == null)
 			{
 				deliveryTag = 0UL;
 				return null;
 			}
 			deliveryTag = result.DeliveryTag;
+
+            if (result.Body == null) return null;
 			return Encoding.UTF8.GetString(result.Body);
 		}
 
@@ -153,7 +167,7 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
 		public void Finish(ulong deliveryTag)
 		{
-			_longTermConnection.WithChannel(channel => channel.BasicAck(deliveryTag, false));
+			_longTermConnection.WithChannel(channel => channel?.BasicAck(deliveryTag, false));
 		}
 
 		/// <summary>
@@ -171,9 +185,12 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// Delete all waiting messages from a given destination
 		/// </summary>
 		public void Purge(string destinationName)
-		{
-			_shortTermConnection.WithChannel(channel => channel.QueuePurge(destinationName));
-		}
+        {
+            lock (_lockObject)
+            {
+                _shortTermConnection.WithChannel(channel => channel?.QueuePurge(destinationName));
+            }
+        }
 
 		/// <summary>
 		/// Cancel a 'Get' by it's tag. The message will remain on the queue and become available for another 'Get'
@@ -181,7 +198,7 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
 		public void Cancel(ulong deliveryTag)
 		{
-			_longTermConnection.WithChannel(channel => channel.BasicReject(deliveryTag, true));
+			_longTermConnection.WithChannel(channel => channel?.BasicReject(deliveryTag, true));
 		}
 
 		/// <summary>

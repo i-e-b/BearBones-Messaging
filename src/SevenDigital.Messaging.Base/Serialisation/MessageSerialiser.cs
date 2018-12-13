@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 using ServiceStack.Text;
 
 namespace SevenDigital.Messaging.Base.Serialisation
@@ -13,14 +14,15 @@ namespace SevenDigital.Messaging.Base.Serialisation
 		///<summary>Return a JSON string representing a source object</summary>
 		public string Serialise(object messageObject)
 		{
+            if (messageObject == null) throw new ArgumentNullException(nameof(messageObject));
 			var type = messageObject.GetType();
-			var interfaces = type.DirectlyImplementedInterfaces().ToList();
-			if ( ! interfaces.HasSingle())
+			var interfaces = type.DirectlyImplementedInterfaces()?.ToList();
+			if ( interfaces == null || ! interfaces.HasSingle())
 				throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 
 			JsConfig.PreferInterfaces = true;
 			var str = JsonSerializer.SerializeToString(messageObject, interfaces.Single());
-			return str.Insert(str.Length - 1, ",\"__contracts\":\""+InterfaceStack.Of(messageObject)+"\"");
+			return str?.Insert(str.Length - 1, ",\"__contracts\":\""+InterfaceStack.Of(messageObject)+"\"");
 		}
 
 		///<summary>Return an object of a known type based on it's JSON representation</summary>
@@ -43,16 +45,17 @@ namespace SevenDigital.Messaging.Base.Serialisation
 		/// <summary>
 		/// Returns an instatiable class that implements the given interface class
 		/// </summary>
-		public Type WrapperTypeFor<T>()
+		[CanBeNull] public Type WrapperTypeFor<T>()
 		{
-			return (typeof(T).IsInterface) ? (DynamicProxy.GetInstanceFor<T>().GetType()) : (typeof(T));
+			return (typeof(T).IsInterface) ? (DynamicProxy.GetInstanceFor<T>()?.GetType()) : (typeof(T));
 		}
 		/// <summary>
 		/// Returns an instatiable class that implements the given interface class
 		/// </summary>
-		public Type WrapperTypeFor(Type t)
+		[CanBeNull] public Type WrapperTypeFor(Type t)
 		{
-			return (t.IsInterface) ? (DynamicProxy.GetInstanceFor(t).GetType()) : (t);
+            if (t == null) return null;
+			return (t.IsInterface) ? (DynamicProxy.GetInstanceFor(t)?.GetType()) : (t);
 		}
 	}
 }

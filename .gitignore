@@ -8,3 +8,4 @@ _ReSharper.*
 *.crunch*
 packages/
 .nuget/*.exe
+.vs/

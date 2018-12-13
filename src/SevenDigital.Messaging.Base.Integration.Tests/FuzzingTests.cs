@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SevenDigital.Messaging.Base;
 using SevenDigital.Messaging.Base.RabbitMq;
 using StructureMap;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests
 {

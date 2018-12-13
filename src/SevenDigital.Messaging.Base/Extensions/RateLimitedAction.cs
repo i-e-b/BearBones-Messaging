@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace SevenDigital.Messaging.Base
 {
@@ -7,12 +8,12 @@ namespace SevenDigital.Messaging.Base
 	/// </summary>
 	public class RateLimitedAction
 	{
-		private readonly Action _action;
+		[NotNull] private readonly Action _action;
 		private DateTime _lastRecall;
 
 		private RateLimitedAction(Action actionToPerform)
 		{
-			_action = actionToPerform;
+			_action = actionToPerform ?? throw new ArgumentNullException(nameof(actionToPerform));
 			_lastRecall = DateTime.MinValue;
 		}
 

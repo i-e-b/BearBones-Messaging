@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using SevenDigital.Messaging.Base.RabbitMq;
 using SevenDigital.Messaging.Base.Routing;
 using SevenDigital.Messaging.Base.Serialisation;
@@ -13,57 +14,62 @@ namespace SevenDigital.Messaging.Base
 	/// </summary>
 	public class MessagingBase : IMessagingBase
 	{
-		readonly ITypeRouter typeRouter;
-		readonly IMessageRouter messageRouter;
-		readonly IMessageSerialiser serialiser;
+		[NotNull] readonly ITypeRouter typeRouter;
+		[NotNull] readonly IMessageRouter messageRouter;
+		[NotNull] readonly IMessageSerialiser serialiser;
+
+        [NotNull] static readonly IDictionary<Type, RateLimitedAction> RouteCache = new Dictionary<Type, RateLimitedAction>();
 
 		/// <summary>
 		/// Create with `ObjectFactory.GetInstance&lt;IMessagingBase&gt;()`
 		/// </summary>
 		public MessagingBase(ITypeRouter typeRouter, IMessageRouter messageRouter, IMessageSerialiser serialiser)
 		{
-			this.typeRouter = typeRouter;
-			this.messageRouter = messageRouter;
-			this.serialiser = serialiser;
+			this.typeRouter = typeRouter ?? throw new ArgumentNullException(nameof(typeRouter));
+			this.messageRouter = messageRouter ?? throw new ArgumentNullException(nameof(messageRouter));
+			this.serialiser = serialiser ?? throw new ArgumentNullException(nameof(serialiser));
 		}
 
 		/// <summary>
 		/// Get the contract name of an object instance
 		/// </summary>
-		public static string ContractTypeName(object instance)
+		public static string ContractTypeName([NotNull] object instance)
 		{
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
 			return ContractTypeName(instance.GetType());
 		}
 		
 		/// <summary>
 		/// Get the contract name of a type
 		/// </summary>
-		public static string ContractTypeName(Type type)
+		[CanBeNull] public static string ContractTypeName([NotNull] Type type)
 		{
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
 			if (type.IsInterface) return type.FullName;
 
-			var interfaceTypes = type.DirectlyImplementedInterfaces().ToList();
+			var interfaceTypes = type.DirectlyImplementedInterfaces()?.ToList();
 
-			if (!interfaceTypes.HasSingle())
+			if (interfaceTypes == null || !interfaceTypes.HasSingle())
 				throw new ArgumentException("Messages must directly implement exactly one interface", "type");
 
-			return interfaceTypes.Single().FullName;
+			return interfaceTypes.Single()?.FullName;
 		}
 
 		/// <summary>
 		/// Ensure a destination exists, and bind it to the exchanges for the given type
 		/// </summary>
-		public void CreateDestination<T>(string destinationName)
+		public void CreateDestination<T>([NotNull] string destinationName)
 		{
 			CreateDestination(typeof(T), destinationName);
 		}
 
-		/// <summary>
-		/// Ensure a destination exists, and bind it to the exchanges for the given type
-		/// </summary>
-		public void CreateDestination(Type sourceType, string destinationName)
-		{
-			RouteSource(sourceType);
+        /// <summary>
+        /// Ensure a destination exists, and bind it to the exchanges for the given type
+        /// </summary>
+        public void CreateDestination([NotNull]Type sourceType, [NotNull] string destinationName)
+        {
+            RouteSource(sourceType);
 			messageRouter.AddDestination(destinationName);
 			messageRouter.Link(sourceType.FullName, destinationName);
 		}
@@ -72,7 +78,7 @@ namespace SevenDigital.Messaging.Base
 		/// Send a message to all bound destinations.
 		/// Returns serialised form of the message object.
 		/// </summary>
-		public void SendMessage(object messageObject)
+		public void SendMessage([NotNull] object messageObject)
 		{
 			SendPrepared(PrepareForSend(messageObject));
 		}
@@ -120,8 +126,7 @@ namespace SevenDigital.Messaging.Base
 			return new PendingMessage<T>(messageRouter, message, deliveryTag);
 		}
 
-		static readonly IDictionary<Type, RateLimitedAction> RouteCache = new Dictionary<Type, RateLimitedAction>();
-		void RouteSource(Type routeType)
+		void RouteSource([NotNull] Type routeType)
 		{
 			lock (RouteCache)
 			{
@@ -129,9 +134,9 @@ namespace SevenDigital.Messaging.Base
 				{
 					RouteCache.Add(routeType, RateLimitedAction.Of(() => typeRouter.BuildRoutes(routeType)));
 				}
-			}
-			RouteCache[routeType].YoungerThan(TimeSpan.FromMinutes(1));
-		}
+                RouteCache[routeType]?.YoungerThan(TimeSpan.FromMinutes(1));
+            }
+        }
 
 		/// <summary>
 		/// Ensure that routes and connections are rebuild on next SendMessage or CreateDestination.
@@ -146,14 +151,16 @@ namespace SevenDigital.Messaging.Base
 		/// This is intended for later sending with SendPrepared().
 		/// If you want to send immediately, use SendMessage();
 		/// </summary>
-		public IPreparedMessage PrepareForSend(object messageObject)
+		[NotNull] public IPreparedMessage PrepareForSend([NotNull] object messageObject)
 		{
-			var interfaceTypes = messageObject.GetType().DirectlyImplementedInterfaces().ToList();
+            if (messageObject == null) throw new ArgumentNullException(nameof(messageObject));
 
-			if (!interfaceTypes.HasSingle())
+			var interfaceTypes = messageObject.GetType().DirectlyImplementedInterfaces()?.ToList();
+
+			if (interfaceTypes == null || !interfaceTypes.HasSingle())
 				throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 			
-			var sourceType = interfaceTypes.Single();
+			var sourceType = interfaceTypes.Single() ?? throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 			var serialised = serialiser.Serialise(messageObject);
 
 			RouteSource(sourceType);
@@ -164,8 +171,9 @@ namespace SevenDigital.Messaging.Base
 		/// Immediately send a prepared message.
 		/// </summary>
 		/// <param name="message">A message created by PrepareForSend()</param>
-		public void SendPrepared(IPreparedMessage message)
+		public void SendPrepared([NotNull] IPreparedMessage message)
 		{
+            if (message == null) throw new ArgumentNullException(nameof(message));
 			messageRouter.Send(message.TypeName(), message.SerialisedMessage());
 		}
 
@@ -176,9 +184,9 @@ namespace SevenDigital.Messaging.Base
 				RouteCache.Clear();
 			}
 			var channelAction = ObjectFactory.TryGetInstance<IChannelAction>();
-			if (channelAction is LongTermRabbitConnection)
+			if (channelAction is LongTermRabbitConnection connection)
 			{
-				((LongTermRabbitConnection)channelAction).Reset();
+				connection.Reset();
 			}
 		}
 	}

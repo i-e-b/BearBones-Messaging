@@ -38,7 +38,7 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		{
 			return new ConnectionFactory
 				{
-					Protocol = Protocols.FromEnvironment(),
+					Protocol = Protocols.AMQP_0_9_1,
 					HostName = Host,
 					VirtualHost = VirtualHost,
 					RequestedHeartbeat = 60
@@ -50,10 +50,14 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		/// </summary>
 		public void WithChannel(Action<IModel> actions)
 		{
+            if (actions == null) return;
+
 			var factory = ConnectionFactory();
-			using (var conn = factory.CreateConnection())
-			using (var channel = conn.CreateModel())
+			using (var conn = factory?.CreateConnection())
+			using (var channel = conn?.CreateModel())
 			{
+                if (channel == null) throw new Exception("Failed to open a channel");
+
 				actions(channel);
 				if (channel.IsOpen) channel.Close();
 				if (conn.IsOpen) conn.Close();
@@ -65,10 +69,14 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		/// </summary>
 		public T GetWithChannel<T>(Func<IModel, T> actions)
 		{
+            if (actions == null) throw new ArgumentNullException(nameof(actions));
+
 			var factory = ConnectionFactory();
-			using (var conn = factory.CreateConnection())
-			using (var channel = conn.CreateModel())
+			using (var conn = factory?.CreateConnection())
+			using (var channel = conn?.CreateModel())
 			{
+                if (channel == null) throw new Exception("Failed to open a channel");
+
 				var result = actions(channel);
 				if (channel.IsOpen) channel.Close();
 				if (conn.IsOpen) conn.Close();

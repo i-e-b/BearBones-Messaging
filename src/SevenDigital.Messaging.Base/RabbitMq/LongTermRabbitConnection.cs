@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using JetBrains.Annotations;
 using RabbitMQ.Client;
 
 namespace SevenDigital.Messaging.Base.RabbitMq
@@ -23,8 +24,8 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 	/// </summary>
 	public class LongTermRabbitConnection : ILongTermConnection
 	{
-		readonly IRabbitMqConnection rabbitMqConnection;
-		readonly object lockObject;
+		[NotNull] readonly IRabbitMqConnection rabbitMqConnection;
+		[NotNull] readonly object lockObject = new object();
 
 		ConnectionFactory _factory;
 		IConnection _conn;
@@ -37,8 +38,7 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		/// <param name="rabbitMqConnection"></param>
 		public LongTermRabbitConnection(IRabbitMqConnection rabbitMqConnection)
 		{
-			lockObject = new Object();
-			this.rabbitMqConnection = rabbitMqConnection;
+            this.rabbitMqConnection = rabbitMqConnection ?? throw new ArgumentNullException(nameof(rabbitMqConnection));
 		}
 		
 		/// <summary>
@@ -71,6 +71,7 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		/// </summary>
 		public void WithChannel(Action<IModel> actions)
 		{
+            if (actions == null) return;
 			lock (lockObject)
 			{
 				actions(EnsureChannel());
@@ -80,8 +81,9 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 		/// <summary>
 		/// Perform an action against the RMQ cluster, returning data
 		/// </summary>
-		public T GetWithChannel<T>(Func<IModel, T> actions)
+		public T GetWithChannel<T>([NotNull]Func<IModel, T> actions)
 		{
+            if (actions == null) throw new ArgumentNullException(nameof(actions));
 			lock (lockObject)
 			{
 				return actions(EnsureChannel());
@@ -90,8 +92,11 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 
 		void ShutdownConnection()
 		{
-			_factory = null;
-			DisposeChannel();
+            lock (lockObject)
+            {
+                _factory = null;
+            }
+            DisposeChannel();
 			DisposeConnection();
 		}
 
@@ -107,7 +112,7 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 			if (_conn != null && _conn.IsOpen)
 			{
 				DisposeChannel();
-				_channel = _conn.CreateModel();
+				_channel = _conn?.CreateModel();
 				return _channel;
 			}
 
@@ -118,30 +123,46 @@ namespace SevenDigital.Messaging.Base.RabbitMq
 			lfac.RequestedHeartbeat = 60;
 			_conn = lfac.CreateConnection();
 
-			_channel = _conn.CreateModel();
+			_channel = _conn?.CreateModel();
 			return _channel;
 		}
 
 		void DisposeConnection()
 		{
 			lock (lockObject)
-			{
-				var conn = Interlocked.Exchange(ref _conn, null);
-				if (conn == null) return;
-				if (conn.IsOpen) conn.Close();
-				conn.Dispose();
-			}
-		}
+            {
+                if (_conn == null) return;
+                var conn = Interlocked.Exchange(ref _conn, null);
+                if (conn == null) return;
+                try
+                {
+                    if (conn.IsOpen) conn.Close();
+                    conn.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Double-dispose. Not a massive problem, RabbitMQ SDK versions do this differently
+                }
+            }
+        }
 
 		void DisposeChannel()
 		{
 			lock (lockObject)
 			{
-				var chan = Interlocked.Exchange(ref _channel, null);
-				if (chan == null) return;
-				if (chan.IsOpen) chan.Close();
-				chan.Dispose();
-			}
-		}
+                if (_channel == null) return;
+                var chan = Interlocked.Exchange(ref _channel, null);
+                if (chan == null) return;
+                try
+                {
+                    if (chan.IsOpen) chan.Close();
+                    chan.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Double-dispose. Not a massive problem, RabbitMQ SDK versions do this differently
+                }
+            }
+        }
 	}
 }

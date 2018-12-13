@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using JetBrains.Annotations;
 using ServiceStack.Text;
 
 namespace SevenDigital.Messaging.Base.RabbitMq.RabbitMqManagement
@@ -38,9 +39,13 @@ namespace SevenDigital.Messaging.Base.RabbitMq.RabbitMqManagement
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
 		/// </summary>
 		public RabbitMqQuery(string hostUri, string username, string password, string virtualHost = "/")
-			: this(new Uri(hostUri), new NetworkCredential(username, password))
-		{
-			VirtualHost = (virtualHost.StartsWith("/")) ? (virtualHost) : ("/" + virtualHost);
+			: this(
+                new Uri(hostUri ?? throw new ArgumentNullException(nameof(hostUri))),
+                new NetworkCredential(username, password)
+            )
+        {
+            if (virtualHost == null) virtualHost = "/";
+			VirtualHost = virtualHost.StartsWith("/") ? virtualHost : ("/" + virtualHost);
 		}
 
 		/// <summary>
@@ -77,15 +82,22 @@ namespace SevenDigital.Messaging.Base.RabbitMq.RabbitMqManagement
 			return Uri.TryCreate(HostUri, endpoint, out result) ? GetResponseString(result) : null;
 		}
 
-		static string GetResponseString(Uri target)
+		static string GetResponseString([NotNull] Uri target)
 		{
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
 			var request = (HttpWebRequest) WebRequest.Create(target);
 			request.AutomaticDecompression = DecompressionMethods.GZip;
 			request.Credentials = new NetworkCredential("guest", "guest");
 
-			using (var response = request.GetResponse())
-				using (var responseStream = response.GetResponseStream())
-					return new StreamReader(responseStream).ReadToEnd();
-		}
-	}
+            using (var response = request.GetResponse())
+            {
+                using (var responseStream = response.GetResponseStream())
+                {
+                    if (responseStream == null) throw new Exception("Failed to read response");
+                    return new StreamReader(responseStream).ReadToEnd();
+                }
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@ using SevenDigital.Messaging.Base;
 using SevenDigital.Messaging.Base.Routing;
 using SevenDigital.Messaging.Base.Serialisation;
 using StructureMap;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests
 {
@@ -15,7 +16,7 @@ namespace Messaging.Base.Integration.Tests
 		SuperMetadata testMessage;
 		IMessagingBase messaging;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void A_configured_messaging_base()
 		{
 			new MessagingBaseConfiguration()
@@ -224,7 +225,7 @@ namespace Messaging.Base.Integration.Tests
 			Assert.That(time.TotalSeconds, Is.LessThanOrEqualTo(60));
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void cleanup()
 		{
 			((RabbitRouter)ObjectFactory.GetInstance<IMessageRouter>()).RemoveRouting(n => true);

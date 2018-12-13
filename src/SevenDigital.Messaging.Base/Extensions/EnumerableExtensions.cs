@@ -12,13 +12,14 @@ namespace SevenDigital.Messaging.Base
 		/// </summary>
 		public static bool HasSingle<T>(this IEnumerable<T> src)
 		{
-			var e = src.GetEnumerator();
-			var ok = e.MoveNext();
-			ok ^= e.MoveNext();
-// ReSharper disable EmptyGeneralCatchClause
-			try { e.Reset(); } catch { }
-// ReSharper restore EmptyGeneralCatchClause
-			return ok;
-		}
-	}
+            if (src == null) return false;
+            using (var e = src.GetEnumerator())
+            {
+                var ok = e.MoveNext();
+                ok ^= e.MoveNext();
+                try { e.Reset(); } catch { /* ignore*/ }
+                return ok;
+            }
+        }
+    }
 }
