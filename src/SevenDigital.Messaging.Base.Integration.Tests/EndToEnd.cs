@@ -51,6 +51,23 @@ namespace Messaging.Base.Integration.Tests
 			Assert.That(finalObject.MetadataName, Is.EqualTo(testMessage.MetadataName));
 			Assert.That(finalObject.Equals(testMessage), Is.False);
 		}
+
+        [Test]
+        public void type_headers_survive_a_send_and_receive_round_trip ()
+        {
+            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.SendMessage(testMessage);
+
+            var finalObject = (IMetadataFile)messaging.GetMessage<IMsg>("Test_Destination");
+
+            Assert.That(finalObject, Is.Not.Null);
+            Assert.That(finalObject.CorrelationId, Is.EqualTo(testMessage.CorrelationId));
+            Assert.That(finalObject.Contents, Is.EqualTo(testMessage.Contents));
+            Assert.That(finalObject.FilePath, Is.EqualTo(testMessage.FilePath));
+            Assert.That(finalObject.HashValue, Is.EqualTo(testMessage.HashValue));
+            Assert.That(finalObject.MetadataName, Is.EqualTo(testMessage.MetadataName));
+            Assert.That(finalObject.Equals(testMessage), Is.False);
+        }
 		
 
 		[Test]
@@ -116,7 +133,6 @@ namespace Messaging.Base.Integration.Tests
 			Assert.That(finalObject.MetadataName, Is.EqualTo(testMessage.MetadataName));
 			Assert.That(finalObject.Equals(testMessage), Is.False);
 		}
-
 
 		[Test]
 		public void should_protect_from_cancelling_the_same_message_twice ()

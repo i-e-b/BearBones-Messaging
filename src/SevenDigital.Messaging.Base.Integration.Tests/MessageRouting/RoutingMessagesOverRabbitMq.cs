@@ -6,6 +6,8 @@ using NUnit.Framework;
 using SevenDigital.Messaging.Base.RabbitMq;
 using SevenDigital.Messaging.Base.RabbitMq.RabbitMqManagement;
 using SevenDigital.Messaging.Base.Routing;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace Messaging.Base.Integration.Tests
 {

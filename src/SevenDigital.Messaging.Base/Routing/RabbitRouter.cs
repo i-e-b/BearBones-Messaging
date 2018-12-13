@@ -138,9 +138,12 @@ namespace SevenDigital.Messaging.Base.Routing
             if (data == null) data = "";
 
             _longTermConnection.WithChannel(channel => channel?.BasicPublish(
-                sourceName, "", false, EmptyBasicProperties(),
-                Encoding.UTF8.GetBytes(data))
-                );
+                exchange:        sourceName,
+                routingKey:      "",
+                mandatory:       false,
+                basicProperties: TaggedBasicProperties(sourceName),
+                body:            Encoding.UTF8.GetBytes(data))
+            );
         }
 
         /// <summary>
@@ -204,9 +207,11 @@ namespace SevenDigital.Messaging.Base.Routing
 		/// <summary>
 		/// Basic properties object with default settings
 		/// </summary>
-		public IBasicProperties EmptyBasicProperties()
+		public IBasicProperties TaggedBasicProperties(string typeName)
 		{
-			return new BasicProperties();
+			return new BasicProperties{
+                Type = typeName
+            };
 		}
 	}
 }
