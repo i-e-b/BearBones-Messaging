@@ -6,8 +6,8 @@ BearBones-Messaging
 BearBones messaging: lower-level framework, part of a contract-interface based distributed event framework for .Net
 
 
-To do
---------------
+Possible future features
+------------------------
 
 * Retry messages to go to end of queue (so the whole queue cycles if there are a few bad messages)
 * RPC vote-to-consume pattern
