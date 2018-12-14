@@ -17,11 +17,13 @@ namespace BearBonesMessaging
         [NotNull] readonly Dictionary<Type, Func<object>> _typeMap;
         private IMessageRouter _rabbitRouterSingleton;
         private IChannelAction _longConnectionSingleton;
+        private string _appGroupName;
 
         /// <summary>
         /// The most recently created messaging configuration
         /// </summary>
         [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
+
 
         /// <summary>
         /// Create a new configuration object
@@ -41,7 +43,7 @@ namespace BearBonesMessaging
 		{
             Set<IMessageSerialiser>(() => new MessageSerialiser());
             Set<ITypeRouter>(() => new TypeRouter(Get<IMessageRouter>()));
-            Set<IMessagingBase>(() => new MessagingBase(Get<ITypeRouter>(), Get<IMessageRouter>(), Get<IMessageSerialiser>()));
+            Set<IMessagingBase>(() => new MessagingBase(Get<ITypeRouter>(), Get<IMessageRouter>(), Get<IMessageSerialiser>(), _appGroupName));
 
             Set<IMessageRouter>(GetRabbitRouterSingleton);
             Set<IChannelAction>(GetChannelActionSingleton);
@@ -79,6 +81,15 @@ namespace BearBonesMessaging
             );
             return this;
 		}
+
+        /// <summary>
+        /// Add an application group name. This will be used as a reply-to address in any messages sent
+        /// </summary>
+        public MessagingBaseConfiguration WithApplicationGroupName(string appGroupName)
+        {
+            _appGroupName = appGroupName;
+            return this;
+        }
 
         /// <summary>
         /// Return a configured messaging instance.
@@ -121,5 +132,6 @@ namespace BearBonesMessaging
             if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new RabbitRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
             return _rabbitRouterSingleton;
         }
+
     }
 }

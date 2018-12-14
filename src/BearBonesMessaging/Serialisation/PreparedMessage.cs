@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 
 namespace BearBonesMessaging.Serialisation
@@ -50,7 +51,8 @@ namespace BearBonesMessaging.Serialisation
 		/// </summary>
 		public byte[] ToBytes()
 		{
-            return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|" + SerialisedMessage);
+            if (SerialisedMessage == null) return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|");
+            return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|").Concat(SerialisedMessage).ToArray();
         }
 	}
 }

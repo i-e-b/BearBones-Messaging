@@ -37,12 +37,12 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// SendMesssage a message to an established source (will be routed to destinations by typeDescription)
 		/// </summary>
-		void Send(string sourceName, string typeDescription, byte[] data);
+		void Send(string sourceName, string typeDescription, string senderName, byte[] data);
         
         /// <summary>
         /// SendMesssage a message to an established source (will be routed to destinations by typeDescription)
         /// </summary>
-        void Send(string sourceName, string typeDescription, string data);
+        void Send(string sourceName, string typeDescription, string senderName, string data);
 
 		/// <summary>
 		/// Get a message from a destination. This does not remove the message from the queue.

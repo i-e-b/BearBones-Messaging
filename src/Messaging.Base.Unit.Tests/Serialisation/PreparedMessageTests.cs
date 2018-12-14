@@ -1,6 +1,8 @@
-﻿using BearBonesMessaging.Serialisation;
+﻿using System.Text;
+using BearBonesMessaging.Serialisation;
 using NUnit.Framework;
 // ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -20,7 +22,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 			var result = PreparedMessage.FromBytes(bytes);
 
 			Assert.That(result.TypeName, Is.EqualTo(typeString));
-			Assert.That(result.SerialisedMessage, Is.EqualTo(messageString));
+			Assert.That(Encoding.UTF8.GetString(result.SerialisedMessage), Is.EqualTo(messageString));
 			Assert.That(result.ContractType, Is.EqualTo(typeDescription));
 		}
 

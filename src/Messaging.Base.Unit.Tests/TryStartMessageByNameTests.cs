@@ -25,7 +25,7 @@ namespace Messaging.Base.Unit.Tests
 			messageRouter = Substitute.For<IMessageRouter>();
 			serialiser = Substitute.For<IMessageSerialiser>();
 
-			messaging = new MessagingBase(typeRouter, messageRouter, serialiser);
+			messaging = new MessagingBase(typeRouter, messageRouter, serialiser, "test");
 			messaging.ResetCaches();
 		}
 

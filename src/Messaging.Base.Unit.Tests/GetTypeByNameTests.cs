@@ -1,5 +1,4 @@
-﻿using System;
-using BearBonesMessaging;
+﻿using BearBonesMessaging;
 using BearBonesMessaging.Routing;
 using BearBonesMessaging.Serialisation;
 using Example.Types;
@@ -24,7 +23,7 @@ namespace Messaging.Base.Unit.Tests
 			messageRouter = Substitute.For<IMessageRouter>();
 			serialiser = Substitute.For<IMessageSerialiser>();
 
-			messaging = new MessagingBase(typeRouter, messageRouter, serialiser);
+			messaging = new MessagingBase(typeRouter, messageRouter, serialiser, "test-group");
 			messaging.ResetCaches();
 			messaging.GetMessage<IMetadataFile>("MyServiceDestination");
 		}

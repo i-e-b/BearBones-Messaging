@@ -17,17 +17,18 @@ namespace BearBonesMessaging
 		[NotNull] readonly ITypeRouter typeRouter;
 		[NotNull] readonly IMessageRouter messageRouter;
 		[NotNull] readonly IMessageSerialiser serialiser;
-
+        [NotNull] readonly string _applicationGroupName;
         [NotNull] static readonly IDictionary<Type, RateLimitedAction> RouteCache = new Dictionary<Type, RateLimitedAction>();
 
 		/// <summary>
-		/// Create with `ObjectFactory.GetInstance&lt;IMessagingBase&gt;()`
+		/// Create with `MessagingBaseConfiguration.GetMessagingBase()`
 		/// </summary>
-		public MessagingBase(ITypeRouter typeRouter, IMessageRouter messageRouter, IMessageSerialiser serialiser)
+		public MessagingBase(ITypeRouter typeRouter, IMessageRouter messageRouter, IMessageSerialiser serialiser, string applicationGroupName)
 		{
 			this.typeRouter = typeRouter ?? throw new ArgumentNullException(nameof(typeRouter));
 			this.messageRouter = messageRouter ?? throw new ArgumentNullException(nameof(messageRouter));
 			this.serialiser = serialiser ?? throw new ArgumentNullException(nameof(serialiser));
+            _applicationGroupName = applicationGroupName ?? "AnonymousSender";
         }
 
 		/// <summary>
@@ -178,7 +179,7 @@ namespace BearBonesMessaging
 		public void SendPrepared([NotNull] IPreparedMessage message)
 		{
             if (message == null) throw new ArgumentNullException(nameof(message));
-			messageRouter.Send(message.TypeName, message.ContractType, message.SerialisedMessage);
+			messageRouter.Send(message.TypeName, message.ContractType, _applicationGroupName, message.SerialisedMessage);
 		}
 
 		internal static void InternalResetCaches()

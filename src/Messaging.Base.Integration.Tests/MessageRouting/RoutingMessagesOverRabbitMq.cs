@@ -59,7 +59,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
-			router.Send("exchange_A", null, "Hello, world");
+			router.Send("exchange_A", null, null, "Hello, world");
 
 			var message = router.GetAndFinish("queue_A", out _);
 			Assert.That(message, Is.EqualTo("Hello, world"));
@@ -71,7 +71,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddSource("src");
 			router.AddDestination("dst");
 			router.Link("src", "dst");
-			router.Send("src", null, "Hello, World");
+			router.Send("src", null, null, "Hello, World");
 
 			channelAction.WithChannel(channel => channel.BasicAck(0, true));
 
@@ -93,7 +93,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.Link("exchange", "queue_A");
 			router.Link("exchange", "queue_B");
 
-			router.Send("exchange", null, "Hello, World");
+			router.Send("exchange", null, null, "Hello, World");
 
 			
 			var message1 = router.GetAndFinish("queue_A", out _);
@@ -119,10 +119,10 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
-			router.Send("exchange_A", null, "One");
-			router.Send("exchange_A", null, "Two");
-			router.Send("exchange_A", null, "Three");
-			router.Send("exchange_A", null, "Four");
+			router.Send("exchange_A", null, null, "One");
+			router.Send("exchange_A", null, null, "Two");
+			router.Send("exchange_A", null, null, "Three");
+			router.Send("exchange_A", null, null, "Four");
 
 			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("One"));
 			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("Two"));
@@ -164,9 +164,9 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.Link("H2", "D2");
 			router.Link("B", "D3");
 
-			router.Send("B", null, "D3 gets this");
-			router.Send("H2", null, "D2, D1, D3 get this");
-			router.Send("N1", null, "D1, D3 get this");
+			router.Send("B", null, null, "D3 gets this");
+			router.Send("H2", null, null, "D2, D1, D3 get this");
+			router.Send("N1", null, null, "D1, D3 get this");
 
 			Assert.That(router.GetAndFinish("D3", out _), Is.EqualTo("D3 gets this"));
 			Assert.That(router.GetAndFinish("D3", out _), Is.EqualTo("D2, D1, D3 get this"));
@@ -192,7 +192,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			int received = 0;
 			for (int i = 0; i < 1000; i++)
 			{
-				router.Send("A", null, "Woo");
+				router.Send("A", null, null, "Woo");
 			}
 			while (router.GetAndFinish("B", out _) != null) received++;
 
@@ -212,7 +212,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			int count = 200;
 			for (int i = 0; i < count; i++)
 			{
-				router.Send("A", null, "message");
+				router.Send("A", null, null, "message");
 			}
 
 			var A = new Thread(()=> {

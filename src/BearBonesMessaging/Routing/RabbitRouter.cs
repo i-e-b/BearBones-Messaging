@@ -131,15 +131,15 @@ namespace BearBonesMessaging.Routing
 		}
 
         /// <inheritdoc />
-        public void Send(string sourceName, string typeDescription, string data)
+        public void Send(string sourceName, string typeDescription, string senderName, string data)
         {
-            Send(sourceName, typeDescription, Encoding.UTF8.GetBytes(data ?? ""));
+            Send(sourceName, typeDescription, senderName ?? "AnonymousSender", Encoding.UTF8.GetBytes(data ?? ""));
         }
 
         /// <summary>
         /// Send a message to an established source (will be routed to destinations by key)
         /// </summary>
-        public void Send(string sourceName, string typeDescription, byte[] data)
+        public void Send(string sourceName, string typeDescription, string senderName, byte[] data)
 		{
             if (data == null) data = new byte[0];
 
@@ -147,7 +147,7 @@ namespace BearBonesMessaging.Routing
                 exchange:        sourceName,
                 routingKey:      "",
                 mandatory:       false, // if true, there must be at least one routing output otherwise the send will error
-                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName),
+                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName, senderName),
                 body:           data)
             );
         }
@@ -178,6 +178,7 @@ namespace BearBonesMessaging.Routing
             properties.OriginalType = result.BasicProperties?.Type;
             properties.Exchange = result.Exchange;
             properties.CorrelationId = result.BasicProperties?.CorrelationId;
+            properties.SenderName = result.BasicProperties?.ReplyTo;
 
             return result.Body;
 		}
@@ -225,10 +226,11 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Basic properties object with default settings
 		/// </summary>
-		public IBasicProperties TaggedBasicProperties(string contractTypeDescription)
+		public IBasicProperties TaggedBasicProperties(string contractTypeDescription, string senderName)
 		{
 			return new BasicProperties{
-                Type = contractTypeDescription
+                Type = contractTypeDescription,
+                ReplyTo = senderName
             };
 		}
 	}

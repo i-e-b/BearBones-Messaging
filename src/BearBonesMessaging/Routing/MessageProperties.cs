@@ -26,5 +26,10 @@ namespace BearBonesMessaging.Routing
         /// Correlation ID of the message, if given
         /// </summary>
         [CanBeNull]public string CorrelationId;
+
+        /// <summary>
+        /// Sender name or reply-to address of the message, if given
+        /// </summary>
+        [CanBeNull]public string SenderName;
     }
 }

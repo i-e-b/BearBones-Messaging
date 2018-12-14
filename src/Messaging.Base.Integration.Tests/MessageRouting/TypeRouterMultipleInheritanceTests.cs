@@ -29,7 +29,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("dst");
 			router.Link("Example.Types.IMsg", "dst");
 
-			router.Send("Example.Types.IFile", null, "Hello");
+			router.Send("Example.Types.IFile", null, null, "Hello");
 
 			Assert.That(router.GetAndFinish("dst", out _), Is.EqualTo("Hello"));
 			Assert.That(router.GetAndFinish("dst", out _), Is.Null);

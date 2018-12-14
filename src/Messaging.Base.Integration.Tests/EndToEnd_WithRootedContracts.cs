@@ -23,6 +23,7 @@ namespace Messaging.Base.Integration.Tests
                 .WithDefaults()
                 .WithContractRoot<IMsg>()
                 .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings())
+                .WithApplicationGroupName("app-group-name")
                 .GetMessagingBase();
 
             testMessage = new SuperMetadata
@@ -70,6 +71,18 @@ namespace Messaging.Base.Integration.Tests
                 "Example.Types.IMsg"));
         }
 		
+        [Test]
+        public void configured_sender_name_is_returned_with_message ()
+        {
+            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.SendMessage(testMessage);
+
+            var message = messaging.TryStartMessage<IMsg>("Test_Destination");
+
+            Assert.That(message, Is.Not.Null);
+            Console.WriteLine(message.Properties.OriginalType);
+            Assert.That(message.Properties.SenderName, Is.EqualTo("app-group-name"));
+        }
 
         [Test]
         public void Should_be_able_to_send_and_receive_messages_using_prepare_message_intermediates()

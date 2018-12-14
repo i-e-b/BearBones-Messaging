@@ -32,7 +32,7 @@ namespace Messaging.Base.Unit.Tests
 			serialiser = Substitute.For<IMessageSerialiser>();
 			serialiser.Serialise(metadataMessage, out typeDescription).Returns(serialisedObject);
 
-			messaging = new MessagingBase(typeRouter, messageRouter, serialiser);
+			messaging = new MessagingBase(typeRouter, messageRouter, serialiser, "test");
 			messaging.ResetCaches();
 			messaging.SendMessage(metadataMessage);
 		}
@@ -55,13 +55,6 @@ namespace Messaging.Base.Unit.Tests
 		{
 			var ex = Assert.Throws<ArgumentException>(() => messaging.SendMessage(badMessage));
 			Assert.That(ex.Message, Contains.Substring("Messages must directly implement exactly one interface"));
-		}
-
-		[Test]
-		public void Should_send_a_message_to_source()
-		{
-			var source = typeof (IMetadataFile).FullName;
-			messageRouter.Received().Send(source, typeDescription, serialisedObject);
 		}
 	}
 
