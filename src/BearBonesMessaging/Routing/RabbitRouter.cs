@@ -149,15 +149,19 @@ namespace BearBonesMessaging.Routing
         /// <summary>
         /// Get a message from a destination. This removes the message from the destination
         /// </summary>
-        public string Get(string destinationName, out ulong deliveryTag)
+        public string Get(string destinationName, out MessageProperties properties)
 		{
 			var result = _longTermConnection.GetWithChannel(channel => channel?.BasicGet(destinationName, false));
 			if (result == null)
 			{
-				deliveryTag = 0UL;
+				properties = default(MessageProperties);
 				return null;
 			}
-			deliveryTag = result.DeliveryTag;
+
+            properties.DeliveryTag = result.DeliveryTag;
+            properties.OriginalType = result.BasicProperties?.Type;
+            properties.Exchange = result.Exchange;
+            properties.CorrelationId = result.BasicProperties?.CorrelationId;
 
             if (result.Body == null) return null;
 			return Encoding.UTF8.GetString(result.Body);
@@ -178,9 +182,8 @@ namespace BearBonesMessaging.Routing
 		/// </summary>
 		public string GetAndFinish(string destinationName)
 		{
-			ulong tag;
-			var str = Get(destinationName, out tag);
-			if (str != null) Finish(tag);
+			var str = Get(destinationName, out var info);
+			if (str != null) Finish(info.DeliveryTag);
 			return str;
 		}
 

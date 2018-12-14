@@ -8,19 +8,21 @@ namespace BearBonesMessaging.Routing
 	/// </summary>
 	public class PendingMessage<T> : IPendingMessage<T>
 	{
-		IMessageRouter _router;
-		readonly ulong _deliveryTag;
+		volatile IMessageRouter _router;
+
+        /// <summary>
+        /// Message properties
+        /// </summary>
+		public readonly MessageProperties Properties;
 
 		/// <summary>
 		/// Wrap a message object and delivery tag as a PendingMessage
 		/// </summary>
-		public PendingMessage(IMessageRouter router, T message, ulong deliveryTag)
+		public PendingMessage(IMessageRouter router, T message, MessageProperties properties)
 		{
-			if (router == null) throw new ArgumentException("Must supply a valid router.", "router");
-
-			Message = message;
-			_router = router;
-			_deliveryTag = deliveryTag;
+            Message = message;
+			_router = router ?? throw new ArgumentException("Must supply a valid router.", "router");
+            Properties = properties;
 			Cancel = DoCancel;
 			Finish = DoFinish;
 		}
@@ -29,14 +31,14 @@ namespace BearBonesMessaging.Routing
 		{
 			var router = Interlocked.Exchange(ref _router, null);
 			if (router == null) return;
-			router.Cancel(_deliveryTag);
+			router.Cancel(Properties.DeliveryTag);
 		}
 
 		void DoFinish()
 		{
 			var router = Interlocked.Exchange(ref _router, null);
 			if (router == null) return;
-			router.Finish(_deliveryTag);
+			router.Finish(Properties.DeliveryTag);
 		}
 
 		/// <summary>Message on queue</summary>

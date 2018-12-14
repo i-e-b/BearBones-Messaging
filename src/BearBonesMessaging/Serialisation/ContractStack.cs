@@ -16,7 +16,7 @@ namespace BearBonesMessaging.Serialisation
 		public static Type FirstKnownType(string message)
 		{
 			if (string.IsNullOrEmpty(message)) return null;
-			var ord = StringComparison.Ordinal;
+			const StringComparison ord = StringComparison.Ordinal;
 
 
 			int left = message.IndexOf(Marker, ord) + Marker.Length;
@@ -31,7 +31,7 @@ namespace BearBonesMessaging.Serialisation
 				if (t != null) return t;
 
 				left = right + 1;
-				while (Char.IsWhiteSpace(message[left]))
+				while (char.IsWhiteSpace(message[left]))
 				{
 					left++;
 				}

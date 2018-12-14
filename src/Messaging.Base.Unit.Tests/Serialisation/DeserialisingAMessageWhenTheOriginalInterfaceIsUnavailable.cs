@@ -2,6 +2,7 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -30,11 +31,12 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 
 
 		[Test]
-		public void Should_return_null ()
+		public void Should_return_nearest_available_type ()
 		{
-			var result = subject.Deserialise<IMetadataFile>(message);
+			var result = subject.DeserialiseByStack(message);
+            var baseType = result as IFile;
 
-			Assert.That(result, Is.Null);
+			Assert.That(baseType, Is.Not.Null, "Expected the base file type, but didn't get it -- was "+result.GetType());
 		}
 	}
 }

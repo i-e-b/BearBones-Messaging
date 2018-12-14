@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
-using ServiceStack.Text;
 using SevenDigital.Messaging.Base;
+using SkinnyJson;
 
 namespace BearBonesMessaging.Serialisation
 {
@@ -21,16 +21,14 @@ namespace BearBonesMessaging.Serialisation
 			if ( interfaces == null || ! interfaces.HasSingle())
 				throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 
-			JsConfig.PreferInterfaces = true;
-			var str = JsonSerializer.SerializeToString(messageObject, interfaces.Single());
+			var str = Json.Freeze(messageObject);
 			return str?.Insert(str.Length - 1, ",\"__contracts\":\""+InterfaceStack.Of(messageObject)+"\"");
 		}
 
 		///<summary>Return an object of a known type based on it's JSON representation</summary>
 		public T Deserialise<T>(string source)
 		{
-			JsConfig.PreferInterfaces = true;
-			return JsonSerializer.DeserializeFromString<T>(source);
+			return Json.Defrost<T>(source);
 		}
 
 		///<summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
@@ -40,7 +38,10 @@ namespace BearBonesMessaging.Serialisation
 			if (bestKnownType == null) 
 				throw new Exception("Can't deserialise message, as no matching types are available. Are you missing an assembly reference?");
 
-			return JsonSerializer.DeserializeFromString(source, WrapperTypeFor(bestKnownType));
+			return Json.Defrost(source, bestKnownType); 
+                
+                //null; //TODO!!! use better basic properties support
+                //Json.Defrost(source, WrapperTypeFor(bestKnownType));
 		}
 
 		/// <summary>

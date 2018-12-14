@@ -45,7 +45,7 @@ namespace BearBonesMessaging.Routing
 		/// you use 'Finish' to complete a message and remove from the queue, or 'Cancel'
 		/// to release the message back to the queue.
 		/// </summary>
-		string Get(string destinationName, out ulong deliveryTag);
+		string Get(string destinationName, out MessageProperties properties);
 
 		/// <summary>
 		/// Finish a message retrieved by 'Get'.

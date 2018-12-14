@@ -27,7 +27,7 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// List all Destination queue in the given virtual host.
 		/// Equivalent to /api/queues/vhost
 		/// </summary>
-		RMQueue[] ListDestinations();
+		IRMQueue[] ListDestinations();
 
 		/// <summary>
 		/// List all nodes attached to the cluster.

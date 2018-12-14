@@ -2,6 +2,7 @@
 using Example.Types;
 using Messaging.Base.Integration.Tests.Helpers;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests.MessageRouting
 {
@@ -29,40 +30,37 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void cant_get_a_message_twice_even_if_its_not_finished()
 		{
-			ulong tag1, tag2;
-			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
-			Assert.That(subject.Get("dst", out tag2), Is.Null);
+			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
+			Assert.That(subject.Get("dst", out var tag2), Is.Null);
 
-			subject.Finish(tag1);
+			subject.Finish(tag1.DeliveryTag);
 		}
 
 		[Test]
 		public void can_cancel_a_message_making_it_available_again()
 		{
-			ulong tag1, tag2;
-			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
-			Assert.That(subject.Get("dst", out tag2), Is.Null);
+			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
+			Assert.That(subject.Get("dst", out _), Is.Null);
 
-			subject.Cancel(tag1);
-			Assert.That(subject.Get("dst", out tag2), Is.EqualTo("Hello"));
+			subject.Cancel(tag1.DeliveryTag);
+			Assert.That(subject.Get("dst", out var tag2), Is.EqualTo("Hello"));
 
-			subject.Finish(tag2);
+			subject.Finish(tag2.DeliveryTag);
 		}
 
 		[Test]
 		public void cancelled_messages_return_to_the_head_of_the_queue()
 		{
 
-			ulong tag1, tag2;
-			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
+			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
 			subject.Send("Example.Types.IFile", "SecondMessage");
 
-			subject.Cancel(tag1);
+			subject.Cancel(tag1.DeliveryTag);
 			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
-			Assert.That(subject.Get("dst", out tag2), Is.EqualTo("SecondMessage"));
+			Assert.That(subject.Get("dst", out var tag2), Is.EqualTo("SecondMessage"));
 
-			subject.Finish(tag1);
-			subject.Finish(tag2);
+			subject.Finish(tag1.DeliveryTag);
+			subject.Finish(tag2.DeliveryTag);
 		}
 
 
@@ -71,12 +69,11 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		{
 			subject.Send("Example.Types.IFile", "SecondMessage");
 
-			ulong tag1, tag2;
-			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
-			Assert.That(subject.Get("dst", out tag2), Is.EqualTo("SecondMessage"));
+			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
+			Assert.That(subject.Get("dst", out var tag2), Is.EqualTo("SecondMessage"));
 
-			subject.Finish(tag1);
-			subject.Finish(tag2);
+			subject.Finish(tag1.DeliveryTag);
+			subject.Finish(tag2.DeliveryTag);
 		}
 	}
 }

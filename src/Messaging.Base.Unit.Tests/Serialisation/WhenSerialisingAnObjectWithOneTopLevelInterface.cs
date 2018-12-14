@@ -2,6 +2,8 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+using SkinnyJson;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -25,13 +27,15 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 				MetadataName = "Mind the gap"
 			};
 
+            Json.DefaultParameters.UseFastGuid = false; // just to make the test easier
+
 			subject = new MessageSerialiser();
 			result = subject.Serialise(source);
 			Console.WriteLine(result);
 		}
 
 		[Test]
-		[TestCase("CorrelationId", "05c90feb5c1041799fc0d26dda5fd1c6")]
+		[TestCase("CorrelationId", "05c90feb-5c10-4179-9fc0-d26dda5fd1c6")]
 		[TestCase("Contents", "My message contents")]
 		[TestCase("FilePath", @"C:\\work\\message")]
 		[TestCase("MetadataName", "Mind the gap")]
@@ -51,12 +55,6 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		public void Should_serialise_int_values_without_quotes()
 		{
 			Assert.That(result, Contains.Substring("\"HashValue\":123124512"));
-		}
-
-		[Test]
-		public void Should_include_directly_implemented_interface_type ()
-		{
-			Assert.That(result, Contains.Substring("\"__type\":\"Example.Types.IMetadataFile"));
 		}
 	}
 }

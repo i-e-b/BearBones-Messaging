@@ -5,6 +5,7 @@ using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests
 {
@@ -31,16 +32,14 @@ namespace Messaging.Base.Unit.Tests
 		[Test]
 		public void Should_get_message_string_from_endpoint ()
 		{
-			ulong dummy;
 			messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
-			messageRouter.Received().Get("MyServiceDestination", out dummy);
+			messageRouter.Received().Get("MyServiceDestination", out _);
 		}
 
 		[Test]
 		public void When_there_is_no_message_should_return_null ()
 		{
-			ulong dummy;
-			messageRouter.Get("MyServiceDestination", out dummy).Returns((string)null);
+			messageRouter.Get("MyServiceDestination", out _).Returns((string)null);
 			var result = messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
 
 			Assert.That(result, Is.Null);
@@ -49,8 +48,7 @@ namespace Messaging.Base.Unit.Tests
 		[Test]
 		public void When_a_message_is_available_should_deserialise_and_return_requested_type ()
 		{
-			ulong dummy;
-			messageRouter.Get("MyServiceDestination", out dummy).Returns("");
+			messageRouter.Get("MyServiceDestination", out _).Returns("");
 			serialiser.DeserialiseByStack("").Returns(new SuperMetadata());
 			var result = messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
 
@@ -60,9 +58,8 @@ namespace Messaging.Base.Unit.Tests
 		[Test]
 		public void When_a_message_is_available_should_deserialise_and_return_requested_type_using_old_message_format ()
 		{
-			ulong dummy;
-			messageRouter.Get("MyServiceDestination", out dummy).Returns("");
-			serialiser.DeserialiseByStack("").Returns(c => { throw new Exception(); });
+			messageRouter.Get("MyServiceDestination", out _).Returns("");
+			serialiser.DeserialiseByStack("").Returns(c => throw new Exception());
 			serialiser.Deserialise<IMetadataFile>("").Returns(new SuperMetadata());
 			var result = messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
 

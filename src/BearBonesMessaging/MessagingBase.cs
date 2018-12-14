@@ -86,6 +86,11 @@ namespace BearBonesMessaging
 
 		/// <summary>
 		/// Poll for a waiting message. Returns default(T) if no message.
+		/// <para></para>
+		/// IMPORTANT: this will immediately remove the message from the broker queue.
+		/// Use this only for non-critical transient messages.
+		/// <para></para>
+		/// For important messages, use `TryStartMessage`
 		/// </summary>
 		public T GetMessage<T>(string destinationName)
 		{
@@ -109,8 +114,7 @@ namespace BearBonesMessaging
 		/// </summary>
 		public IPendingMessage<T> TryStartMessage<T>(string destinationName)
 		{
-			ulong deliveryTag;
-			var messageString = messageRouter.Get(destinationName, out deliveryTag);
+			var messageString = messageRouter.Get(destinationName, out var properties);
 
 			if (messageString == null) return null;
 
@@ -124,7 +128,7 @@ namespace BearBonesMessaging
 				message = serialiser.Deserialise<T>(messageString);
 			}
 
-			return new PendingMessage<T>(messageRouter, message, deliveryTag);
+			return new PendingMessage<T>(messageRouter, message, properties);
 		}
 
 		void RouteSource([NotNull] Type routeType)

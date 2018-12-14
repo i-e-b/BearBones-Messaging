@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 using JetBrains.Annotations;
-using ServiceStack.Text;
+using SkinnyJson;
 
 namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 {
@@ -14,17 +14,17 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// <summary>
 		/// RabbitMQ cluster's management uri
 		/// </summary>
-		public Uri HostUri { get; private set; }
+		public Uri HostUri { get; }
 
 		/// <summary>
 		/// Virtual host to use, where applicable
 		/// </summary>
-		public string VirtualHost { get; private set; }
+		public string VirtualHost { get; }
 
 		/// <summary>
 		/// Log-in credentials for RabbitMQ management API
 		/// </summary>
-		public NetworkCredential Credentials { get; private set; }
+		public NetworkCredential Credentials { get; }
 
 		/// <summary>
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
@@ -52,9 +52,10 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// List all Destination queue in the given virtual host.
 		/// Equivalent to /api/queues/vhost
 		/// </summary>
-		public RMQueue[] ListDestinations()
+		public IRMQueue[] ListDestinations()
 		{
-			return JsonSerializer.DeserializeFromString<RMQueue[]>(Get("/api/queues" + VirtualHost));
+            var raw = Get("/api/queues" + VirtualHost);
+			return Json.Defrost<IRMQueue[]>(raw);
 		}
 
 		/// <summary>
@@ -63,7 +64,7 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// </summary>
 		public RMNode[] ListNodes()
 		{
-			return JsonSerializer.DeserializeFromString<RMNode[]>(Get("/api/nodes"));
+			return Json.Defrost<RMNode[]>(Get("/api/nodes"));
 		}
 
 		/// <summary>
@@ -72,7 +73,7 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// </summary>
 		public RMExchange[] ListSources()
 		{
-			return JsonSerializer.DeserializeFromString<RMExchange[]>(Get("/api/exchanges" + VirtualHost));
+			return Json.Defrost<RMExchange[]>(Get("/api/exchanges" + VirtualHost));
 		}
 
 		string Get(string endpoint)
