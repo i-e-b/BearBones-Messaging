@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using BearBonesMessaging.RabbitMq;
 using BearBonesMessaging.RabbitMq.RabbitMqManagement;
 using BearBonesMessaging.Routing;
 using BearBonesMessaging.Serialisation;
-using StructureMap;
+using JetBrains.Annotations;
 
 namespace BearBonesMessaging
 {
@@ -13,40 +14,60 @@ namespace BearBonesMessaging
 	public class MessagingBaseConfiguration
 	{
 		IRabbitMqConnection configuredConnection;
+        [NotNull] readonly Dictionary<Type, Func<object>> _typeMap;
+        private IMessageRouter _rabbitRouterSingleton;
+        private IChannelAction _longConnectionSingleton;
 
-		/// <summary>
-		/// Configure all default mappings in structure map.
-		/// You must also call a `WithConnection...` method to get a
-		/// working system.
-		/// </summary>
-		public MessagingBaseConfiguration WithDefaults()
+        /// <summary>
+        /// The most recently created messaging configuration
+        /// </summary>
+        [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
+
+        /// <summary>
+        /// Create a new configuration object
+        /// </summary>
+        public MessagingBaseConfiguration()
+        {
+            _typeMap = new Dictionary<Type, Func<object>>();
+            LastConfiguration = this;
+        }
+
+        /// <summary>
+        /// Configure all default mappings in structure map.
+        /// You must also call a `WithConnection...` method to get a
+        /// working system.
+        /// </summary>
+        public MessagingBaseConfiguration WithDefaults()
 		{
-            // ReSharper disable PossibleNullReferenceException
-			ObjectFactory.Configure(map =>
-			{
-                if (map == null) throw new Exception("StructureMap configuration failure");
+            Set<IMessageSerialiser>(() => new MessageSerialiser());
+            Set<ITypeRouter>(() => new TypeRouter(Get<IMessageRouter>()));
+            Set<IMessagingBase>(() => new MessagingBase(Get<ITypeRouter>(), Get<IMessageRouter>(), Get<IMessageSerialiser>()));
 
-				map.For<IMessageSerialiser>().Use<MessageSerialiser>();
-				map.For<ITypeRouter>().Use<TypeRouter>();
-				map.For<IMessagingBase>().Use<MessagingBase>();
-
-				map.For<IMessageRouter>().Singleton().Use<RabbitRouter>();
-				map.For<IChannelAction>().Singleton().Use<LongTermRabbitConnection>();
-			});
-            // ReSharper restore PossibleNullReferenceException
+            Set<IMessageRouter>(GetRabbitRouterSingleton);
+            Set<IChannelAction>(GetChannelActionSingleton);
 
 			return this;
 		}
 
-		/// <summary>
+        private IChannelAction GetChannelActionSingleton()
+        {
+            if (_longConnectionSingleton == null) _longConnectionSingleton = new LongTermRabbitConnection(Get<IRabbitMqConnection>());
+            return _longConnectionSingleton;
+        }
+
+        private IMessageRouter GetRabbitRouterSingleton()
+        {
+            if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new RabbitRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
+            return _rabbitRouterSingleton;
+        }
+
+        /// <summary>
 		/// Configure long and short term connections to use the specified connection details
 		/// </summary>
 		public MessagingBaseConfiguration WithConnection(IRabbitMqConnection connection)
 		{
 			configuredConnection = connection;
-            // ReSharper disable PossibleNullReferenceException
-			ObjectFactory.Configure(map => map.For<IRabbitMqConnection>().Use(() => configuredConnection));
-            // ReSharper restore PossibleNullReferenceException
+            Set<IRabbitMqConnection>(() => configuredConnection);
 			return this;
 		}
 
@@ -55,11 +76,31 @@ namespace BearBonesMessaging
 		/// </summary>
 		public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
 		{
-            // ReSharper disable PossibleNullReferenceException
-            ObjectFactory.Configure(map => map.For<IRabbitMqQuery>().Use(() =>
-                new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)));
-            // ReSharper restore PossibleNullReferenceException
+            Set<IRabbitMqQuery>(() =>
+                new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)
+            );
             return this;
 		}
-	}
+
+        private void Set<T>([NotNull]Func<object> constructor)
+        {
+            if (_typeMap.ContainsKey(typeof(T)))
+            { // overwrite
+                _typeMap[typeof(T)] = constructor;
+                return;
+            }
+
+            _typeMap.Add(typeof(T), constructor);
+        }
+
+        /// <summary>
+        /// Get the configured concrete type for an interface
+        /// </summary>
+        public T Get<T>()
+        {
+            if (!_typeMap.ContainsKey(typeof(T))) throw new Exception("No constructor for " + typeof(T).Name);
+
+            return (T)_typeMap[typeof(T)]?.Invoke();
+        }
+    }
 }

@@ -6,7 +6,6 @@ using BearBonesMessaging.Routing;
 using BearBonesMessaging.Serialisation;
 using JetBrains.Annotations;
 using SevenDigital.Messaging.Base;
-using StructureMap;
 
 namespace BearBonesMessaging
 {
@@ -29,7 +28,7 @@ namespace BearBonesMessaging
 			this.typeRouter = typeRouter ?? throw new ArgumentNullException(nameof(typeRouter));
 			this.messageRouter = messageRouter ?? throw new ArgumentNullException(nameof(messageRouter));
 			this.serialiser = serialiser ?? throw new ArgumentNullException(nameof(serialiser));
-		}
+        }
 
 		/// <summary>
 		/// Get the contract name of an object instance
@@ -188,7 +187,7 @@ namespace BearBonesMessaging
 			{
 				RouteCache.Clear();
 			}
-			var channelAction = ObjectFactory.TryGetInstance<IChannelAction>();
+			var channelAction = MessagingBaseConfiguration.LastConfiguration?.Get<IChannelAction>();
 			if (channelAction is LongTermRabbitConnection connection)
 			{
 				connection.Reset();

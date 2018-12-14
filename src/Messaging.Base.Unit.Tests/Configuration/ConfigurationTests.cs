@@ -4,24 +4,25 @@ using BearBonesMessaging.Routing;
 using BearBonesMessaging.Serialisation;
 using NSubstitute;
 using NUnit.Framework;
-using StructureMap;
 
 namespace Messaging.Base.Unit.Tests.Configuration
 {
 	[TestFixture]
 	public class ConfigurationTests
 	{
-		[SetUp]
+        private MessagingBaseConfiguration _config;
+
+        [SetUp]
 		public void A_configured_messaging_base ()
 		{
-			new MessagingBaseConfiguration().WithDefaults().WithConnection(Substitute.For<IRabbitMqConnection>());
+			_config = new MessagingBaseConfiguration().WithDefaults().WithConnection(Substitute.For<IRabbitMqConnection>());
 		}
 
 		[Test]
 		public void Should_have_message_serialiser ()
 		{
 			Assert.That(
-				ObjectFactory.GetInstance<IMessageSerialiser>(),
+                _config.Get<IMessageSerialiser>(),
 				Is.InstanceOf<MessageSerialiser>());
 		}
 
@@ -29,7 +30,7 @@ namespace Messaging.Base.Unit.Tests.Configuration
 		public void Should_have_rabbitmq_message_router ()
 		{
 			Assert.That(
-				ObjectFactory.GetInstance<IMessageRouter>(),
+                _config.Get<IMessageRouter>(),
 				Is.InstanceOf<RabbitRouter>());
 		}
 
@@ -37,7 +38,7 @@ namespace Messaging.Base.Unit.Tests.Configuration
 		public void Should_have_type_structure_router ()
 		{
 			Assert.That(
-				ObjectFactory.GetInstance<ITypeRouter>(),
+                _config.Get<ITypeRouter>(),
 				Is.InstanceOf<TypeRouter>());
 		}
 
@@ -45,15 +46,15 @@ namespace Messaging.Base.Unit.Tests.Configuration
 		public void Should_have_messaging_base ()
 		{
 			Assert.That(
-				ObjectFactory.GetInstance<IMessagingBase>(),
+                _config.Get<IMessagingBase>(),
 				Is.InstanceOf<MessagingBase>());
 		}
 
 		[Test]
 		public void Should_have_long_term_connection_as_singleton ()
 		{
-			var instance1 = ObjectFactory.GetInstance<IChannelAction>();
-			var instance2 = ObjectFactory.GetInstance<IChannelAction>();
+			var instance1 = _config.Get<IChannelAction>();
+			var instance2 = _config.Get<IChannelAction>();
 
 			Assert.That(instance1, Is.InstanceOf<LongTermRabbitConnection>());
 			Assert.That(instance1, Is.SameAs(instance2));

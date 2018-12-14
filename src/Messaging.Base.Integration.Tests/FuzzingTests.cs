@@ -4,7 +4,6 @@ using BearBonesMessaging;
 using BearBonesMessaging.RabbitMq;
 using Messaging.Base.Integration.Tests.Helpers;
 using NUnit.Framework;
-using StructureMap;
 // ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests
@@ -17,11 +16,11 @@ namespace Messaging.Base.Integration.Tests
 		[SetUp]
 		public void setup()
 		{
-			new MessagingBaseConfiguration()
+			var config = new MessagingBaseConfiguration()
 				.WithDefaults()
 				.WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
-			_conn = ObjectFactory.GetInstance<IChannelAction>();
+			_conn = config.Get<IChannelAction>();
 		}
 
 		[TearDown]

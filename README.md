@@ -9,9 +9,9 @@ Short-term tasks
 ----------------
 
 * [x] Remove ServiceStack (it has gone proprietary)
-* [ ] Remove StructureMap
+* [x] Remove StructureMap
 * [ ] Move contract stack out of message body into BasicProperties
-
+* [ ] New NuGet package
 
 Possible future features
 ------------------------
