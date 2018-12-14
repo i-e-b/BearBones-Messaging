@@ -13,12 +13,12 @@ namespace BearBonesMessaging.Routing
         /// <summary>
         /// Message properties
         /// </summary>
-		public readonly MessageProperties Properties;
+		public MessageProperties Properties { get; }
 
-		/// <summary>
-		/// Wrap a message object and delivery tag as a PendingMessage
-		/// </summary>
-		public PendingMessage(IMessageRouter router, T message, MessageProperties properties)
+        /// <summary>
+        /// Wrap a message object and delivery tag as a PendingMessage
+        /// </summary>
+        public PendingMessage(IMessageRouter router, T message, MessageProperties properties)
 		{
             Message = message;
 			_router = router ?? throw new ArgumentException("Must supply a valid router.", "router");

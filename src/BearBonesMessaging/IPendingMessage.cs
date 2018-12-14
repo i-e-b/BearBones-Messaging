@@ -1,4 +1,5 @@
 using System;
+using BearBonesMessaging.Routing;
 
 namespace BearBonesMessaging
 {
@@ -16,5 +17,10 @@ namespace BearBonesMessaging
 
 		/// <summary>Action to complete message and remove from queue</summary>
 		Action Finish { get; }
+        
+        /// <summary>
+        /// Message properties
+        /// </summary>
+        MessageProperties Properties { get; }
 	}
 }

@@ -13,7 +13,7 @@ namespace BearBonesMessaging.Serialisation
 	public class MessageSerialiser : IMessageSerialiser
 	{
 		///<summary>Return a JSON string representing a source object</summary>
-		public string Serialise(object messageObject)
+		public string Serialise(object messageObject, out string typeDescription)
 		{
             if (messageObject == null) throw new ArgumentNullException(nameof(messageObject));
 			var type = messageObject.GetType();
@@ -21,8 +21,8 @@ namespace BearBonesMessaging.Serialisation
 			if ( interfaces == null || ! interfaces.HasSingle())
 				throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 
-			var str = Json.Freeze(messageObject);
-			return str?.Insert(str.Length - 1, ",\"__contracts\":\""+InterfaceStack.Of(messageObject)+"\"");
+            typeDescription = InterfaceStack.Of(messageObject);
+			return Json.Freeze(messageObject);
 		}
 
 		///<summary>Return an object of a known type based on it's JSON representation</summary>
@@ -32,16 +32,13 @@ namespace BearBonesMessaging.Serialisation
 		}
 
 		///<summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
-		public object DeserialiseByStack(string source)
+		public object DeserialiseByStack(string source, string typeDescription)
 		{
-			var bestKnownType = ContractStack.FirstKnownType(source);
+			var bestKnownType = ContractStack.FirstKnownType(typeDescription);
 			if (bestKnownType == null) 
 				throw new Exception("Can't deserialise message, as no matching types are available. Are you missing an assembly reference?");
 
 			return Json.Defrost(source, bestKnownType); 
-                
-                //null; //TODO!!! use better basic properties support
-                //Json.Defrost(source, WrapperTypeFor(bestKnownType));
 		}
 
 		/// <summary>

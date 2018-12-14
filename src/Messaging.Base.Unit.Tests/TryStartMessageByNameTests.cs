@@ -49,7 +49,7 @@ namespace Messaging.Base.Unit.Tests
 		public void When_a_message_is_available_should_deserialise_and_return_requested_type ()
 		{
 			messageRouter.Get("MyServiceDestination", out _).Returns("");
-			serialiser.DeserialiseByStack("").Returns(new SuperMetadata());
+			serialiser.DeserialiseByStack("", "").Returns(new SuperMetadata());
 			var result = messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
 
 			Assert.That(result, Is.InstanceOf<IPendingMessage<IMetadataFile>>());
@@ -59,7 +59,7 @@ namespace Messaging.Base.Unit.Tests
 		public void When_a_message_is_available_should_deserialise_and_return_requested_type_using_old_message_format ()
 		{
 			messageRouter.Get("MyServiceDestination", out _).Returns("");
-			serialiser.DeserialiseByStack("").Returns(c => throw new Exception());
+			serialiser.DeserialiseByStack("", "").Returns(c => throw new Exception());
 			serialiser.Deserialise<IMetadataFile>("").Returns(new SuperMetadata());
 			var result = messaging.TryStartMessage<IMetadataFile>("MyServiceDestination");
 

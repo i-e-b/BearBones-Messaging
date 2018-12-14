@@ -5,6 +5,7 @@ using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests
 {
@@ -17,7 +18,8 @@ namespace Messaging.Base.Unit.Tests
 		SuperMetadata metadataMessage;
 		object badMessage;
 		IMessagingBase messaging;
-		private const string serialisedObject = "serialised object";
+        string typeDescription;
+        const string serialisedObject = "serialised object";
 
 		[SetUp]
 		public void When_setting_up_a_named_destination ()
@@ -28,7 +30,7 @@ namespace Messaging.Base.Unit.Tests
 			typeRouter = Substitute.For<ITypeRouter>();
 			messageRouter = Substitute.For<IMessageRouter>();
 			serialiser = Substitute.For<IMessageSerialiser>();
-			serialiser.Serialise(metadataMessage).Returns(serialisedObject);
+			serialiser.Serialise(metadataMessage, out typeDescription).Returns(serialisedObject);
 
 			messaging = new MessagingBase(typeRouter, messageRouter, serialiser);
 			messaging.ResetCaches();
@@ -45,7 +47,7 @@ namespace Messaging.Base.Unit.Tests
 		[Test]
 		public void Should_serialise_the_message()
 		{
-			serialiser.Received().Serialise(metadataMessage);
+			serialiser.Received().Serialise(metadataMessage, out _);
 		}
 
 		[Test]
@@ -59,7 +61,7 @@ namespace Messaging.Base.Unit.Tests
 		public void Should_send_a_message_to_source()
 		{
 			var source = typeof (IMetadataFile).FullName;
-			messageRouter.Received().Send(source, serialisedObject);
+			messageRouter.Received().Send(source, typeDescription, serialisedObject);
 		}
 	}
 

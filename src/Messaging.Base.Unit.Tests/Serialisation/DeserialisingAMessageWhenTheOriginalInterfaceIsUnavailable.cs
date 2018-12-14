@@ -12,8 +12,9 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		IMessageSerialiser subject;
 		string message;
 		SuperMetadata originalObject;
+        string contract;
 
-		[SetUp]
+        [SetUp]
 		public void SetUp()
 		{
 			subject = new MessageSerialiser();
@@ -25,18 +26,21 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 					HashValue = 123124512,
 					MetadataName = "Mind the gap"
 				};
-			message = subject.Serialise(originalObject).Replace("Example.Types.IMetadataFile, Example.Types", "Pauls.IMum, Phils.Face");
-			Console.WriteLine(message);
+			message = subject.Serialise(originalObject, out contract);
+            contract = contract.Replace("Example.Types.IMetadataFile, Example.Types", "Pauls.IMum, Phils.Face");
+
+            Console.WriteLine(message);
+            Console.WriteLine(contract);
 		}
 
 
 		[Test]
 		public void Should_return_nearest_available_type ()
 		{
-			var result = subject.DeserialiseByStack(message);
+			var result = subject.DeserialiseByStack(message, contract);
             var baseType = result as IFile;
 
-			Assert.That(baseType, Is.Not.Null, "Expected the base file type, but didn't get it -- was "+result.GetType());
-		}
-	}
+            Assert.That(baseType, Is.Not.Null, "Expected the base file type, but didn't get it -- was " + result.GetType());
+        }
+    }
 }

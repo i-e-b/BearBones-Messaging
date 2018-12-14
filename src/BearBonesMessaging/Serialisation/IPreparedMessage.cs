@@ -9,16 +9,21 @@ namespace BearBonesMessaging.Serialisation
 		/// Return a storable list of bytes representing the message
 		/// </summary>
 		byte[] ToBytes();
+        
+        /// <summary>
+        /// Routing type description for AMQP message basic properties 'type'
+        /// </summary>
+        string ContractType { get; }
 
-		/// <summary>
-		/// Return routable type name
-		/// </summary>
-		string TypeName();
+        /// <summary>
+        /// Return routable type name
+        /// </summary>
+        string TypeName { get; }
 
-		/// <summary>
-		/// Return serialised message string
-		/// </summary>
-		string SerialisedMessage();
+        /// <summary>
+        /// Return serialised message string
+        /// </summary>
+        string SerialisedMessage { get; }
 
 	}
 }

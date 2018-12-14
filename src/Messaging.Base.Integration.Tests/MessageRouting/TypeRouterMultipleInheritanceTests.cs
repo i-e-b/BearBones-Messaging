@@ -2,6 +2,7 @@
 using Example.Types;
 using Messaging.Base.Integration.Tests.Helpers;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests.MessageRouting
 {
@@ -28,10 +29,10 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("dst");
 			router.Link("Example.Types.IMsg", "dst");
 
-			router.Send("Example.Types.IFile", "Hello");
+			router.Send("Example.Types.IFile", null, "Hello");
 
-			Assert.That(router.GetAndFinish("dst"), Is.EqualTo("Hello"));
-			Assert.That(router.GetAndFinish("dst"), Is.Null);
+			Assert.That(router.GetAndFinish("dst", out _), Is.EqualTo("Hello"));
+			Assert.That(router.GetAndFinish("dst", out _), Is.Null);
 		}
 
 		[TearDown]

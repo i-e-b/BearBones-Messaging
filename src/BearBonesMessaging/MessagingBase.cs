@@ -93,13 +93,13 @@ namespace BearBonesMessaging
 		/// </summary>
 		public T GetMessage<T>(string destinationName)
 		{
-			var messageString = messageRouter.GetAndFinish(destinationName);
+			var messageString = messageRouter.GetAndFinish(destinationName, out var properties);
 
 			if (messageString == null) return default(T);
 
 			try
 			{
-				return (T)serialiser.DeserialiseByStack(messageString);
+				return (T)serialiser.DeserialiseByStack(messageString, properties.OriginalType);
 			}
 			catch
 			{
@@ -120,7 +120,7 @@ namespace BearBonesMessaging
 			T message;
 			try
 			{
-				message = (T)serialiser.DeserialiseByStack(messageString);
+				message = (T)serialiser.DeserialiseByStack(messageString, properties.OriginalType);
 			}
 			catch
 			{
@@ -165,10 +165,10 @@ namespace BearBonesMessaging
 				throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
 			
 			var sourceType = interfaceTypes.Single() ?? throw new ArgumentException("Messages must directly implement exactly one interface", "messageObject");
-			var serialised = serialiser.Serialise(messageObject);
+			var serialised = serialiser.Serialise(messageObject, out var contractType);
 
 			RouteSource(sourceType);
-			return new PreparedMessage(sourceType.FullName, serialised);
+			return new PreparedMessage(sourceType.FullName, serialised, contractType);
 		}
 
 		/// <summary>
@@ -178,7 +178,7 @@ namespace BearBonesMessaging
 		public void SendPrepared([NotNull] IPreparedMessage message)
 		{
             if (message == null) throw new ArgumentNullException(nameof(message));
-			messageRouter.Send(message.TypeName(), message.SerialisedMessage());
+			messageRouter.Send(message.TypeName, message.ContractType, message.SerialisedMessage);
 		}
 
 		internal static void InternalResetCaches()

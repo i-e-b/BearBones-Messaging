@@ -53,10 +53,10 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.Link("src", "dst");
 			router.Link("src", "dst");
 
-			router.Send("src", "Hello");
+			router.Send("src", null, "Hello");
 
-			Assert.That(router.GetAndFinish("dst"), Is.EqualTo("Hello"));
-			Assert.That(router.GetAndFinish("dst"), Is.Null);
+			Assert.That(router.GetAndFinish("dst", out _), Is.EqualTo("Hello"));
+			Assert.That(router.GetAndFinish("dst", out _), Is.Null);
 		}
 
 		[Test]
@@ -70,10 +70,10 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.RouteSources("srcA", "srcB");
 
 			router.Link("srcB", "dst");
-			router.Send("srcA", "Hello");
+			router.Send("srcA", null, "Hello");
 
-			Assert.That(router.GetAndFinish("dst"), Is.EqualTo("Hello"));
-			Assert.That(router.GetAndFinish("dst"), Is.Null);
+			Assert.That(router.GetAndFinish("dst", out _), Is.EqualTo("Hello"));
+			Assert.That(router.GetAndFinish("dst", out _), Is.Null);
 		}
 
 		[TearDown]

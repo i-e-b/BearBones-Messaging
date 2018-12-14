@@ -59,9 +59,9 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
-			router.Send("exchange_A", "Hello, world");
+			router.Send("exchange_A", null, "Hello, world");
 
-			var message = router.GetAndFinish("queue_A");
+			var message = router.GetAndFinish("queue_A", out _);
 			Assert.That(message, Is.EqualTo("Hello, world"));
 		}
 
@@ -71,7 +71,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddSource("src");
 			router.AddDestination("dst");
 			router.Link("src", "dst");
-			router.Send("src", "Hello, World");
+			router.Send("src", null, "Hello, World");
 
 			channelAction.WithChannel(channel => channel.BasicAck(0, true));
 
@@ -93,11 +93,11 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.Link("exchange", "queue_A");
 			router.Link("exchange", "queue_B");
 
-			router.Send("exchange", "Hello, World");
+			router.Send("exchange", null, "Hello, World");
 
 			
-			var message1 = router.GetAndFinish("queue_A");
-			var message2 = router.GetAndFinish("queue_B");
+			var message1 = router.GetAndFinish("queue_A", out _);
+			var message2 = router.GetAndFinish("queue_B", out _);
 
 			Assert.That(message1, Is.EqualTo("Hello, World"), "queue_A");
 			Assert.That(message2, Is.EqualTo("Hello, World"), "queue_B");
@@ -107,7 +107,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		public void Can_request_a_message_from_an_empty_destination ()
 		{
 			router.AddDestination("A");
-			var result = router.GetAndFinish("A");
+			var result = router.GetAndFinish("A", out _);
 
 			Assert.That(result, Is.Null);
 		}
@@ -119,15 +119,15 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
-			router.Send("exchange_A", "One");
-			router.Send("exchange_A", "Two");
-			router.Send("exchange_A", "Three");
-			router.Send("exchange_A", "Four");
+			router.Send("exchange_A", null, "One");
+			router.Send("exchange_A", null, "Two");
+			router.Send("exchange_A", null, "Three");
+			router.Send("exchange_A", null, "Four");
 
-			Assert.That(router.GetAndFinish("queue_A"), Is.EqualTo("One"));
-			Assert.That(router.GetAndFinish("queue_A"), Is.EqualTo("Two"));
-			Assert.That(router.GetAndFinish("queue_A"), Is.EqualTo("Three"));
-			Assert.That(router.GetAndFinish("queue_A"), Is.EqualTo("Four"));
+			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("One"));
+			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("Two"));
+			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("Three"));
+			Assert.That(router.GetAndFinish("queue_A", out _), Is.EqualTo("Four"));
 		}
 
 		[Test]
@@ -164,21 +164,21 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			router.Link("H2", "D2");
 			router.Link("B", "D3");
 
-			router.Send("B", "D3 gets this");
-			router.Send("H2", "D2, D1, D3 get this");
-			router.Send("N1", "D1, D3 get this");
+			router.Send("B", null, "D3 gets this");
+			router.Send("H2", null, "D2, D1, D3 get this");
+			router.Send("N1", null, "D1, D3 get this");
 
-			Assert.That(router.GetAndFinish("D3"), Is.EqualTo("D3 gets this"));
-			Assert.That(router.GetAndFinish("D3"), Is.EqualTo("D2, D1, D3 get this"));
-			Assert.That(router.GetAndFinish("D3"), Is.EqualTo("D1, D3 get this"));
-			Assert.That(router.GetAndFinish("D3"), Is.Null);
+			Assert.That(router.GetAndFinish("D3", out _), Is.EqualTo("D3 gets this"));
+			Assert.That(router.GetAndFinish("D3", out _), Is.EqualTo("D2, D1, D3 get this"));
+			Assert.That(router.GetAndFinish("D3", out _), Is.EqualTo("D1, D3 get this"));
+			Assert.That(router.GetAndFinish("D3", out _), Is.Null);
 
-			Assert.That(router.GetAndFinish("D2"), Is.EqualTo("D2, D1, D3 get this"));
-			Assert.That(router.GetAndFinish("D2"), Is.Null);
+			Assert.That(router.GetAndFinish("D2", out _), Is.EqualTo("D2, D1, D3 get this"));
+			Assert.That(router.GetAndFinish("D2", out _), Is.Null);
 
-			Assert.That(router.GetAndFinish("D1"), Is.EqualTo("D2, D1, D3 get this"));
-			Assert.That(router.GetAndFinish("D1"), Is.EqualTo("D1, D3 get this"));
-			Assert.That(router.GetAndFinish("D1"), Is.Null);
+			Assert.That(router.GetAndFinish("D1", out _), Is.EqualTo("D2, D1, D3 get this"));
+			Assert.That(router.GetAndFinish("D1", out _), Is.EqualTo("D1, D3 get this"));
+			Assert.That(router.GetAndFinish("D1", out _), Is.Null);
 		}
 
 		[Test, Explicit]
@@ -192,9 +192,9 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			int received = 0;
 			for (int i = 0; i < 1000; i++)
 			{
-				router.Send("A", "Woo");
+				router.Send("A", null, "Woo");
 			}
-			while (router.GetAndFinish("B") != null) received++;
+			while (router.GetAndFinish("B", out _) != null) received++;
 
 			var time = (DateTime.Now) - start;
 			Assert.That(received, Is.EqualTo(1000));
@@ -212,17 +212,17 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			int count = 200;
 			for (int i = 0; i < count; i++)
 			{
-				router.Send("A", "message");
+				router.Send("A", null, "message");
 			}
 
 			var A = new Thread(()=> {
-				while (router.GetAndFinish("B") != null) Interlocked.Increment(ref received[0]);
+				while (router.GetAndFinish("B", out _) != null) Interlocked.Increment(ref received[0]);
 			});
 			var B = new Thread(()=> {
-				while (router.GetAndFinish("B") != null) Interlocked.Increment(ref received[0]);
+				while (router.GetAndFinish("B", out _) != null) Interlocked.Increment(ref received[0]);
 			});
 			var C = new Thread(()=> {
-				while (router.GetAndFinish("B") != null) Interlocked.Increment(ref received[0]);
+				while (router.GetAndFinish("B", out _) != null) Interlocked.Increment(ref received[0]);
 			});
 
 			A.Start();

@@ -133,21 +133,22 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Send a message to an established source (will be routed to destinations by key)
 		/// </summary>
-		public void Send(string sourceName, string data)
+		public void Send(string sourceName, string typeDescription, string data)
 		{
             if (data == null) data = "";
 
             _longTermConnection.WithChannel(channel => channel?.BasicPublish(
                 exchange:        sourceName,
                 routingKey:      "",
-                mandatory:       false,
-                basicProperties: TaggedBasicProperties(sourceName),
+                mandatory:       false, // if true, there must be at least one routing output otherwise the send will error
+                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName),
                 body:            Encoding.UTF8.GetBytes(data))
             );
         }
 
         /// <summary>
-        /// Get a message from a destination. This removes the message from the destination
+        /// Get a message from a destination. This claims the message without removing it from the destination.
+        /// Ensure you use `Finish` on the result if you have processed the message
         /// </summary>
         public string Get(string destinationName, out MessageProperties properties)
 		{
@@ -180,10 +181,10 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Get a message from a destination, removing it from the queue
 		/// </summary>
-		public string GetAndFinish(string destinationName)
+		public string GetAndFinish(string destinationName, out MessageProperties properties)
 		{
-			var str = Get(destinationName, out var info);
-			if (str != null) Finish(info.DeliveryTag);
+			var str = Get(destinationName, out properties);
+			if (str != null) Finish(properties.DeliveryTag);
 			return str;
 		}
 
@@ -210,10 +211,10 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Basic properties object with default settings
 		/// </summary>
-		public IBasicProperties TaggedBasicProperties(string typeName)
+		public IBasicProperties TaggedBasicProperties(string contractTypeDescription)
 		{
 			return new BasicProperties{
-                Type = typeName
+                Type = contractTypeDescription
             };
 		}
 	}

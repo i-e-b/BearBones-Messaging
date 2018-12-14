@@ -2,6 +2,7 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -12,7 +13,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		string message;
 		SuperMetadata originalObject;
 
-		[SetUp]
+        [SetUp]
 		public void SetUp()
 		{
 			subject = new MessageSerialiser();
@@ -24,7 +25,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 					HashValue = 123124512,
 					MetadataName = "Mind the gap"
 				};
-			message = subject.Serialise(originalObject);
+			message = subject.Serialise(originalObject, out _);
 		}
 
 

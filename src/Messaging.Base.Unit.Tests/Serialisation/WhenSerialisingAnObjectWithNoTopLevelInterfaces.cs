@@ -2,6 +2,7 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -29,7 +30,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		public void Should_get_an_argument_exception()
 		{
 			var exception = Assert.Throws<ArgumentException>(
-				() => subject.Serialise(source));
+				() => subject.Serialise(source, out _));
 
 			Assert.That(exception.Message, Contains.Substring("Messages must directly implement exactly one interface"));
 		}

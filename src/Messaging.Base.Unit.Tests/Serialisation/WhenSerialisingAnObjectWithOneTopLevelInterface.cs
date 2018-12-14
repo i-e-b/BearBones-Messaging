@@ -14,8 +14,9 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 
 		static SuperMetadata source;
 		string result;
+        private string typeDescription;
 
-		[SetUp]
+        [SetUp]
 		public void With_string_serialised_from_a_source_object()
 		{
 			source = new SuperMetadata
@@ -30,7 +31,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
             Json.DefaultParameters.UseFastGuid = false; // just to make the test easier
 
 			subject = new MessageSerialiser();
-			result = subject.Serialise(source);
+			result = subject.Serialise(source, out typeDescription);
 			Console.WriteLine(result);
 		}
 
@@ -48,7 +49,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		public void Should_store_interface_stack_in_order_in_message ()
 		{
 			var contracts = InterfaceStack.Of(source);
-			Assert.That(result, Contains.Substring("\"__contracts\":\"" + contracts + "\""));
+			Assert.That(typeDescription, Contains.Substring(contracts));
 		}
 
 		[Test]

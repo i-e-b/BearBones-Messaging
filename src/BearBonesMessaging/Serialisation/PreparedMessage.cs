@@ -8,16 +8,29 @@ namespace BearBonesMessaging.Serialisation
 	/// </summary>
 	public class PreparedMessage : IPreparedMessage
 	{
-		readonly string _typeName;
-		readonly string _message;
+        /// <summary>
+        /// Routing type description for AMQP message basic properties 'type'
+        /// </summary>
+        public string ContractType { get; }
 
-		/// <summary>
-		/// Create a new prepared message from a type name and message string
-		/// </summary>
-		public PreparedMessage(string typeName, string message)
+        /// <summary>
+        /// Return routable type name
+        /// </summary>
+        public string TypeName { get; }
+
+        /// <summary>
+        /// Return serialised message string
+        /// </summary>
+        public string SerialisedMessage { get; }
+
+        /// <summary>
+        /// Create a new prepared message from a type name and message string
+        /// </summary>
+        public PreparedMessage(string typeName, string message, string contractType)
 		{
-			_typeName = typeName;
-			_message = message;
+            ContractType = contractType;
+            TypeName = typeName;
+            SerialisedMessage = message;
 		}
 
 		/// <summary>
@@ -26,9 +39,9 @@ namespace BearBonesMessaging.Serialisation
 		public static PreparedMessage FromBytes(byte[] bytes)
 		{
 			var concatMsg = (bytes == null) ? "" : Encoding.UTF8.GetString(bytes);
-			var parts = concatMsg.Split(new []{"|"}, 2, StringSplitOptions.None);
-			if (parts.Length < 2) throw new Exception("Invalid prepared message");
-			return new PreparedMessage(parts[0], parts[1]);
+			var parts = concatMsg.Split(new []{"|"}, 3, StringSplitOptions.None);
+			if (parts.Length < 3) throw new Exception("Invalid prepared message");
+			return new PreparedMessage(parts[0], parts[2], parts[1]);
 		}
 
 		/// <summary>
@@ -36,23 +49,7 @@ namespace BearBonesMessaging.Serialisation
 		/// </summary>
 		public byte[] ToBytes()
 		{
-			return Encoding.UTF8.GetBytes(_typeName + "|" + _message);
-		}
-
-		/// <summary>
-		/// Return routable type name
-		/// </summary>
-		public string TypeName()
-		{
-			return _typeName;
-		}
-
-		/// <summary>
-		/// Return serialised message string
-		/// </summary>
-		public string SerialisedMessage()
-		{
-			return _message;
-		}
+            return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|" + SerialisedMessage);
+        }
 	}
 }

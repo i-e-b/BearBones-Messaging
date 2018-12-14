@@ -5,6 +5,7 @@ using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests
 {
@@ -31,37 +32,16 @@ namespace Messaging.Base.Unit.Tests
 		[Test]
 		public void Should_get_message_string_from_endpoint ()
 		{
-			messageRouter.Received().GetAndFinish("MyServiceDestination");
+			messageRouter.Received().GetAndFinish("MyServiceDestination", out _);
 		}
 
 		[Test]
 		public void When_there_is_no_message_should_return_null ()
 		{
-			messageRouter.GetAndFinish("MyServiceDestination").Returns((string)null);
+			messageRouter.GetAndFinish("MyServiceDestination", out _).Returns((string)null);
 			var result = messaging.GetMessage<IMetadataFile>("MyServiceDestination");
 
 			Assert.That(result, Is.Null);
-		}
-
-		[Test]
-		public void When_a_message_is_available_should_deserialise_and_return_requested_type ()
-		{
-			messageRouter.GetAndFinish("MyServiceDestination").Returns("");
-			serialiser.DeserialiseByStack("").Returns(new SuperMetadata());
-			var result = messaging.GetMessage<IMetadataFile>("MyServiceDestination");
-
-			Assert.That(result, Is.InstanceOf<IMetadataFile>());
-		}
-
-		[Test]
-		public void When_a_message_is_available_should_deserialise_and_return_requested_type_using_old_message_format ()
-		{
-			messageRouter.GetAndFinish("MyServiceDestination").Returns("");
-			serialiser.DeserialiseByStack("").Returns(c => { throw new Exception(); });
-			serialiser.Deserialise<IMetadataFile>("").Returns(new SuperMetadata());
-			var result = messaging.GetMessage<IMetadataFile>("MyServiceDestination");
-
-			Assert.That(result, Is.InstanceOf<IMetadataFile>());
 		}
 	}
 }

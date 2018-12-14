@@ -11,7 +11,7 @@ namespace BearBonesMessaging.Serialisation
 
 		/// <summary>
 		/// Return the type object for the first contract available in the calling assembly,
-		/// as read from the supplied JSON message.
+		/// as read from a supplied JSON message or type description
 		/// </summary>
 		public static Type FirstKnownType(string message)
 		{
@@ -19,8 +19,11 @@ namespace BearBonesMessaging.Serialisation
 			const StringComparison ord = StringComparison.Ordinal;
 
 
-			int left = message.IndexOf(Marker, ord) + Marker.Length;
-			if (left < 0 || (left >= message.Length)) return null;
+			int left = message.IndexOf(Marker, ord);
+			if (left < 0) left = 0;
+			else left += Marker.Length;
+            
+            if (left >= message.Length) return null;
 
 			while (left < message.Length)
 			{

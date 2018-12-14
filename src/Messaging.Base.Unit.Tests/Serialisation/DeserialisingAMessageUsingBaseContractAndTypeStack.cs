@@ -2,6 +2,7 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -11,8 +12,9 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		IMessageSerialiser subject;
 		string message;
 		SuperMetadata originalObject;
+        string typeStack;
 
-		[SetUp]
+        [SetUp]
 		public void SetUp()
 		{
 			subject = new MessageSerialiser();
@@ -25,16 +27,16 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 					MetadataName = "Mind the gap"
 				};
 
-			message = subject.Serialise(originalObject);
+			message = subject.Serialise(originalObject, out typeStack);
 			Console.WriteLine(message);
 		}
 
 		[Test]
 		public void if_first_type_is_unknown_should_get_second_type ()
 		{
-			var newmsg = message.Replace("IMetadataFile","rubbish");
+			var newtype = typeStack.Replace("IMetadataFile","rubbish");
 			
-			object result = subject.DeserialiseByStack(newmsg);
+			object result = subject.DeserialiseByStack(message, newtype);
 
 			Assert.That(result, Is.InstanceOf<IFile>());
 		}
@@ -42,7 +44,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		[Test]
 		public void Should_deserialise_to_a_concrete_implementation_of_the_requested_interface()
 		{
-			object result = subject.DeserialiseByStack(message);
+			object result = subject.DeserialiseByStack(message,typeStack);
 
 			Assert.That(result, Is.InstanceOf<IMetadataFile>());
 		}
@@ -50,9 +52,8 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		[Test]
 		public void Should_deserialise_properties_as_initially_provided()
 		{
-			var result = subject.DeserialiseByStack(message) as IMetadataFile;
-			if (result == null)
-				Assert.Fail();
+            var result = subject.DeserialiseByStack(message, typeStack) as IMetadataFile;
+            if (result == null) Assert.Fail("Failed to deserialise");
 
 			Assert.That(result.CorrelationId, Is.EqualTo(Guid.Parse("05C90FEB-5C10-4179-9FC0-D26DDA5FD1C6")));
 			Assert.That(result.Contents, Is.EqualTo("My message contents"));
@@ -63,7 +64,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		[Test]
 		public void if_no_types_are_known_should_throw_exception ()
 		{
-			Assert.Throws<Exception>(()=>subject.DeserialiseByStack(message.Replace("Example.Types", "Phils.Face")));
+			Assert.Throws<Exception>(()=>subject.DeserialiseByStack(message, typeStack.Replace("Example.Types", "Phils.Face")));
 		}
 	}
 }

@@ -35,9 +35,9 @@ namespace BearBonesMessaging.Routing
 		void RouteSources(string child, string parent);
 
 		/// <summary>
-		/// SendMesssage a message to an established source (will be routed to destinations by key)
+		/// SendMesssage a message to an established source (will be routed to destinations by typeDescription)
 		/// </summary>
-		void Send(string sourceName, string data);
+		void Send(string sourceName, string typeDescription, string data);
 
 		/// <summary>
 		/// Get a message from a destination. This does not remove the message from the queue.
@@ -57,7 +57,7 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Get a message from a destination, removing it from the queue
 		/// </summary>
-		string GetAndFinish(string destinationName);
+		string GetAndFinish(string destinationName, out MessageProperties properties);
 
 		/// <summary>
 		/// Delete all waiting messages from a given destination

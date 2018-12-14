@@ -58,15 +58,16 @@ namespace Messaging.Base.Integration.Tests
             messaging.CreateDestination<IMsg>("Test_Destination");
             messaging.SendMessage(testMessage);
 
-            var finalObject = (IMetadataFile)messaging.GetMessage<IMsg>("Test_Destination");
+            var message = messaging.TryStartMessage<IMsg>("Test_Destination");
 
-            Assert.That(finalObject, Is.Not.Null);
-            Assert.That(finalObject.CorrelationId, Is.EqualTo(testMessage.CorrelationId));
-            Assert.That(finalObject.Contents, Is.EqualTo(testMessage.Contents));
-            Assert.That(finalObject.FilePath, Is.EqualTo(testMessage.FilePath));
-            Assert.That(finalObject.HashValue, Is.EqualTo(testMessage.HashValue));
-            Assert.That(finalObject.MetadataName, Is.EqualTo(testMessage.MetadataName));
-            Assert.That(finalObject.Equals(testMessage), Is.False);
+            Assert.That(message, Is.Not.Null);
+            Console.WriteLine(message.Properties.OriginalType);
+            Assert.That(message.Properties.OriginalType, Is.EqualTo(
+                "Example.Types.IMetadataFile, Example.Types;" +
+                "Example.Types.IFile, Example.Types;" +
+                "Example.Types.IHash, Example.Types;" +
+                "Example.Types.IPath, Example.Types;" +
+                "Example.Types.IMsg, Example.Types"));
         }
 		
 

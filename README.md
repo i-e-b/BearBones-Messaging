@@ -10,7 +10,8 @@ Short-term tasks
 
 * [x] Remove ServiceStack (it has gone proprietary)
 * [x] Remove StructureMap
-* [ ] Move contract stack out of message body into BasicProperties
+* [x] Move contract stack out of message body into BasicProperties
+* [ ] Remove assembly name from contract space (keep namespace)
 * [ ] New NuGet package
 * [ ] Expose raw data messaging / remove serialisation?
 
