@@ -48,17 +48,15 @@ namespace BearBonesMessaging
 
 			return this;
 		}
-
-        private IChannelAction GetChannelActionSingleton()
+        
+        /// <summary>
+        /// Set a root contract type, preventing incorrect deserialisation from naming conflicts.
+        /// All messages in the system should derive from this type if you set this.
+        /// </summary>
+        public MessagingBaseConfiguration WithContractRoot<TRoot>()
         {
-            if (_longConnectionSingleton == null) _longConnectionSingleton = new LongTermRabbitConnection(Get<IRabbitMqConnection>());
-            return _longConnectionSingleton;
-        }
-
-        private IMessageRouter GetRabbitRouterSingleton()
-        {
-            if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new RabbitRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
-            return _rabbitRouterSingleton;
+            Set<IMessageSerialiser>(() => new MessageSerialiser(typeof(TRoot)));
+            return this;
         }
 
         /// <summary>
@@ -82,6 +80,16 @@ namespace BearBonesMessaging
             return this;
 		}
 
+        /// <summary>
+        /// Get the configured concrete type for an interface
+        /// </summary>
+        public T Get<T>()
+        {
+            if (!_typeMap.ContainsKey(typeof(T))) throw new Exception("No constructor for " + typeof(T).Name);
+
+            return (T)_typeMap[typeof(T)]?.Invoke();
+        }
+        
         private void Set<T>([NotNull]Func<object> constructor)
         {
             if (_typeMap.ContainsKey(typeof(T)))
@@ -93,14 +101,16 @@ namespace BearBonesMessaging
             _typeMap.Add(typeof(T), constructor);
         }
 
-        /// <summary>
-        /// Get the configured concrete type for an interface
-        /// </summary>
-        public T Get<T>()
+        private IChannelAction GetChannelActionSingleton()
         {
-            if (!_typeMap.ContainsKey(typeof(T))) throw new Exception("No constructor for " + typeof(T).Name);
+            if (_longConnectionSingleton == null) _longConnectionSingleton = new LongTermRabbitConnection(Get<IRabbitMqConnection>());
+            return _longConnectionSingleton;
+        }
 
-            return (T)_typeMap[typeof(T)]?.Invoke();
+        private IMessageRouter GetRabbitRouterSingleton()
+        {
+            if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new RabbitRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
+            return _rabbitRouterSingleton;
         }
     }
 }

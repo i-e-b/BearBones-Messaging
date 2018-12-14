@@ -11,9 +11,12 @@ Short-term tasks
 * [x] Remove ServiceStack (it has gone proprietary)
 * [x] Remove StructureMap
 * [x] Move contract stack out of message body into BasicProperties
-* [ ] Remove assembly name from contract space (keep namespace)
-* [ ] New NuGet package
+* [x] Remove assembly name from contract space (keep namespace)
 * [ ] Expose raw data messaging / remove serialisation?
+* [ ] Add group-name header to outgoing messages (optional?)
+* [ ] Pickup limit (dead letter after multiple fails)
+* [ ] Deadletter count function
+* [ ] New NuGet package
 
 Possible future features
 ------------------------

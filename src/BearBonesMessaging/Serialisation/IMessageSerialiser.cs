@@ -1,4 +1,6 @@
 
+using System;
+
 namespace BearBonesMessaging.Serialisation
 {
 	/// <summary>
@@ -14,5 +16,5 @@ namespace BearBonesMessaging.Serialisation
 		
 		///<summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
 		object DeserialiseByStack(string source, string typeDescription);
-	}
+    }
 }

@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace Messaging.Base.Integration.Tests
 {
 	[TestFixture]
-	public class EndToEnd
+	public class EndToEnd_WithInferredContracts
 	{
 		SuperMetadata testMessage;
 		IMessagingBase messaging;
@@ -21,6 +21,7 @@ namespace Messaging.Base.Integration.Tests
 		{
 			var config = new MessagingBaseConfiguration()
 				.WithDefaults()
+                //.WithContractRoot<...some type...>()  // by omitting this, we force the system to discover types itself.
 				.WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
 			messaging = config.Get<IMessagingBase>();
@@ -63,11 +64,11 @@ namespace Messaging.Base.Integration.Tests
             Assert.That(message, Is.Not.Null);
             Console.WriteLine(message.Properties.OriginalType);
             Assert.That(message.Properties.OriginalType, Is.EqualTo(
-                "Example.Types.IMetadataFile, Example.Types;" +
-                "Example.Types.IFile, Example.Types;" +
-                "Example.Types.IHash, Example.Types;" +
-                "Example.Types.IPath, Example.Types;" +
-                "Example.Types.IMsg, Example.Types"));
+                "Example.Types.IMetadataFile;" +
+                "Example.Types.IFile;" +
+                "Example.Types.IHash;" +
+                "Example.Types.IPath;" +
+                "Example.Types.IMsg"));
         }
 		
 

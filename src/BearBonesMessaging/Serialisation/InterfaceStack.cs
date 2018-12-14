@@ -13,10 +13,8 @@ namespace BearBonesMessaging.Serialisation
 	public class InterfaceStack
 	{
 		/// <summary>
-		/// Return a string implementation of 
+		/// Return a string list of all interfaces implemented by the given object
 		/// </summary>
-		/// <param name="source"></param>
-		/// <returns></returns>
 		public static string Of(object source)
 		{
 			var set = new List<Type>();
@@ -28,16 +26,23 @@ namespace BearBonesMessaging.Serialisation
 				var type = set[i];
                 if (type == null) continue;
 				if (i>0) sb.Append(";");
-				sb.Append(Shorten(type.AssemblyQualifiedName));
+				sb.Append(Shorten(type));
 			}
 			return sb.ToString();
 		}
 
-		static string Shorten(string assemblyQualifiedName)
+        /// <summary>
+        /// Get a shortened name (with namespace but excluding Assembly information) for the given type.
+        /// </summary>
+		[NotNull]public static string Shorten([NotNull]Type type)
 		{
-			var idx = assemblyQualifiedName?.IndexOf(", Version", StringComparison.Ordinal);
-            if (idx == null) return assemblyQualifiedName;
-			return idx < 0 ? assemblyQualifiedName : assemblyQualifiedName.Substring(0, idx.Value);
+            var assemblyQualifiedName = type.AssemblyQualifiedName;
+            if (string.IsNullOrWhiteSpace(assemblyQualifiedName)) throw new Exception("Invalid type definition for " + type);
+            //var idx = assemblyQualifiedName?.IndexOf(", Version", StringComparison.Ordinal);
+            var idx = assemblyQualifiedName.IndexOf(",", StringComparison.Ordinal);
+
+            if (idx < 1) return assemblyQualifiedName;
+			return idx < 0 ? assemblyQualifiedName : assemblyQualifiedName.Substring(0, idx);
 		}
 
 		static void Interfaces(IEnumerable<Type> interfaces, [NotNull] ICollection<Type> set)

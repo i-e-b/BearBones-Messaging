@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndToEnd.cs" />
+    <Compile Include="EndToEnd_WithRootedContracts.cs" />
     <Compile Include="FuzzingTests.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\ConfigurationHelpers.cs" />

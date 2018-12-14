@@ -2,6 +2,7 @@
 using BearBonesMessaging.Serialisation;
 using Example.Types;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.Serialisation
 {
@@ -17,19 +18,19 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 			Console.WriteLine(result);
 			Assert.That(result,
 				// Windows spits out this:
-				Is.EqualTo("Example.Types.IMetadataFile, Example.Types;" +
-				           "Example.Types.IFile, Example.Types;" +
-				           "Example.Types.IHash, Example.Types;" +
-				           "Example.Types.IPath, Example.Types;" +
-				           "Example.Types.IMsg, Example.Types")
+				Is.EqualTo("Example.Types.IMetadataFile;" +
+				           "Example.Types.IFile;" +
+				           "Example.Types.IHash;" +
+				           "Example.Types.IPath;" +
+				           "Example.Types.IMsg")
 						   
 				.Or
 				// Mono spits out this:
-				.EqualTo("Example.Types.IMetadataFile, Example.Types;" +
-				           "Example.Types.IFile, Example.Types;" +
-				           "Example.Types.IPath, Example.Types;" +
-				           "Example.Types.IHash, Example.Types;" +
-				           "Example.Types.IMsg, Example.Types"));
+				.EqualTo("Example.Types.IMetadataFile;" +
+				           "Example.Types.IFile;" +
+				           "Example.Types.IPath;" +
+				           "Example.Types.IHash;" +
+				           "Example.Types.IMsg"));
 		}
 	}
 }

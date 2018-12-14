@@ -22,7 +22,7 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		[SetUp]
 		public void setup ()
 		{
-			_foundType = ContractStack.FirstKnownType(sample);
+			_foundType = ContractStack.FirstKnownType(sample, null);
 		}
 
 		[Test]

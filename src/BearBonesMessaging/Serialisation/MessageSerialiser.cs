@@ -12,6 +12,26 @@ namespace BearBonesMessaging.Serialisation
 	/// </summary>
 	public class MessageSerialiser : IMessageSerialiser
 	{
+        [CanBeNull] private readonly string _rootAssemblyName;
+
+        /// <summary>
+        /// Create a message serialiser with no fixed root type
+        /// </summary>
+        public MessageSerialiser()
+        {
+            
+            _rootAssemblyName = null;
+        }
+
+        /// <summary>
+        /// Create a message serialiser with  a root contract type.
+        /// All messages in the system should derive from this type.
+        /// </summary>
+        public MessageSerialiser(Type ContractRootType)
+        {
+            _rootAssemblyName = ContractRootType?.Assembly.GetName().Name;
+        }
+
 		///<summary>Return a JSON string representing a source object</summary>
 		public string Serialise(object messageObject, out string typeDescription)
 		{
@@ -34,7 +54,7 @@ namespace BearBonesMessaging.Serialisation
 		///<summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
 		public object DeserialiseByStack(string source, string typeDescription)
 		{
-			var bestKnownType = ContractStack.FirstKnownType(typeDescription);
+			var bestKnownType = ContractStack.FirstKnownType(typeDescription, _rootAssemblyName);
 			if (bestKnownType == null) 
 				throw new Exception("Can't deserialise message, as no matching types are available. Are you missing an assembly reference?");
 
