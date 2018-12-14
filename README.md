@@ -5,6 +5,13 @@ BearBones-Messaging
 
 BearBones messaging: lower-level framework, part of a contract-interface based distributed event framework for .Net
 
+Short-term tasks
+----------------
+
+* [x] Remove ServiceStack (it has gone proprietary)
+* [ ] Remove StructureMap
+* [ ] Move contract stack out of message body into BasicProperties
+
 
 Possible future features
 ------------------------
