@@ -19,12 +19,11 @@ namespace Messaging.Base.Integration.Tests
         [OneTimeSetUp]
         public void A_configured_messaging_base()
         {
-            var config = new MessagingBaseConfiguration()
+            messaging = new MessagingBaseConfiguration()
                 .WithDefaults()
                 .WithContractRoot<IMsg>()
-                .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
-
-            messaging = config.Get<IMessagingBase>();
+                .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings())
+                .GetMessagingBase();
 
             testMessage = new SuperMetadata
             {

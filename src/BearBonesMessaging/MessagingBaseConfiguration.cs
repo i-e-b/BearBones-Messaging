@@ -81,6 +81,15 @@ namespace BearBonesMessaging
 		}
 
         /// <summary>
+        /// Return a configured messaging instance.
+        /// This can be used to send an receive messages
+        /// </summary>
+        public IMessagingBase GetMessagingBase()
+        {
+            return Get<IMessagingBase>();
+        }
+
+        /// <summary>
         /// Get the configured concrete type for an interface
         /// </summary>
         public T Get<T>()

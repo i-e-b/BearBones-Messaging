@@ -53,7 +53,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EndToEnd.cs" />
+    <Compile Include="EndToEnd_WithInferredContracts.cs" />
     <Compile Include="EndToEnd_WithRootedContracts.cs" />
     <Compile Include="FuzzingTests.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
