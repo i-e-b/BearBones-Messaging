@@ -4,24 +4,25 @@ using System.Text;
 namespace BearBonesMessaging.Serialisation
 {
 	/// <summary>
-	/// A pre-serialised message
+	/// A pre-serialised message. This is useful to support store-and-forward on a client.
 	/// </summary>
 	public class PreparedMessage : IPreparedMessage
 	{
         /// <summary>
-        /// Routing type description for AMQP message basic properties 'type'
+        /// Routing type description for AMQP message basic properties 'type'.
+        /// This is used during deserialisation to get the best available runtime type.
         /// </summary>
         public string ContractType { get; }
 
         /// <summary>
-        /// Return routable type name
+        /// Routable type name. This is the entry point to the Exchange graph
         /// </summary>
         public string TypeName { get; }
 
         /// <summary>
-        /// Return serialised message string
+        /// Serialised message data
         /// </summary>
-        public string SerialisedMessage { get; }
+        public byte[] SerialisedMessage { get; }
 
         /// <summary>
         /// Create a new prepared message from a type name and message string
@@ -30,13 +31,13 @@ namespace BearBonesMessaging.Serialisation
 		{
             ContractType = contractType;
             TypeName = typeName;
-            SerialisedMessage = message;
-		}
+            SerialisedMessage = Encoding.UTF8.GetBytes(message ?? "");
+        }
 
-		/// <summary>
-		/// Restore a prepared message from bytes
-		/// </summary>
-		public static PreparedMessage FromBytes(byte[] bytes)
+        /// <summary>
+        /// Restore a prepared message from bytes
+        /// </summary>
+        public static PreparedMessage FromBytes(byte[] bytes)
 		{
 			var concatMsg = (bytes == null) ? "" : Encoding.UTF8.GetString(bytes);
 			var parts = concatMsg.Split(new []{"|"}, 3, StringSplitOptions.None);

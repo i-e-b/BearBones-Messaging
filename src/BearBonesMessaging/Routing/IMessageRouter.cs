@@ -37,7 +37,12 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// SendMesssage a message to an established source (will be routed to destinations by typeDescription)
 		/// </summary>
-		void Send(string sourceName, string typeDescription, string data);
+		void Send(string sourceName, string typeDescription, byte[] data);
+        
+        /// <summary>
+        /// SendMesssage a message to an established source (will be routed to destinations by typeDescription)
+        /// </summary>
+        void Send(string sourceName, string typeDescription, string data);
 
 		/// <summary>
 		/// Get a message from a destination. This does not remove the message from the queue.
@@ -46,6 +51,14 @@ namespace BearBonesMessaging.Routing
 		/// to release the message back to the queue.
 		/// </summary>
 		string Get(string destinationName, out MessageProperties properties);
+        
+        /// <summary>
+        /// Get a message from a destination. This does not remove the message from the queue.
+        /// If a message is returned, it will not be available for another get unless
+        /// you use 'Finish' to complete a message and remove from the queue, or 'Cancel'
+        /// to release the message back to the queue.
+        /// </summary>
+        byte[] GetBytes(string destinationName, out MessageProperties properties);
 
 		/// <summary>
 		/// Finish a message retrieved by 'Get'.

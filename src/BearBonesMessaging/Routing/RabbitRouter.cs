@@ -130,27 +130,42 @@ namespace BearBonesMessaging.Routing
 			}
 		}
 
-		/// <summary>
-		/// Send a message to an established source (will be routed to destinations by key)
-		/// </summary>
-		public void Send(string sourceName, string typeDescription, string data)
+        /// <inheritdoc />
+        public void Send(string sourceName, string typeDescription, string data)
+        {
+            Send(sourceName, typeDescription, Encoding.UTF8.GetBytes(data ?? ""));
+        }
+
+        /// <summary>
+        /// Send a message to an established source (will be routed to destinations by key)
+        /// </summary>
+        public void Send(string sourceName, string typeDescription, byte[] data)
 		{
-            if (data == null) data = "";
+            if (data == null) data = new byte[0];
 
             _longTermConnection.WithChannel(channel => channel?.BasicPublish(
                 exchange:        sourceName,
                 routingKey:      "",
                 mandatory:       false, // if true, there must be at least one routing output otherwise the send will error
                 basicProperties: TaggedBasicProperties(typeDescription ?? sourceName),
-                body:            Encoding.UTF8.GetBytes(data))
+                body:           data)
             );
+        }
+
+
+        /// <inheritdoc />
+        public string Get(string destinationName, out MessageProperties properties)
+        {
+            var result = GetBytes(destinationName, out properties);
+            if (result == null) return null;
+            return Encoding.UTF8.GetString(result);
         }
 
         /// <summary>
         /// Get a message from a destination. This claims the message without removing it from the destination.
         /// Ensure you use `Finish` on the result if you have processed the message
         /// </summary>
-        public string Get(string destinationName, out MessageProperties properties)
+        public byte[] GetBytes(string destinationName, out MessageProperties properties)
 		{
 			var result = _longTermConnection.GetWithChannel(channel => channel?.BasicGet(destinationName, false));
 			if (result == null)
@@ -164,8 +179,7 @@ namespace BearBonesMessaging.Routing
             properties.Exchange = result.Exchange;
             properties.CorrelationId = result.BasicProperties?.CorrelationId;
 
-            if (result.Body == null) return null;
-			return Encoding.UTF8.GetString(result.Body);
+            return result.Body;
 		}
 
 		/// <summary>

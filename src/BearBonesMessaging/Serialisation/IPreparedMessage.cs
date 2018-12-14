@@ -6,24 +6,25 @@ namespace BearBonesMessaging.Serialisation
 	public interface IPreparedMessage
 	{
 		/// <summary>
-		/// Return a storable list of bytes representing the message
+		/// Return a storable list of bytes representing the message with metadata
 		/// </summary>
 		byte[] ToBytes();
         
         /// <summary>
-        /// Routing type description for AMQP message basic properties 'type'
+        /// Routing type description for AMQP message basic properties 'type'.
+        /// This is used during deserialisation to get the best available runtime type.
         /// </summary>
         string ContractType { get; }
 
         /// <summary>
-        /// Return routable type name
+        /// Routable type name. This is the entry point to the Exchange graph
         /// </summary>
         string TypeName { get; }
 
         /// <summary>
-        /// Return serialised message string
+        /// Serialised message data
         /// </summary>
-        string SerialisedMessage { get; }
+        byte[] SerialisedMessage { get; }
 
 	}
 }

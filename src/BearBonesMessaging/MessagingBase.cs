@@ -33,7 +33,7 @@ namespace BearBonesMessaging
 		/// <summary>
 		/// Get the contract name of an object instance
 		/// </summary>
-		public static string ContractTypeName([NotNull] object instance)
+        [CanBeNull] public static string ContractTypeName([NotNull] object instance)
 		{
             if (instance == null) throw new ArgumentNullException(nameof(instance));
 			return ContractTypeName(instance.GetType());

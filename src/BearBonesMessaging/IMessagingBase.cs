@@ -20,17 +20,22 @@ namespace BearBonesMessaging
 
 		/// <summary>
 		/// Send a message to all bound destinations.
-		/// Returns serialised form of the message object.
+		/// Message is serialised to a JSON string from the message object by the internal serialiser.
 		/// </summary>
 		void SendMessage(object messageObject);
 
 		/// <summary>
 		/// Poll for a waiting message. Returns default(T) if no message.
+        /// <para></para>
+        /// IMPORTANT: this will immediately remove the message from the broker queue.
+        /// Use this only for non-critical transient applications.
+        /// <para></para>
+        /// For important messages, use `TryStartMessage`
 		/// </summary>
 		T GetMessage<T>(string destinationName);
 
 		/// <summary>
-		/// Try to start handling a waiting message.
+		/// Try to start handling a waiting message. Returns default(T) if no message.
 		/// The message may be acknowledged or cancelled to finish reception.
 		/// </summary>
 		IPendingMessage<T> TryStartMessage<T>(string destinationName);
