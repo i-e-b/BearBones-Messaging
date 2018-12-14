@@ -14,13 +14,15 @@ Short-term tasks
 * [x] Remove assembly name from contract space (keep namespace)
 * [x] Expose raw data messaging / remove serialisation?
 * [x] Add group-name header to outgoing messages (optional?)
-* [ ] Pickup limit (dead letter after multiple fails)
 * [ ] Deadletter count function
 * [ ] Tests around TTL restriction and policy
-* [ ] New NuGet package
+* [x] New NuGet package -- https://www.nuget.org/packages/BearBonesMessaging/1.0.0
 
 Possible future features
 ------------------------
 
+These might be for other systems that build on this basis
+
+* Pickup limit (dead letter after multiple fails)
 * Retry messages to go to end of queue (so the whole queue cycles if there are a few bad messages)
 * RPC vote-to-consume pattern
