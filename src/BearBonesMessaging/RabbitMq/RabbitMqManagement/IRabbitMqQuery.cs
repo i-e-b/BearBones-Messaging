@@ -33,12 +33,12 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// List all nodes attached to the cluster.
 		/// Equivalent to /api/nodes
 		/// </summary>
-		RMNode[] ListNodes();
+		IRMNode[] ListNodes();
 
 		/// <summary>
 		/// List all Source exchanges in the given virtual host
 		/// Equivalent to /api/exchanges/vhost
 		/// </summary>
-		RMExchange[] ListSources();
+		IRMExchange[] ListSources();
 	}
 }

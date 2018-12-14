@@ -74,7 +74,6 @@
     <Compile Include="Serialisation\IMessageSerialiser.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\IRabbitMqQuery.cs" />
     <Compile Include="Routing\ITypeRouter.cs" />
-    <Compile Include="RabbitMq\RabbitMqManagement\RMQueue.cs" />
     <Compile Include="Extensions\Formatting.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\IRMExchange.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\IRMNode.cs" />
@@ -83,8 +82,6 @@
     <Compile Include="Serialisation\MessageSerialiser.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\RabbitMqQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RabbitMq\RabbitMqManagement\RMExchange.cs" />
-    <Compile Include="RabbitMq\RabbitMqManagement\RMNode.cs" />
     <Compile Include="Routing\RabbitRouter.cs" />
     <Compile Include="Routing\TypeRouter.cs" />
   </ItemGroup>

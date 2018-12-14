@@ -12,6 +12,7 @@ Short-term tasks
 * [x] Remove StructureMap
 * [ ] Move contract stack out of message body into BasicProperties
 * [ ] New NuGet package
+* [ ] Expose raw data messaging / remove serialisation?
 
 Possible future features
 ------------------------

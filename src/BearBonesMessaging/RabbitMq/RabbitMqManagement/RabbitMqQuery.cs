@@ -54,26 +54,25 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// </summary>
 		public IRMQueue[] ListDestinations()
 		{
-            var raw = Get("/api/queues" + VirtualHost);
-			return Json.Defrost<IRMQueue[]>(raw);
+            return Json.Defrost<IRMQueue[]>(Get("/api/queues" + VirtualHost));
 		}
 
 		/// <summary>
 		/// List all nodes attached to the cluster.
 		/// Equivalent to /api/nodes
 		/// </summary>
-		public RMNode[] ListNodes()
+		public IRMNode[] ListNodes()
 		{
-			return Json.Defrost<RMNode[]>(Get("/api/nodes"));
+			return Json.Defrost<IRMNode[]>(Get("/api/nodes"));
 		}
 
 		/// <summary>
 		/// List all Source exchanges in the given virtual host
 		/// Equivalent to /api/exchanges/vhost
 		/// </summary>
-		public RMExchange[] ListSources()
+		public IRMExchange[] ListSources()
 		{
-			return Json.Defrost<RMExchange[]>(Get("/api/exchanges" + VirtualHost));
+			return Json.Defrost<IRMExchange[]>(Get("/api/exchanges" + VirtualHost));
 		}
 
 		string Get(string endpoint)
