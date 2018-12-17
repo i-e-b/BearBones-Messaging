@@ -169,25 +169,27 @@ namespace BearBonesMessaging.Routing
 			}
 		}
 
-        /// <inheritdoc />
-        public void Send(string sourceName, string typeDescription, string senderName, string data)
+        /// <summary>
+        /// Send a message to an established source (will be routed to destinations by key)
+        /// </summary>
+        public void Send(string sourceName, string typeDescription, string senderName, string correlationId, string data)
         {
-            Send(sourceName, typeDescription, senderName ?? "AnonymousSender", Encoding.UTF8.GetBytes(data ?? ""));
+            Send(sourceName, typeDescription, senderName ?? "AnonymousSender", correlationId, Encoding.UTF8.GetBytes(data ?? ""));
         }
 
         /// <summary>
         /// Send a message to an established source (will be routed to destinations by key)
         /// </summary>
-        public void Send(string sourceName, string typeDescription, string senderName, byte[] data)
-		{
+        public void Send(string sourceName, string typeDescription, string senderName, string correlationId, byte[] data)
+        {
             if (data == null) data = new byte[0];
 
             _longTermConnection.WithChannel(channel => channel?.BasicPublish(
-                exchange:        sourceName,
-                routingKey:      "",
-                mandatory:       false, // if true, there must be at least one routing output otherwise the send will error
-                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName, senderName),
-                body:           data)
+                exchange: sourceName,
+                routingKey: "",
+                mandatory: false, // if true, there must be at least one routing output otherwise the send will error
+                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName, senderName, correlationId),
+                body: data)
             );
         }
 
@@ -265,11 +267,12 @@ namespace BearBonesMessaging.Routing
 		/// <summary>
 		/// Basic properties object with default settings
 		/// </summary>
-		public IBasicProperties TaggedBasicProperties(string contractTypeDescription, string senderName)
+		public IBasicProperties TaggedBasicProperties(string contractTypeDescription, string senderName, string correlationId)
 		{
 			return new BasicProperties{
                 Type = contractTypeDescription,
-                ReplyTo = senderName
+                ReplyTo = senderName,
+                CorrelationId = correlationId ?? Guid.NewGuid().ToString()
             };
 		}
 	}

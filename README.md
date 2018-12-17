@@ -16,8 +16,7 @@ Short-term tasks
 * [x] Add group-name header to outgoing messages (optional?)
 * [x] New NuGet package -- https://www.nuget.org/packages/BearBonesMessaging
 * [x] Tests around TTL restriction and policy (per message TTL? or per queue?)
-* [ ] Deadletter count function (message push-back)
-* [ ] Required correlation id?
+* [x] Optional correlation id, generate new GUID if not given
 
 Possible future features
 ------------------------

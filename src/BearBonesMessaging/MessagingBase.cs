@@ -90,6 +90,17 @@ namespace BearBonesMessaging
 		{
 			SendPrepared(PrepareForSend(messageObject));
 		}
+        
+        /// <summary>
+        /// Send a message to all bound destinations.
+        /// Returns serialised form of the message object.
+        /// </summary>
+        public void SendMessage([NotNull] object messageObject, [CanBeNull]string correlationId)
+        {
+            var prepared = PrepareForSend(messageObject);
+            prepared.CorrelationId = correlationId;
+            SendPrepared(prepared);
+        }
 
 		/// <summary>
 		/// Poll for a waiting message. Returns default(T) if no message.
@@ -186,7 +197,7 @@ namespace BearBonesMessaging
 		public void SendPrepared([NotNull] IPreparedMessage message)
 		{
             if (message == null) throw new ArgumentNullException(nameof(message));
-			messageRouter.Send(message.TypeName, message.ContractType, _applicationGroupName, message.SerialisedMessage);
+			messageRouter.Send(message.TypeName, message.ContractType, _applicationGroupName, message.CorrelationId, message.SerialisedMessage);
 		}
 
 		internal static void InternalResetCaches()

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace BearBonesMessaging.Serialisation
 {
@@ -10,28 +11,33 @@ namespace BearBonesMessaging.Serialisation
 	public class PreparedMessage : IPreparedMessage
 	{
         /// <summary>
-        /// Routing type description for AMQP message basic properties 'type'.
+        /// Required: Routing type description for AMQP message basic properties 'type'.
         /// This is used during deserialisation to get the best available runtime type.
         /// </summary>
-        public string ContractType { get; }
+        [NotNull] public string ContractType { get; }
 
         /// <summary>
-        /// Routable type name. This is the entry point to the Exchange graph
+        /// Required: Routable type name. This is the entry point to the Exchange graph
         /// </summary>
-        public string TypeName { get; }
+        [NotNull] public string TypeName { get; }
 
         /// <summary>
-        /// Serialised message data
+        /// Required: Serialised message data
         /// </summary>
-        public byte[] SerialisedMessage { get; }
+        [NotNull] public byte[] SerialisedMessage { get; }
+
+        /// <summary>
+        /// Optional: Message correlation ID. If null, a random ID will be generated when the message is sent.
+        /// </summary>
+        [CanBeNull] public string CorrelationId { get; set; }
 
         /// <summary>
         /// Create a new prepared message from a type name and message string
         /// </summary>
         public PreparedMessage(string typeName, string message, string contractType)
 		{
-            ContractType = contractType;
-            TypeName = typeName;
+            ContractType = contractType ?? throw new ArgumentNullException(nameof(contractType));
+            TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
             SerialisedMessage = Encoding.UTF8.GetBytes(message ?? "");
         }
 
@@ -51,7 +57,6 @@ namespace BearBonesMessaging.Serialisation
 		/// </summary>
 		public byte[] ToBytes()
 		{
-            if (SerialisedMessage == null) return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|");
             return Encoding.UTF8.GetBytes(TypeName + "|" + ContractType + "|").Concat(SerialisedMessage).ToArray();
         }
 	}

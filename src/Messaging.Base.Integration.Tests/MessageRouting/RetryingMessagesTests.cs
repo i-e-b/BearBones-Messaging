@@ -24,7 +24,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 
 			subject.AddDestination("dst");
 			subject.Link("Example.Types.IMsg", "dst");
-			subject.Send("Example.Types.IFile", null, null, "Hello");
+			subject.Send("Example.Types.IFile", null, null, null, "Hello");
 		}
 
 		[Test]
@@ -53,7 +53,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		{
 
 			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
-			subject.Send("Example.Types.IFile", null, null, "SecondMessage");
+			subject.Send("Example.Types.IFile", null, null, null, "SecondMessage");
 
 			subject.Cancel(tag1.DeliveryTag);
 			Assert.That(subject.Get("dst", out tag1), Is.EqualTo("Hello"));
@@ -67,7 +67,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void with_two_messages_waiting_and_one_is_in_progress_the_other_can_be_picked_up()
 		{
-			subject.Send("Example.Types.IFile", null, null, "SecondMessage");
+			subject.Send("Example.Types.IFile", null, null, null, "SecondMessage");
 
 			Assert.That(subject.Get("dst", out var tag1), Is.EqualTo("Hello"));
 			Assert.That(subject.Get("dst", out var tag2), Is.EqualTo("SecondMessage"));

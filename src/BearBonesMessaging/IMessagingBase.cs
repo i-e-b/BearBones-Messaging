@@ -22,8 +22,16 @@ namespace BearBonesMessaging
 		/// <summary>
 		/// Send a message to all bound destinations.
 		/// Message is serialised to a JSON string from the message object by the internal serialiser.
+        /// The message metadata will have a randomly generated correlation ID
 		/// </summary>
 		void SendMessage(object messageObject);
+        
+        /// <summary>
+        /// Send a message to all bound destinations.
+        /// Message is serialised to a JSON string from the message object by the internal serialiser.
+        /// The message metadata will have the exact correlation ID as given 
+        /// </summary>
+        void SendMessage(object messageObject, string correlationId);
 
 		/// <summary>
 		/// Poll for a waiting message. Returns default(T) if no message.

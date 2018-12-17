@@ -26,5 +26,9 @@ namespace BearBonesMessaging.Serialisation
         /// </summary>
         byte[] SerialisedMessage { get; }
 
-	}
+        /// <summary>
+        /// Message correlation ID. If null, a random ID will be generated when the message is sent.
+        /// </summary>
+        string CorrelationId { get; set; }
+    }
 }

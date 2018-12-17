@@ -18,7 +18,6 @@ namespace Messaging.Base.Unit.Tests
 		SuperMetadata metadataMessage;
 		object badMessage;
 		IMessagingBase messaging;
-        string typeDescription;
         const string serialisedObject = "serialised object";
 
 		[SetUp]
@@ -27,10 +26,10 @@ namespace Messaging.Base.Unit.Tests
 			metadataMessage = new SuperMetadata();
 
 			badMessage = new {Who="What"};
-			typeRouter = Substitute.For<ITypeRouter>();
 			messageRouter = Substitute.For<IMessageRouter>();
+			typeRouter = Substitute.For<ITypeRouter>();
 			serialiser = Substitute.For<IMessageSerialiser>();
-			serialiser.Serialise(metadataMessage, out typeDescription).Returns(serialisedObject);
+			serialiser.Serialise(metadataMessage, out _).Returns(m=>{m[1] = "dummy"; return serialisedObject;});
 
 			messaging = new MessagingBase(typeRouter, messageRouter, serialiser, "test");
 			messaging.ResetCaches();
