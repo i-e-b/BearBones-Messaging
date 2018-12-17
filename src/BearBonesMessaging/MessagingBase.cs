@@ -9,7 +9,7 @@ using SevenDigital.Messaging.Base;
 
 namespace BearBonesMessaging
 {
-	/// <summary>
+    /// <summary>
 	/// Default messaging base.
 	/// </summary>
 	public class MessagingBase : IMessagingBase
@@ -60,19 +60,26 @@ namespace BearBonesMessaging
 		/// <summary>
 		/// Ensure a destination exists, and bind it to the exchanges for the given type
 		/// </summary>
-		public void CreateDestination<T>([NotNull] string destinationName)
+		public void CreateDestination<T>([NotNull] string destinationName, [NotNull] Expires messageExpiry)
 		{
-			CreateDestination(typeof(T), destinationName);
+			CreateDestination(typeof(T), destinationName, messageExpiry);
 		}
 
         /// <summary>
         /// Ensure a destination exists, and bind it to the exchanges for the given type
         /// </summary>
-        public void CreateDestination([NotNull]Type sourceType, [NotNull] string destinationName)
+        public void CreateDestination([NotNull]Type sourceType, [NotNull] string destinationName, [NotNull] Expires messageExpiry)
         {
             RouteSource(sourceType);
-			messageRouter.AddDestination(destinationName);
-			messageRouter.Link(sourceType.FullName, destinationName);
+
+            if (messageExpiry.Milliseconds > 0) {
+                messageRouter.AddLimitedDestination(destinationName, messageExpiry);
+            } else {
+                messageRouter.AddDestination(destinationName);
+            }
+
+            messageRouter.Link(sourceType.FullName, destinationName);
+
 		}
 
 		/// <summary>

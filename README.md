@@ -14,9 +14,10 @@ Short-term tasks
 * [x] Remove assembly name from contract space (keep namespace)
 * [x] Expose raw data messaging / remove serialisation?
 * [x] Add group-name header to outgoing messages (optional?)
-* [ ] Deadletter count function
-* [ ] Tests around TTL restriction and policy
-* [x] New NuGet package -- https://www.nuget.org/packages/BearBonesMessaging/1.0.0
+* [x] New NuGet package -- https://www.nuget.org/packages/BearBonesMessaging
+* [x] Tests around TTL restriction and policy (per message TTL? or per queue?)
+* [ ] Deadletter count function (message push-back)
+* [ ] Required correlation id?
 
 Possible future features
 ------------------------

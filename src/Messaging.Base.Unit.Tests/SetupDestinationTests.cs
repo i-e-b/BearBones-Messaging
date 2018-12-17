@@ -25,7 +25,7 @@ namespace Messaging.Base.Unit.Tests
 
 			messaging = new MessagingBase(typeRouter, messageRouter, serialiser, "test");
 			messaging.ResetCaches();
-			messaging.CreateDestination<IMetadataFile>("MyServiceDestination");
+			messaging.CreateDestination<IMetadataFile>("MyServiceDestination", Expires.Never);
 		}
 
 		[Test]

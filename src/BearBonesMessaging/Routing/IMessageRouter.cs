@@ -23,6 +23,12 @@ namespace BearBonesMessaging.Routing
 		/// Add a new node where messages can be picked up
 		/// </summary>
 		void AddDestination(string name);
+        
+        /// <summary>
+        /// Add a new node where messages can be picked up, with a limited wait time.
+        /// Also creates a dead-letter exchange and dead-letter queue.
+        /// </summary>
+        void AddLimitedDestination(string name, Expires expiryTime);
 
 		/// <summary>
 		/// Create a link between a source node and a destination node by a routing key

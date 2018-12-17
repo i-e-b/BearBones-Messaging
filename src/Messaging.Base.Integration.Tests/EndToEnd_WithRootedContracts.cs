@@ -39,7 +39,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void Should_be_able_to_send_and_receive_messages_by_interface_type_and_destination_name()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var finalObject = (IMetadataFile)messaging.GetMessage<IMsg>("Test_Destination");
@@ -56,7 +56,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void type_headers_survive_a_send_and_receive_round_trip ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var message = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -74,7 +74,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void configured_sender_name_is_returned_with_message ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var message = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -87,7 +87,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void Should_be_able_to_send_and_receive_messages_using_prepare_message_intermediates()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             byte[] raw = messaging.PrepareForSend(testMessage).ToBytes();
 
             messaging.SendPrepared(PreparedMessage.FromBytes(raw));
@@ -106,7 +106,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void Should_be_able_to_send_and_receive_messages_by_destination_name_and_get_correct_type()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var finalObject = (IMetadataFile)messaging.GetMessage<IMsg>("Test_Destination");
@@ -123,7 +123,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void should_be_able_to_get_cancel_get_again_and_finish_messages()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -151,7 +151,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void should_protect_from_cancelling_the_same_message_twice ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -170,7 +170,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void should_protect_from_finishing_the_same_message_twice ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -191,7 +191,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void should_protect_from_cancelling_then_finishing_a_message ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -210,7 +210,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void should_protect_from_finishing_then_cancelling_a_message ()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
             messaging.SendMessage(testMessage);
 
             var pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
@@ -231,7 +231,7 @@ namespace Messaging.Base.Integration.Tests
         [Test]
         public void Should_be_able_to_send_and_receive_1000_messages_in_a_minute()
         {
-            messaging.CreateDestination<IMsg>("Test_Destination");
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
 
             int sent = 1000;
             int received = 0;

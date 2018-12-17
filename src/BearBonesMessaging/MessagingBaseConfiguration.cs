@@ -20,6 +20,11 @@ namespace BearBonesMessaging
         private string _appGroupName;
 
         /// <summary>
+        /// A string added at the start of a queue name, to create a dead-letter queue
+        /// </summary>
+        public const string DeadLetterPrefix = "!-dead-";
+
+        /// <summary>
         /// The most recently created messaging configuration
         /// </summary>
         [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
@@ -39,7 +44,7 @@ namespace BearBonesMessaging
         /// You must also call a `WithConnection...` method to get a
         /// working system.
         /// </summary>
-        public MessagingBaseConfiguration WithDefaults()
+        [NotNull] public MessagingBaseConfiguration WithDefaults()
 		{
             Set<IMessageSerialiser>(() => new MessageSerialiser());
             Set<ITypeRouter>(() => new TypeRouter(Get<IMessageRouter>()));
@@ -55,7 +60,7 @@ namespace BearBonesMessaging
         /// Set a root contract type, preventing incorrect deserialisation from naming conflicts.
         /// All messages in the system should derive from this type if you set this.
         /// </summary>
-        public MessagingBaseConfiguration WithContractRoot<TRoot>()
+        [NotNull] public MessagingBaseConfiguration WithContractRoot<TRoot>()
         {
             Set<IMessageSerialiser>(() => new MessageSerialiser(typeof(TRoot)));
             return this;
@@ -64,7 +69,7 @@ namespace BearBonesMessaging
         /// <summary>
 		/// Configure long and short term connections to use the specified connection details
 		/// </summary>
-		public MessagingBaseConfiguration WithConnection(IRabbitMqConnection connection)
+		[NotNull] public MessagingBaseConfiguration WithConnection(IRabbitMqConnection connection)
 		{
 			configuredConnection = connection;
             Set<IRabbitMqConnection>(() => configuredConnection);
@@ -74,7 +79,7 @@ namespace BearBonesMessaging
 		/// <summary>
 		/// Use a specific rabbit management node
 		/// </summary>
-		public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
+		[NotNull] public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
 		{
             Set<IRabbitMqQuery>(() =>
                 new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)
@@ -85,7 +90,7 @@ namespace BearBonesMessaging
         /// <summary>
         /// Add an application group name. This will be used as a reply-to address in any messages sent
         /// </summary>
-        public MessagingBaseConfiguration WithApplicationGroupName(string appGroupName)
+        [NotNull] public MessagingBaseConfiguration WithApplicationGroupName(string appGroupName)
         {
             _appGroupName = appGroupName;
             return this;

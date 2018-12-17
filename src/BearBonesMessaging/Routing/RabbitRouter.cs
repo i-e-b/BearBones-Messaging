@@ -106,6 +106,45 @@ namespace BearBonesMessaging.Routing
 				queues.Add(name);
 			}
 		}
+        
+        /// <summary>
+        /// Add a new node where messages can be picked up, with a limited wait time.
+        /// Also creates a dead-letter exchange and dead-letter queue.
+        /// </summary>
+		public void AddLimitedDestination(string name, Expires expiryTime)
+		{
+            if (string.IsNullOrWhiteSpace(name)) throw new Exception("source name is not valid");
+
+            if (expiryTime == null || expiryTime.Milliseconds <= 0) { // not actually limited
+                AddDestination(name);
+                return;
+            }
+
+			lock (_lockObject)
+			{
+                var dlqName = MessagingBaseConfiguration.DeadLetterPrefix + name;
+                var ttlOptions = new Dictionary<string, object> {
+                    { "x-dead-letter-exchange", dlqName },
+                    { "x-message-ttl", expiryTime.Milliseconds }
+                };
+
+				_shortTermConnection.WithChannel(channel => {
+                    if (channel == null) throw new Exception("Short-term channel failed");
+
+                    // Dead-letter parts:
+                    channel.ExchangeDeclare(dlqName, "fanout", autoDelete: true); // an exchange specifically for the DLQ. Deleted if that queue is removed
+                    channel.QueueDeclare(MessagingBaseConfiguration.DeadLetterPrefix + name, true, false, false, noOptions); // no ttl on the dead-letter queue
+                    channel.QueueBind(dlqName, dlqName, "");
+
+                    // the actual queue:
+                    channel.QueueDeclare(name, true, false, false, ttlOptions);
+                });
+
+				queues.Add(name);
+				queues.Add(dlqName);
+                exchanges.Add(dlqName);
+			}
+		}
 
 		/// <summary>
 		/// Create a link between a source node and a destination node by a routing key
