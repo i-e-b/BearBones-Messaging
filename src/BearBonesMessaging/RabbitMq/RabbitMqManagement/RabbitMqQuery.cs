@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using JetBrains.Annotations;
@@ -64,12 +65,24 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		{
             return Json.Defrost<IRMQueue[]>(Get("/api/queues" + VirtualHost));
 		}
+        
+        /// <summary>
+        /// List all dead-letter-queues on the system
+        /// </summary>
+        public IRMQueue[] GetDeadLetterStatus()
+        {
+            return Json.Defrost<IRMQueue[]>(
+                    Get("/api/queues" + VirtualHost)
+                )?.Where(q =>
+                    q?.name?.StartsWith(MessagingBaseConfiguration.DeadLetterPrefix) == true
+                ).ToArray();
+        }
 
-		/// <summary>
-		/// List all nodes attached to the cluster.
-		/// Equivalent to /api/nodes
-		/// </summary>
-		public IRMNode[] ListNodes()
+        /// <summary>
+        /// List all nodes attached to the cluster.
+        /// Equivalent to /api/nodes
+        /// </summary>
+        public IRMNode[] ListNodes()
 		{
 			return Json.Defrost<IRMNode[]>(Get("/api/nodes"));
 		}
@@ -103,7 +116,6 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
         
         /// <summary>
         /// Ensure that a user exists for the given app group, and return the authentication details for it.
-        /// The 'password' of the returned details are actually a password-hash from RMQ
         /// </summary>
         public NetworkCredential GetLimitedUser(string appGroup)
         {
@@ -115,31 +127,12 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
             var expectedPass = GeneratePassword(appGroup, csalt);
 
             var existing = TryGetUser(expectedUser);
-            if (existing == null) {
-                // Create a user
-                var pwHash = RabbitMqPasswordHelper.EncodePassword(expectedPass);
-                var body = Json.Freeze(new{ password_hash = pwHash, tags="" });
-                var response = Put("/api/users/" + expectedUser, body);
-                if (response == null) throw new Exception("Failed to create new user");
-
-                // Set write + read permissions, but no configure for the current VHost
-                var encVhost = Uri.EscapeDataString(VirtualHost ?? "/");
-                body = Json.Freeze(new{ configure="", write=".*", read=".*" }); // these are regexes to match resources TODO: maybe restrict read to appGroup?
-                response = Put("/api/permissions/" + encVhost + "/" + expectedUser, body);
-                if (response == null) throw new Exception("Failed to give permissions to new user");
-                
-                existing = TryGetUser(expectedUser);
-                if (existing == null) throw new Exception("Failed to read new user");
+            if (existing == null)
+            {
+                CreateLimitedUserWithCreds(expectedPass, expectedUser);
             }
 
             return new NetworkCredential(expectedUser, expectedPass);
-        }
-
-        private string GeneratePassword([NotNull]string appGroup, [NotNull]string credentialSalt)
-        {
-            var left = prospector32s(appGroup.ToCharArray(), (uint)appGroup.Length).ToString("X");
-            var right = prospector32s(credentialSalt.ToCharArray(), (uint)credentialSalt.Length).ToString("X");
-            return left + right;
         }
 
         /// <summary>
@@ -156,6 +149,31 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
             if (existing.tags?.Contains("administrator") == true) throw new Exception("Unacceptable user credentials");
 
             return DeleteRequest("/api/users/" + credentials.UserName) != null;
+        }
+
+        private string GeneratePassword([NotNull]string appGroup, [NotNull]string credentialSalt)
+        {
+            var left = prospector32s(appGroup.ToCharArray(), (uint)appGroup.Length).ToString("X");
+            var right = prospector32s(credentialSalt.ToCharArray(), (uint)credentialSalt.Length).ToString("X");
+            return left + right;
+        }
+
+        private void CreateLimitedUserWithCreds(string expectedPass, string expectedUser)
+        {
+            // Create a user
+            var pwHash = RabbitMqPasswordHelper.EncodePassword(expectedPass);
+            var body = Json.Freeze(new {password_hash = pwHash, tags = ""});
+            var response = Put("/api/users/" + expectedUser, body);
+            if (response == null) throw new Exception("Failed to create new user");
+
+            // Set write + read permissions, but no configure for the current VHost
+            var encVhost = Uri.EscapeDataString(VirtualHost ?? "/");
+            body = Json.Freeze(new {configure = "", write = ".*", read = ".*"}); // these are regexes to match resources
+            response = Put("/api/permissions/" + encVhost + "/" + expectedUser, body);
+            if (response == null) throw new Exception("Failed to give permissions to new user");
+
+            var existing = TryGetUser(expectedUser);
+            if (existing == null) throw new Exception("Failed to read new user");
         }
 
         string DeleteRequest(string endpoint)

@@ -29,7 +29,6 @@ namespace BearBonesMessaging
         /// </summary>
         [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
 
-
         /// <summary>
         /// Create a new configuration object
         /// </summary>
@@ -75,14 +74,37 @@ namespace BearBonesMessaging
             Set<IRabbitMqConnection>(() => configuredConnection);
 			return this;
 		}
+        
+        /// <summary>
+        /// Configure long and short term connections to use the specified connection details
+        /// </summary>
+        /// <param name="host">Host DNS name or IP address</param>
+        /// <param name="port">IP port the RabbitMQ server will be listening on</param>
+        /// <param name="username">User name of an account with permission to connect</param>
+        /// <param name="password">Password for the account</param>
+        /// <param name="vhost">RabbitMQ virtual host this connection will be targeting. Use "/" if in doubt.</param>
+        [NotNull] public MessagingBaseConfiguration WithConnection(string host, int port, string username, string password, string vhost)
+        {
+            Set<IRabbitMqConnection>(() => new RabbitMqConnection(host, username, password, vhost));
+            return this;
+        }
 
-		/// <summary>
-		/// Use a specific rabbit management node
-		/// </summary>
-		[NotNull] public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
+        /// <summary>
+        /// Use a specific rabbit management node.
+        /// This is required to do a range of Virtual Host and User management.
+        /// <para></para>
+        /// If you only need to produce and consume messages, you don't need to configure this.
+        /// </summary>
+        /// <param name="host">Host DNS name or IP address</param>
+        /// <param name="port">IP port the management API will be listening on</param>
+        /// <param name="username">User name of an Administrator account</param>
+        /// <param name="password">Password for the Administrator account</param>
+        /// <param name="vhost">RabbitMQ virtual host this connection will be managing</param>
+        /// <param name="credentialSecret">A private secret used to generate names and passwords of 'Limited' user accounts</param>
+        [NotNull] public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost, string credentialSecret)
 		{
             Set<IRabbitMqQuery>(() =>
-                new RabbitMqQuery("http://" + host + ":" + port, username, password, "testSalt", vhost)
+                new RabbitMqQuery("http://" + host + ":" + port, username, password, credentialSecret, vhost)
             );
             return this;
 		}
@@ -103,6 +125,15 @@ namespace BearBonesMessaging
         public IMessagingBase GetMessagingBase()
         {
             return Get<IMessagingBase>();
+        }
+        
+        /// <summary>
+        /// Return a configured messaging instance.
+        /// This can be used to manage and monitor the host server
+        /// </summary>
+        public IRabbitMqQuery GetManagement()
+        {
+            return Get<IRabbitMqQuery>();
         }
 
         /// <summary>

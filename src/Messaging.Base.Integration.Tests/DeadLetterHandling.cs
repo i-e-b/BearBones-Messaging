@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using BearBonesMessaging;
+using BearBonesMessaging.RabbitMq.RabbitMqManagement;
 using BearBonesMessaging.Routing;
 using Example.Types;
 using Messaging.Base.Integration.Tests.Helpers;
@@ -14,16 +16,19 @@ namespace Messaging.Base.Integration.Tests
     {
         SuperMetadata testMessage;
         IMessagingBase messaging;
+        IRabbitMqQuery query;
 
         [OneTimeSetUp]
         public void A_configured_messaging_base()
         {
-            messaging = new MessagingBaseConfiguration()
+            var config = new MessagingBaseConfiguration()
                 .WithDefaults()
                 .WithContractRoot<IMsg>()
                 .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings())
-                .WithApplicationGroupName("app-group-name")
-                .GetMessagingBase();
+                .WithApplicationGroupName("app-group-name");
+               
+            messaging = config.GetMessagingBase();
+            query = ConfigurationHelpers.RabbitMqQueryWithConfigSettings();
 
             testMessage = new SuperMetadata
             {
@@ -115,6 +120,30 @@ namespace Messaging.Base.Integration.Tests
             message.Finish();
         }
         
+        [Test]
+        public void a_list_of_dead_letter_queues_can_be_read_with_their_message_counts ()
+        {
+            var queueName = "Test_Destination_TTL_500";
+            var deadQueueName = MessagingBaseConfiguration.DeadLetterPrefix + queueName;
+
+            messaging.CreateDestination<IMsg>(queueName, Expires.AfterMilliseconds(500)); // Very short TTL. Real-world is more likely to be hours or days.
+            MessagingBaseConfiguration.LastConfiguration.Get<IMessageRouter>().Purge(queueName);
+            MessagingBaseConfiguration.LastConfiguration.Get<IMessageRouter>().Purge(deadQueueName);
+            messaging.SendMessage(testMessage);
+            
+            Thread.Sleep(1000); // enough delay to expire the message
+
+            var message = messaging.TryStartMessage<IMsg>(queueName);
+            Assert.That(message, Is.Null, "Message should NOT be in the original queue, but it was");
+            
+            Thread.Sleep(2500); // enough delay to read the meta-data
+
+            var DLQs = query.GetDeadLetterStatus();
+
+            Assert.That(DLQs.Length, Is.GreaterThan(0), "Expected to find a dead-letter-queue, but there are none");
+            Assert.That(DLQs.Single(q=>q.name.Contains(queueName)).messages, Is.GreaterThan(0), "Expected to find a queue with the message I sent, but didn't find it");
+        }
+
         [OneTimeTearDown]
         public void cleanup()
         {

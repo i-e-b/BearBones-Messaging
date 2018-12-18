@@ -13,11 +13,13 @@ Features
 * Add sender group-name header to outgoing messages
 * NuGet package -- https://www.nuget.org/packages/BearBonesMessaging
 * Queue TTL restriction and policy
+    - Per app-group expiry
+    - VHost-wide monitoring endpoint
 * Optional correlation id, generate new GUID if not given
 * Exposes some user management endpoints
-      - Create limited user (write/read, but no manage)
-      - Delete user
-      - Connection string for user -- to expose to registrants
+    - Create limited user (write/read, but no manage)
+    - Delete user
+    - Connection string for user -- to expose to registrants
 
 Possible future features
 ------------------------
