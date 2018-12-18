@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using JetBrains.Annotations;
 using SkinnyJson;
 
 namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 {
-	/// <summary>
-	/// Deafult RMQ query
+    /// <summary>
+	/// Default RMQ query
 	/// </summary>
 	public class RabbitMqQuery : IRabbitMqQuery
 	{
@@ -24,24 +25,31 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// <summary>
 		/// Log-in credentials for RabbitMQ management API
 		/// </summary>
-		public NetworkCredential Credentials { get; }
+		public NetworkCredential ManagementCredentials { get; }
+
+        /// <summary>
+        /// A private key used for generating one-time limited user accounts
+        /// </summary>
+        public string CredentialSalt { get; }
 
 		/// <summary>
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
 		/// </summary>
-		public RabbitMqQuery(Uri managementApiHost, NetworkCredential credentials)
+		public RabbitMqQuery(Uri managementApiHost, NetworkCredential credentials, string credentialSalt)
 		{
 			HostUri = managementApiHost;
-			Credentials = credentials;
+			ManagementCredentials = credentials;
+            CredentialSalt = credentialSalt ?? throw new ArgumentNullException(nameof(credentialSalt));
 		}
 		
 		/// <summary>
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
 		/// </summary>
-		public RabbitMqQuery(string hostUri, string username, string password, string virtualHost = "/")
+		public RabbitMqQuery(string hostUri, string username, string password, string credentialSalt, string virtualHost)
 			: this(
                 new Uri(hostUri ?? throw new ArgumentNullException(nameof(hostUri))),
-                new NetworkCredential(username, password)
+                new NetworkCredential(username, password),
+                credentialSalt
             )
         {
             if (virtualHost == null) virtualHost = "/";
@@ -75,6 +83,109 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			return Json.Defrost<IRMExchange[]>(Get("/api/exchanges" + VirtualHost));
 		}
 
+        /// <summary>
+        /// List all users in the system
+        /// </summary>
+        public IRMUser[] ListUsers()
+        {
+            return Json.Defrost<IRMUser[]>(Get("/api/users/"));
+        }
+        
+        /// <summary>
+        /// List all users in the system
+        /// </summary>
+        public IRMUser TryGetUser(string userName)
+        {
+            var raw = Get("/api/users/"+userName);
+            if (raw == null) return null;
+            return Json.Defrost<IRMUser>(raw);
+        }
+        
+        /// <summary>
+        /// Ensure that a user exists for the given app group, and return the authentication details for it.
+        /// The 'password' of the returned details are actually a password-hash from RMQ
+        /// </summary>
+        public NetworkCredential GetLimitedUser(string appGroup)
+        {
+            if (appGroup == null) throw new ArgumentNullException(nameof(appGroup));
+            if (CredentialSalt == null) throw new Exception("Credential salt was not set. Refusing to create users.");
+
+            var csalt = CredentialSalt;
+            var expectedUser = HashName(appGroup, csalt);
+            var expectedPass = GeneratePassword(appGroup, csalt);
+
+            var existing = TryGetUser(expectedUser);
+            if (existing == null) {
+                // Create a user
+                var pwHash = RabbitMqPasswordHelper.EncodePassword(expectedPass);
+                var body = Json.Freeze(new{ password_hash = pwHash, tags="" });
+                var response = Put("/api/users/" + expectedUser, body);
+                if (response == null) throw new Exception("Failed to create new user");
+
+                // Set write + read permissions, but no configure for the current VHost
+                var encVhost = Uri.EscapeDataString(VirtualHost ?? "/");
+                body = Json.Freeze(new{ configure="", write=".*", read=".*" }); // these are regexes to match resources TODO: maybe restrict read to appGroup?
+                response = Put("/api/permissions/" + encVhost + "/" + expectedUser, body);
+                if (response == null) throw new Exception("Failed to give permissions to new user");
+                
+                existing = TryGetUser(expectedUser);
+                if (existing == null) throw new Exception("Failed to read new user");
+            }
+
+            return new NetworkCredential(expectedUser, expectedPass);
+        }
+
+        private string GeneratePassword([NotNull]string appGroup, [NotNull]string credentialSalt)
+        {
+            var left = prospector32s(appGroup.ToCharArray(), (uint)appGroup.Length).ToString("X");
+            var right = prospector32s(credentialSalt.ToCharArray(), (uint)credentialSalt.Length).ToString("X");
+            return left + right;
+        }
+
+        /// <summary>
+        /// Delete a user from the system
+        /// </summary>
+        public bool DeleteUser(NetworkCredential credentials)
+        {
+            if (credentials == null || credentials.UserName == null) throw new Exception("Invalid user credentials");
+            if (credentials.UserName == ManagementCredentials?.UserName) throw new Exception("Unacceptable user credentials");
+
+            var existing = TryGetUser(credentials.UserName);
+            if (existing == null) return false;
+
+            if (existing.tags?.Contains("administrator") == true) throw new Exception("Unacceptable user credentials");
+
+            return DeleteRequest("/api/users/" + credentials.UserName) != null;
+        }
+
+        string DeleteRequest(string endpoint)
+        {
+            if ( ! Uri.TryCreate(HostUri, endpoint, out var target)) return null;
+
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
+            var request = (HttpWebRequest) WebRequest.Create(target);
+            request.Method = "DELETE";
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+            request.Credentials = ManagementCredentials;
+
+            try
+            {
+                using (var response = request.GetResponse())
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream == null) throw new Exception("Failed to read response");
+                        return new StreamReader(responseStream).ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException)
+            {
+                return null;
+            }
+        }
+
 		string Get(string endpoint)
 		{
 			Uri result;
@@ -82,21 +193,100 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			return Uri.TryCreate(HostUri, endpoint, out result) ? GetResponseString(result) : null;
 		}
 
-		static string GetResponseString([NotNull] Uri target)
+		string GetResponseString([NotNull] Uri target)
 		{
             if (target == null) throw new ArgumentNullException(nameof(target));
 
 			var request = (HttpWebRequest) WebRequest.Create(target);
 			request.AutomaticDecompression = DecompressionMethods.GZip;
-			request.Credentials = new NetworkCredential("guest", "guest");
+			request.Credentials = ManagementCredentials;
 
-            using (var response = request.GetResponse())
+            try
             {
-                using (var responseStream = response.GetResponseStream())
+                using (var response = request.GetResponse())
                 {
-                    if (responseStream == null) throw new Exception("Failed to read response");
-                    return new StreamReader(responseStream).ReadToEnd();
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream == null) throw new Exception("Failed to read response");
+                        return new StreamReader(responseStream).ReadToEnd();
+                    }
                 }
+            }
+            catch (WebException)
+            {
+                return null;
+            }
+        }
+        
+        string Put(string endpoint, string body)
+        {
+            if (body == null) throw new ArgumentNullException(nameof(body));
+            Uri result;
+
+            return Uri.TryCreate(HostUri, endpoint, out result) ? PutString(result, body) : null;
+        }
+
+        string PutString([NotNull] Uri target, [NotNull]string body)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
+            var request = (HttpWebRequest) WebRequest.Create(target);
+            request.Method = "PUT";
+            request.ContentType = "application/json";
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+            request.Credentials = ManagementCredentials;
+
+            try
+            {
+                var buf = Encoding.UTF8.GetBytes(body);
+                request.GetRequestStream().Write(buf, 0, buf.Length);
+
+                using (var response = request.GetResponse())
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream == null) throw new Exception("Failed to read response");
+                        return new StreamReader(responseStream).ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException)
+            {
+                return null;
+            }
+        }
+
+
+        private string HashName([NotNull] string name, [NotNull] string salt)
+        {
+            var saltedName = name + salt;
+            return "OneTime_" + name + "_" + prospector32s(saltedName.ToCharArray(), (uint)saltedName.Length).ToString("X");
+        }
+
+        /// <summary>
+        /// Low bias 32 bit hash
+        /// </summary>
+        static uint prospector32s([NotNull]char[] buf, uint key)
+        {
+            unchecked
+            {
+                uint hash = key;
+                for (int i = 0; i < buf.Length; i++)
+                {
+                    hash += buf[i];
+                    hash ^= hash >> 16;
+                    hash *= 0x7feb352d;
+                    hash ^= hash >> 15;
+                    hash *= 0x846ca68b;
+                    hash ^= hash >> 16;
+                }
+                hash ^= (uint)buf.Length;
+                hash ^= hash >> 16;
+                hash *= 0x7feb352d;
+                hash ^= hash >> 15;
+                hash *= 0x846ca68b;
+                hash ^= hash >> 16;
+                return hash + key;
             }
         }
     }

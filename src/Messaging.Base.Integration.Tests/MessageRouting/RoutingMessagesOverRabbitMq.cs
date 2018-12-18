@@ -77,7 +77,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 
             var conn = ConfigurationHelpers.FreshConnectionFromAppConfig();
 
-			var conn2 = conn.ConnectionFactory().CreateConnection();
+			var conn2 = conn.ConfigureConnectionFactory().CreateConnection();
 			var channel2 = conn2.CreateModel();
 			var result = channel2.BasicGet("dst", false);
 			var message = Encoding.UTF8.GetString(result.Body);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using JetBrains.Annotations;
 using RabbitMQ.Client;
@@ -46,7 +47,11 @@ namespace BearBonesMessaging.RabbitMq
 		/// </summary>
 		~LongTermRabbitConnection()
 		{
-			ShutdownConnection();
+            try {
+			    ShutdownConnection();
+            } catch (FileNotFoundException) {
+                // This can happen on shut-down if the connection was declared but never used.
+            }
 		}
 
 		/// <summary>
@@ -107,7 +112,7 @@ namespace BearBonesMessaging.RabbitMq
 
 			if (_factory == null)
 			{
-				_factory = rabbitMqConnection.ConnectionFactory();
+				_factory = rabbitMqConnection.ConfigureConnectionFactory();
 			}
 			if (_conn != null && _conn.IsOpen)
 			{
@@ -121,9 +126,12 @@ namespace BearBonesMessaging.RabbitMq
 			var lfac = _factory;
 			if (lfac == null) throw new Exception("RabbitMq Connection failed to generate a connection factory");
 			lfac.RequestedHeartbeat = 60;
-			_conn = lfac.CreateConnection();
 
-			_channel = _conn?.CreateModel();
+            // The exception `RabbitMQ.Client.Exceptions.BrokerUnreachableException` can happen here if sufficient permissions
+            // are NOT available, or if the network is down:
+            _conn = lfac.CreateConnection();
+
+            _channel = _conn?.CreateModel();
 			return _channel;
 		}
 

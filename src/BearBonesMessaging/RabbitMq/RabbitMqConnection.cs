@@ -13,20 +13,32 @@ namespace BearBonesMessaging.RabbitMq
 		/// <summary>
 		/// Rabbit MQ Cluster host name uri fragment
 		/// </summary>
-		public string Host { get; private set; }
+		public string Host { get; }
 
-		/// <summary>
+        /// <summary>
+        /// User account used for connection
+        /// </summary>
+        public string UserName { get; }
+
+        /// <summary>
+        /// Account password used for connection
+        /// </summary>
+        public string Password { get; }
+
+        /// <summary>
 		/// Target virtual host
 		/// </summary>
-		public string VirtualHost { get; private set; }
+		public string VirtualHost { get; }
 
 		/// <summary>
 		/// Prepare a connection provider
 		/// </summary>
-		public RabbitMqConnection(string hostUri, string virtualHost = "/")
+		public RabbitMqConnection(string hostUri, string userName, string password, string virtualHost)
 		{
 			Host = hostUri;
-			VirtualHost = virtualHost;
+            UserName = userName;
+            Password = password;
+            VirtualHost = virtualHost;
 		}
 
 		/// <summary>
@@ -34,14 +46,16 @@ namespace BearBonesMessaging.RabbitMq
 		/// Use this to connect to the RMQ cluster.
 		/// ALWAYS dispose your connections.
 		/// </summary>
-		public ConnectionFactory ConnectionFactory()
+		public ConnectionFactory ConfigureConnectionFactory()
 		{
 			return new ConnectionFactory
 				{
 					Protocol = Protocols.AMQP_0_9_1,
 					HostName = Host,
 					VirtualHost = VirtualHost,
-					RequestedHeartbeat = 60
+					RequestedHeartbeat = 60,
+                    UserName = UserName ?? "guest",
+                    Password = Password ?? "guest"
 				};
 		}
 
@@ -52,7 +66,7 @@ namespace BearBonesMessaging.RabbitMq
 		{
             if (actions == null) return;
 
-			var factory = ConnectionFactory();
+			var factory = ConfigureConnectionFactory();
 			using (var conn = factory?.CreateConnection())
 			using (var channel = conn?.CreateModel())
 			{
@@ -71,7 +85,7 @@ namespace BearBonesMessaging.RabbitMq
 		{
             if (actions == null) throw new ArgumentNullException(nameof(actions));
 
-			var factory = ConnectionFactory();
+			var factory = ConfigureConnectionFactory();
 			using (var conn = factory?.CreateConnection())
 			using (var channel = conn?.CreateModel())
 			{

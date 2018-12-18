@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using BearBonesMessaging.RabbitMq;
 using BearBonesMessaging.RabbitMq.RabbitMqManagement;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Integration.Tests.Helpers
 {
@@ -15,7 +16,7 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var port = ConfigurationManager.AppSettings["Messaging.Port"];
 			var vhost = (parts.Length >= 2) ? (parts[1]) : ("/");
 
-			return new RabbitMqQuery("http://" + hostUri + ":" + port, username, password, vhost);
+			return new RabbitMqQuery("http://" + hostUri + ":" + port, username, password, "testSalt", vhost);
 		}
 
 		public static RabbitMqConnection RabbitMqConnectionWithConfigSettings()
@@ -23,9 +24,20 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
 			var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
 			var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
+            var username = ConfigurationManager.AppSettings["ApiUsername"];
+            var password = ConfigurationManager.AppSettings["ApiPassword"];
 
-			return new RabbitMqConnection(hostUri, vhost);
+			return new RabbitMqConnection(hostUri, username, password, vhost);
 		}
+        
+        public static RabbitMqConnection RabbitMqConnectionWithConfigSettingsAndCustomCredentials(string username, string password)
+        {
+            var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
+            var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
+            var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
+
+            return new RabbitMqConnection(hostUri, username, password, vhost);
+        }
 
 		static readonly IRabbitMqConnection conn;
 		static ConfigurationHelpers()
@@ -38,8 +50,10 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
 			var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
 			var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
+            var username = ConfigurationManager.AppSettings["ApiUsername"];
+            var password = ConfigurationManager.AppSettings["ApiPassword"];
 
-			return new RabbitMqConnection(hostUri, vhost);
+			return new RabbitMqConnection(hostUri, username, password, vhost);
 		}
 
 		public static IChannelAction ChannelWithAppConfigSettings()

@@ -21,7 +21,7 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// <summary>
 		/// Log-in credentials for RabbitMQ management API
 		/// </summary>
-		NetworkCredential Credentials { get; }
+		NetworkCredential ManagementCredentials { get; }
 
 		/// <summary>
 		/// List all Destination queue in the given virtual host.

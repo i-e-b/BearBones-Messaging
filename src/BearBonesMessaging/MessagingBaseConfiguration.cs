@@ -40,7 +40,7 @@ namespace BearBonesMessaging
         }
 
         /// <summary>
-        /// Configure all default mappings in structure map.
+        /// Configure all default mappings in this config object
         /// You must also call a `WithConnection...` method to get a
         /// working system.
         /// </summary>
@@ -82,7 +82,7 @@ namespace BearBonesMessaging
 		[NotNull] public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost)
 		{
             Set<IRabbitMqQuery>(() =>
-                new RabbitMqQuery("http://" + host + ":" + port, username, password, vhost)
+                new RabbitMqQuery("http://" + host + ":" + port, username, password, "testSalt", vhost)
             );
             return this;
 		}

@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Messaging.Base.Integration.Tests
 {
-	[TestFixture]
+    [TestFixture]
 	public class FuzzingTests
 	{
 		IChannelAction _conn;

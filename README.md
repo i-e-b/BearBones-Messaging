@@ -5,18 +5,19 @@ BearBones-Messaging
 
 BearBones messaging: lower-level framework, part of a contract-interface based distributed event framework for .Net
 
-Short-term tasks
-----------------
+Features
+--------
 
-* [x] Remove ServiceStack (it has gone proprietary)
-* [x] Remove StructureMap
-* [x] Move contract stack out of message body into BasicProperties
-* [x] Remove assembly name from contract space (keep namespace)
-* [x] Expose raw data messaging / remove serialisation?
-* [x] Add group-name header to outgoing messages (optional?)
-* [x] New NuGet package -- https://www.nuget.org/packages/BearBonesMessaging
-* [x] Tests around TTL restriction and policy (per message TTL? or per queue?)
-* [x] Optional correlation id, generate new GUID if not given
+* Contract stack in message BasicProperties
+* Exposes raw data messaging or provides serialisation
+* Add sender group-name header to outgoing messages
+* NuGet package -- https://www.nuget.org/packages/BearBonesMessaging
+* Queue TTL restriction and policy
+* Optional correlation id, generate new GUID if not given
+* Exposes some user management endpoints
+      - Create limited user (write/read, but no manage)
+      - Delete user
+      - Connection string for user -- to expose to registrants
 
 Possible future features
 ------------------------
