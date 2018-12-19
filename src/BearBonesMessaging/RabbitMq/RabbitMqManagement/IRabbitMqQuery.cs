@@ -40,6 +40,12 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// Equivalent to /api/exchanges/vhost
 		/// </summary>
 		IRMExchange[] ListSources();
+        
+        /// <summary>
+        /// List all bindings in the given virtual host
+        /// Equivalent to /api/bindings/vhost
+        /// </summary>
+        IRMBinding[] ListBindings();
 
         /// <summary>
         /// List all users in the system

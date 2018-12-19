@@ -28,6 +28,7 @@
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\LongTermRabbitConnection.cs" Link="RabbitMQ\LongTermRabbitConnection.cs" />
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqConnection.cs" Link="RabbitMQ\RabbitMqConnection.cs" />
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRabbitMqQuery.cs" Link="RabbitMQ\RabbitMqManagement\IRabbitMqQuery.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMBinding.cs" Link="RabbitMQ\RabbitMqManagement\IRMBinding.cs" />
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMExchange.cs" Link="RabbitMQ\RabbitMqManagement\IRMExchange.cs" />
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMNode.cs" Link="RabbitMQ\RabbitMqManagement\IRMNode.cs" />
     <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMQueue.cs" Link="RabbitMQ\RabbitMqManagement\IRMQueue.cs" />

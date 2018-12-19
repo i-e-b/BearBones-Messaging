@@ -516,6 +516,12 @@
             Equivalent to /api/exchanges/vhost
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListBindings">
+            <summary>
+            List all bindings in the given virtual host
+            Equivalent to /api/bindings/vhost
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListUsers">
             <summary>
             List all users in the system
@@ -539,6 +545,12 @@
         <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.GetDeadLetterStatus">
             <summary>
             List all dead-letter-queues on the system
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMBinding">
+            <summary>
+            Message as returned by RabbitMQ management API.
+            See http://www.rabbitmq.com/management.html
             </summary>
         </member>
         <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMExchange">
@@ -650,6 +662,9 @@
             List all Source exchanges in the given virtual host
             Equivalent to /api/exchanges/vhost
             </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListBindings">
+            <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListUsers">
             <summary>

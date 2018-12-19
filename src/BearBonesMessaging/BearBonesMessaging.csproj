@@ -60,6 +60,7 @@
     <Compile Include="IMessagingBase.cs" />
     <Compile Include="Internal\Annotations.cs" />
     <Compile Include="IPendingMessage.cs" />
+    <Compile Include="RabbitMq\RabbitMqManagement\IRMBinding.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\IRMUser.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\RabbitMqPasswordHelper.cs" />
     <Compile Include="Routing\MessageProperties.cs" />

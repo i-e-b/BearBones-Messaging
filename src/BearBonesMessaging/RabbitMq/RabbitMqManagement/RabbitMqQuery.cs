@@ -96,6 +96,13 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			return Json.Defrost<IRMExchange[]>(Get("/api/exchanges" + VirtualHost));
 		}
 
+        /// <inheritdoc />
+        public IRMBinding[] ListBindings()
+        {
+            var raw = Get("/api/bindings" + VirtualHost);
+            return Json.Defrost<IRMBinding[]>(raw);
+        }
+
         /// <summary>
         /// List all users in the system
         /// </summary>
