@@ -146,7 +146,11 @@ namespace BearBonesMessaging
             return (T)_typeMap[typeof(T)]?.Invoke();
         }
         
-        private void Set<T>([NotNull]Func<object> constructor)
+        /// <summary>
+        /// Replace a configured type with a new constructor.
+        /// <para>NOTE: This should only be used for testing</para>
+        /// </summary>
+        public void Set<T>([NotNull]Func<object> constructor)
         {
             if (_typeMap.ContainsKey(typeof(T)))
             { // overwrite

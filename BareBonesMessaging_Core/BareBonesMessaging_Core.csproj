@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Gits\BearBones-Messaging\BareBonesMessaging_Core\BareBonesMessaging_Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Gits\BearBones-Messaging\BareBonesMessaging_Core\BareBonesMessaging_Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\src\BearBonesMessaging\Expires.cs" Link="Expires.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Extensions\EnumerableExtensions.cs" Link="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Extensions\Formatting.cs" Link="Extensions\Formatting.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Extensions\RateLimitedAction.cs" Link="Extensions\RateLimitedAction.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Extensions\TypeExtensions.cs" Link="Extensions\TypeExtensions.cs" />
+    <Compile Include="..\src\BearBonesMessaging\IMessagingBase.cs" Link="IMessagingBase.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Internal\Annotations.cs" Link="Internal\Annotations.cs" />
+    <Compile Include="..\src\BearBonesMessaging\IPendingMessage.cs" Link="IPendingMessage.cs" />
+    <Compile Include="..\src\BearBonesMessaging\MessagingBase.cs" Link="MessagingBase.cs" />
+    <Compile Include="..\src\BearBonesMessaging\MessagingBaseConfiguration.cs" Link="MessagingBaseConfiguration.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\IChannelAction.cs" Link="RabbitMQ\IChannelAction.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\IRabbitMqConnection.cs" Link="RabbitMQ\IRabbitMqConnection.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\LongTermRabbitConnection.cs" Link="RabbitMQ\LongTermRabbitConnection.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqConnection.cs" Link="RabbitMQ\RabbitMqConnection.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRabbitMqQuery.cs" Link="RabbitMQ\RabbitMqManagement\IRabbitMqQuery.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMExchange.cs" Link="RabbitMQ\RabbitMqManagement\IRMExchange.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMNode.cs" Link="RabbitMQ\RabbitMqManagement\IRMNode.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMQueue.cs" Link="RabbitMQ\RabbitMqManagement\IRMQueue.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\IRMUser.cs" Link="RabbitMQ\RabbitMqManagement\IRMUser.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\RabbitMqPasswordHelper.cs" Link="RabbitMQ\RabbitMqManagement\RabbitMqPasswordHelper.cs" />
+    <Compile Include="..\src\BearBonesMessaging\RabbitMq\RabbitMqManagement\RabbitMqQuery.cs" Link="RabbitMQ\RabbitMqManagement\RabbitMqQuery.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\IMessageRouter.cs" Link="Routing\IMessageRouter.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\ITypeRouter.cs" Link="Routing\ITypeRouter.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\MessageProperties.cs" Link="Routing\MessageProperties.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\PendingMessage.cs" Link="Routing\PendingMessage.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\RabbitRouter.cs" Link="Routing\RabbitRouter.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\TypeRouter.cs" Link="Routing\TypeRouter.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\ContractStack.cs" Link="Serialisation\ContractStack.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\IMessageSerialiser.cs" Link="Serialisation\IMessageSerialiser.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\InterfaceStack.cs" Link="Serialisation\InterfaceStack.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\IPreparedMessage.cs" Link="Serialisation\IPreparedMessage.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\MessageSerialiser.cs" Link="Serialisation\MessageSerialiser.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Serialisation\PreparedMessage.cs" Link="Serialisation\PreparedMessage.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Internal\" />
+    <Folder Include="RabbitMQ\RabbitMqManagement\" />
+    <Folder Include="Serialisation\" />
+    <Folder Include="Routing\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
+    <PackageReference Include="SkinnyJson" Version="1.6.3" />
+  </ItemGroup>
+
+</Project>

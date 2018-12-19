@@ -14,13 +14,13 @@ namespace JetBrains.Annotations
     /// Indicates that the value of the marked element could be <c>null</c>
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class CanBeNullAttribute : Attribute { }
+    internal sealed class CanBeNullAttribute : Attribute { }
 
     /// <summary>
     /// Indicates that the value of the marked element could never be <c>null</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class NotNullAttribute : Attribute { }
+    internal sealed class NotNullAttribute : Attribute { }
 
     /// <summary>
     /// Can be appplied to symbols of types derived from IEnumerable as well as to symbols of Task
@@ -28,6 +28,5 @@ namespace JetBrains.Annotations
     /// or of the Lazy.Value property can never be null.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class ItemNotNullAttribute : Attribute { }
-
+    internal sealed class ItemNotNullAttribute : Attribute { }
 }

@@ -1,0 +1,1131 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BareBonesMessaging_Core</name>
+    </assembly>
+    <members>
+        <member name="T:BearBonesMessaging.Expires">
+            <summary>
+            Helpers for expiry times
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Expires.Milliseconds">
+            <summary>
+            Expiry duration in milliseconds
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Expires.#ctor(System.Int64)">
+            <summary>
+            Expires after the given number of milliseconds
+            </summary>
+            <param name="milliseconds"></param>
+        </member>
+        <member name="P:BearBonesMessaging.Expires.Never">
+            <summary>
+            Messages never expire, and will be stored in a queue until they are picked up
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Expires.AfterMilliseconds(System.Int64)">
+            <summary>
+            Messages expire after a given number of milliseconds
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Expires.After(System.TimeSpan)">
+            <summary>
+            Messages expire after a given duration
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.EnumerableExtensions">
+            <summary>
+            Extensions for IEnumerable&lt;T&gt;
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.EnumerableExtensions.HasSingle``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Returns true if enumerable has exactly one item, false otherwise.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Formatting">
+            <summary>
+            Helper for formatting file sizes
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Formatting.ReadableFileSize(System.Double,System.Int32)">
+            <summary>
+            Render a size in byte to a human readable string.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RateLimitedAction">
+            <summary>
+            Helper to perform actions that should not be repeated often
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RateLimitedAction.Of(System.Action)">
+            <summary>
+            Set action to perform.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RateLimitedAction.YoungerThan(System.TimeSpan)">
+            <summary>
+            Perform the action if not performed within the given age.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.IMessagingBase">
+            <summary>
+            Core messaging functions
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.CreateDestination``1(System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Ensure a destination exists, and bind it to the exchanges for the given type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.CreateDestination(System.Type,System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Ensure a destination exists, and bind it to the exchanges for the given type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.SendMessage(System.Object)">
+            <summary>
+            Send a message to all bound destinations.
+            Message is serialised to a JSON string from the message object by the internal serialiser.
+            The message metadata will have a randomly generated correlation ID
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.SendMessage(System.Object,System.String)">
+            <summary>
+            Send a message to all bound destinations.
+            Message is serialised to a JSON string from the message object by the internal serialiser.
+            The message metadata will have the exact correlation ID as given 
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.GetMessage``1(System.String)">
+            <summary>
+            Poll for a waiting message. Returns default(T) if no message.
+            <para></para>
+            IMPORTANT: this will immediately remove the message from the broker queue.
+            Use this only for non-critical transient applications.
+            <para></para>
+            For important messages, use `TryStartMessage`
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage``1(System.String)">
+            <summary>
+            Try to start handling a waiting message. Returns default(T) if no message.
+            The message may be acknowledged or cancelled to finish reception.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.ResetCaches">
+            <summary>
+            Ensure that routes and connections are rebuild on next SendMessage or CreateDestination.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.PrepareForSend(System.Object)">
+            <summary>
+            Convert a message object to a simplified serialisable format.
+            This is intended for later sending with SendPrepared().
+            If you want to send immediately, use SendMessage();
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.SendPrepared(BearBonesMessaging.Serialisation.IPreparedMessage)">
+            <summary>
+            Immediately send a prepared message.
+            </summary>
+            <param name="message">A message created by PrepareForSend()</param>
+        </member>
+        <member name="T:BearBonesMessaging.IPendingMessage`1">
+            <summary>
+            Represents a message received from RabbitMq.
+            May be acknowledged or cancelled.
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.IPendingMessage`1.Message">
+            <summary>Message on queue</summary>
+        </member>
+        <member name="P:BearBonesMessaging.IPendingMessage`1.Cancel">
+            <summary>Action to cancel and return message to queue</summary>
+        </member>
+        <member name="P:BearBonesMessaging.IPendingMessage`1.Finish">
+            <summary>Action to complete message and remove from queue</summary>
+        </member>
+        <member name="P:BearBonesMessaging.IPendingMessage`1.Properties">
+            <summary>
+            Message properties
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.MessagingBase">
+            <summary>
+            Default messaging base.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.#ctor(BearBonesMessaging.Routing.ITypeRouter,BearBonesMessaging.Routing.IMessageRouter,BearBonesMessaging.Serialisation.IMessageSerialiser,System.String)">
+            <summary>
+            Create with `MessagingBaseConfiguration.GetMessagingBase()`
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.ContractTypeName(System.Object)">
+            <summary>
+            Get the contract name of an object instance
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.ContractTypeName(System.Type)">
+            <summary>
+            Get the contract name of a type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.CreateDestination``1(System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Ensure a destination exists, and bind it to the exchanges for the given type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.CreateDestination(System.Type,System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Ensure a destination exists, and bind it to the exchanges for the given type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.SendMessage(System.Object)">
+            <summary>
+            Send a message to all bound destinations.
+            Returns serialised form of the message object.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.SendMessage(System.Object,System.String)">
+            <summary>
+            Send a message to all bound destinations.
+            Returns serialised form of the message object.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.GetMessage``1(System.String)">
+            <summary>
+            Poll for a waiting message. Returns default(T) if no message.
+            <para></para>
+            IMPORTANT: this will immediately remove the message from the broker queue.
+            Use this only for non-critical transient messages.
+            <para></para>
+            For important messages, use `TryStartMessage`
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.TryStartMessage``1(System.String)">
+            <summary>
+            Try to start handling a waiting message.
+            The message may be acknowledged or cancelled to finish reception.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.ResetCaches">
+            <summary>
+            Ensure that routes and connections are rebuild on next SendMessage or CreateDestination.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.PrepareForSend(System.Object)">
+            <summary>
+            Convert a message object to a simplified serialisable format.
+            This is intended for later sending with SendPrepared().
+            If you want to send immediately, use SendMessage();
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.SendPrepared(BearBonesMessaging.Serialisation.IPreparedMessage)">
+            <summary>
+            Immediately send a prepared message.
+            </summary>
+            <param name="message">A message created by PrepareForSend()</param>
+        </member>
+        <member name="T:BearBonesMessaging.MessagingBaseConfiguration">
+            <summary>
+            Configuration options for messaging base
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.MessagingBaseConfiguration.DeadLetterPrefix">
+            <summary>
+            A string added at the start of a queue name, to create a dead-letter queue
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.MessagingBaseConfiguration.LastConfiguration">
+            <summary>
+            The most recently created messaging configuration
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.#ctor">
+            <summary>
+            Create a new configuration object
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithDefaults">
+            <summary>
+            Configure all default mappings in this config object
+            You must also call a `WithConnection...` method to get a
+            working system.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithContractRoot``1">
+            <summary>
+            Set a root contract type, preventing incorrect deserialisation from naming conflicts.
+            All messages in the system should derive from this type if you set this.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithConnection(BearBonesMessaging.RabbitMq.IRabbitMqConnection)">
+            <summary>
+            Configure long and short term connections to use the specified connection details
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithConnection(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Configure long and short term connections to use the specified connection details
+            </summary>
+            <param name="host">Host DNS name or IP address</param>
+            <param name="port">IP port the RabbitMQ server will be listening on</param>
+            <param name="username">User name of an account with permission to connect</param>
+            <param name="password">Password for the account</param>
+            <param name="vhost">RabbitMQ virtual host this connection will be targeting. Use "/" if in doubt.</param>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithRabbitManagement(System.String,System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            Use a specific rabbit management node.
+            This is required to do a range of Virtual Host and User management.
+            <para></para>
+            If you only need to produce and consume messages, you don't need to configure this.
+            </summary>
+            <param name="host">Host DNS name or IP address</param>
+            <param name="port">IP port the management API will be listening on</param>
+            <param name="username">User name of an Administrator account</param>
+            <param name="password">Password for the Administrator account</param>
+            <param name="vhost">RabbitMQ virtual host this connection will be managing</param>
+            <param name="credentialSecret">A private secret used to generate names and passwords of 'Limited' user accounts</param>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithApplicationGroupName(System.String)">
+            <summary>
+            Add an application group name. This will be used as a reply-to address in any messages sent
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.GetMessagingBase">
+            <summary>
+            Return a configured messaging instance.
+            This can be used to send an receive messages
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.GetManagement">
+            <summary>
+            Return a configured messaging instance.
+            This can be used to manage and monitor the host server
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.Get``1">
+            <summary>
+            Get the configured concrete type for an interface
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.Set``1(System.Func{System.Object})">
+            <summary>
+            Replace a configured type with a new constructor.
+            <para>NOTE: This should only be used for testing</para>
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.IChannelAction">
+            <summary>
+            Wrapper for actions that communicate with a RabbitMQ cluster.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.IChannelAction.WithChannel(System.Action{RabbitMQ.Client.IModel})">
+            <summary>
+            Perform an action against the RMQ cluster, returning no data
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.IChannelAction.GetWithChannel``1(System.Func{RabbitMQ.Client.IModel,``0})">
+            <summary>
+            Perform an action against the RMQ cluster, returning data
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.IRabbitMqConnection">
+            <summary>
+            Connection provider for RabbitMq
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.Host">
+            <summary>
+            Rabbit MQ Cluster host name uri fragment
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.VirtualHost">
+            <summary>
+            Target virtual host
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.UserName">
+            <summary>
+            User account used for connection
+            If not supplied, 'guest' will be used. This is appropriate only for development systems
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.Password">
+            <summary>
+            Account password used for connection
+            If not supplied, 'guest' will be used. This is appropriate only for development systems
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.IRabbitMqConnection.ConfigureConnectionFactory">
+            <summary>
+            Return a connection factory.
+            Use this to connect to the RMQ cluster.
+            ALWAYS dispose your connections.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.ILongTermConnection">
+            <summary>
+            Long-term connection to an RMQ cluster.
+            This provider should be used when polling.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.ILongTermConnection.Reset">
+            <summary>
+            Close any existing connections.
+            Connections will be re-opened if an action is requested.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.LongTermRabbitConnection">
+            <summary>
+            Default long-term connection to an RMQ cluster.
+            This provider should be used when polling.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.#ctor(BearBonesMessaging.RabbitMq.IRabbitMqConnection)">
+            <summary>
+            Prepare a long term connection with a connection provider.
+            Call `MessagingBaseConfiguration` and request IChannelAction
+            </summary>
+            <param name="rabbitMqConnection"></param>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.Finalize">
+            <summary>
+            Close any existing connections and dispose of unmanaged resources
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.Dispose">
+            <summary>
+            Close any existing connections and dispose of unmanaged resources
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.Reset">
+            <summary>
+            Close any existing connections.
+            Connections will be re-opened if an action is requested.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.WithChannel(System.Action{RabbitMQ.Client.IModel})">
+            <summary>
+            Perform an action against the RMQ cluster, returning no data
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.LongTermRabbitConnection.GetWithChannel``1(System.Func{RabbitMQ.Client.IModel,``0})">
+            <summary>
+            Perform an action against the RMQ cluster, returning data
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqConnection">
+            <summary>
+            Default short-term connection.
+            This class opens and closes a connection per request, and
+            should not be used for polling.
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.Host">
+            <summary>
+            Rabbit MQ Cluster host name uri fragment
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.UserName">
+            <summary>
+            User account used for connection
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.Password">
+            <summary>
+            Account password used for connection
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.VirtualHost">
+            <summary>
+            Target virtual host
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Prepare a connection provider
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.ConfigureConnectionFactory">
+            <summary>
+            Return a connection factory.
+            Use this to connect to the RMQ cluster.
+            ALWAYS dispose your connections.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.WithChannel(System.Action{RabbitMQ.Client.IModel})">
+            <summary>
+            Perform an action against the RMQ cluster, returning no data
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.GetWithChannel``1(System.Func{RabbitMQ.Client.IModel,``0})">
+            <summary>
+            Perform an action against the RMQ cluster, returning data
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.Dispose">
+            <summary>
+            No action.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery">
+            <summary>
+            Interface to the RabbitMQ management API
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.HostUri">
+            <summary>
+            RabbitMQ cluster's management uri
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.VirtualHost">
+            <summary>
+            Virtual host to use, where applicable
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ManagementCredentials">
+            <summary>
+            Log-in credentials for RabbitMQ management API
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListDestinations">
+            <summary>
+            List all Destination queue in the given virtual host.
+            Equivalent to /api/queues/vhost
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListNodes">
+            <summary>
+            List all nodes attached to the cluster.
+            Equivalent to /api/nodes
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListSources">
+            <summary>
+            List all Source exchanges in the given virtual host
+            Equivalent to /api/exchanges/vhost
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.ListUsers">
+            <summary>
+            List all users in the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.TryGetUser(System.String)">
+            <summary>
+            List all users in the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.GetLimitedUser(System.String)">
+            <summary>
+            Ensure that a user exists for the given app group, and return the authentication details for it.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.DeleteUser(System.Net.NetworkCredential)">
+            <summary>
+            Delete a user from the system. This will refuse to delete administrator accounts.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRabbitMqQuery.GetDeadLetterStatus">
+            <summary>
+            List all dead-letter-queues on the system
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMExchange">
+            <summary>
+            Message as returned by RabbitMQ management API.
+            See http://www.rabbitmq.com/management.html
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMNode">
+            <summary>
+            Message as returned by RabbitMQ management API.
+            See http://www.rabbitmq.com/management.html
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMNode.AnyAlarms">
+            <summary>
+            Returns true if there are any problems that
+            will prevent messages from being received or delivered.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMNode.FreeMemPercent">
+            <summary>
+            Human readable free memory on the node
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMNode.FreeDisk">
+            <summary>
+            Human readable free disk space on the node
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMQueue">
+            <summary>
+            Message as returned by RabbitMQ management API.
+            See http://www.rabbitmq.com/management.html
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.IRMUser">
+            <summary>
+            User detail list as returned by Get("/api/users/")
+            See http://www.rabbitmq.com/management.html
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqPasswordHelper">
+            <summary>
+            Generates password hashes that RMQ will understand.
+            This means we don't need to send passwords over the wire.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqPasswordHelper.EncodePassword(System.String)">
+            <summary>
+            Encode a password for storage in RabbitMQ. Uses SHA256.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery">
+            <summary>
+            Default RMQ query
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.HostUri">
+            <summary>
+            RabbitMQ cluster's management uri
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.VirtualHost">
+            <summary>
+            Virtual host to use, where applicable
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ManagementCredentials">
+            <summary>
+            Log-in credentials for RabbitMQ management API
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.CredentialSalt">
+            <summary>
+            A private key used for generating one-time limited user accounts
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.#ctor(System.Uri,System.Net.NetworkCredential,System.String)">
+            <summary>
+            Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.#ctor(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListDestinations">
+            <summary>
+            List all Destination queue in the given virtual host.
+            Equivalent to /api/queues/vhost
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.GetDeadLetterStatus">
+            <summary>
+            List all dead-letter-queues on the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListNodes">
+            <summary>
+            List all nodes attached to the cluster.
+            Equivalent to /api/nodes
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListSources">
+            <summary>
+            List all Source exchanges in the given virtual host
+            Equivalent to /api/exchanges/vhost
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.ListUsers">
+            <summary>
+            List all users in the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.TryGetUser(System.String)">
+            <summary>
+            List all users in the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.GetLimitedUser(System.String)">
+            <summary>
+            Ensure that a user exists for the given app group, and return the authentication details for it.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.DeleteUser(System.Net.NetworkCredential)">
+            <summary>
+            Delete a user from the system
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.prospector32s(System.Char[],System.UInt32)">
+            <summary>
+            Low bias 32 bit hash
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.IMessageRouter">
+            <summary>
+            Basic actions to drive a RabbitMQ cluster
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddSource(System.String)">
+            <summary>
+            Add a new node to which messages can be sent.
+            This node send messages over links that share a routing key.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddBroadcastSource(System.String)">
+            <summary>
+            Add a new node to which messages can be sent.
+            This node sends messages to all its links
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddDestination(System.String)">
+            <summary>
+            Add a new node where messages can be picked up
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddLimitedDestination(System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Add a new node where messages can be picked up, with a limited wait time.
+            Also creates a dead-letter exchange and dead-letter queue.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Link(System.String,System.String)">
+            <summary>
+            Create a link between a source node and a destination node by a routing key
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.RouteSources(System.String,System.String)">
+            <summary>
+            Route a message between two sources.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Send(System.String,System.String,System.String,System.String,System.Byte[])">
+            <summary>
+            SendMesssage a message to an established source (will be routed to destinations by typeDescription)
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Send(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            SendMesssage a message to an established source (will be routed to destinations by typeDescription)
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Get(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <summary>
+            Get a message from a destination. This does not remove the message from the queue.
+            If a message is returned, it will not be available for another get unless
+            you use 'Finish' to complete a message and remove from the queue, or 'Cancel'
+            to release the message back to the queue.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.GetBytes(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <summary>
+            Get a message from a destination. This does not remove the message from the queue.
+            If a message is returned, it will not be available for another get unless
+            you use 'Finish' to complete a message and remove from the queue, or 'Cancel'
+            to release the message back to the queue.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Finish(System.UInt64)">
+            <summary>
+            Finish a message retrieved by 'Get'.
+            This will remove the message from the queue
+            </summary>
+            <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.GetAndFinish(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <summary>
+            Get a message from a destination, removing it from the queue
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Purge(System.String)">
+            <summary>
+            Delete all waiting messages from a given destination
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Cancel(System.UInt64)">
+            <summary>
+            Cancel a 'Get' by it's tag. The message will remain on the queue and become available for another 'Get'
+            </summary>
+            <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.RemoveRouting(System.Func{System.String,System.Boolean})">
+            <summary>
+            Deletes all queues and exchanges created or used by this Router.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.ITypeRouter">
+            <summary>
+            Building contract-type routing tree
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ITypeRouter.BuildRoutes(System.Type)">
+            <summary>
+            Build all dependant types into the messaging server
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.MessageProperties">
+            <summary>
+            Properties used for reading and acknowledging messages
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Routing.MessageProperties.DeliveryTag">
+            <summary>
+            AMQP delivery tag for closing messages
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Routing.MessageProperties.OriginalType">
+            <summary>
+            The original contract name that the sender gave this message
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Routing.MessageProperties.Exchange">
+            <summary>
+            Original exchange the message was published to
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Routing.MessageProperties.CorrelationId">
+            <summary>
+            Correlation ID of the message, if given
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Routing.MessageProperties.SenderName">
+            <summary>
+            Sender name or reply-to address of the message, if given
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.PendingMessage`1">
+            <summary>
+            A received message instance
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Routing.PendingMessage`1.Properties">
+            <summary>
+            Message properties
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.PendingMessage`1.#ctor(BearBonesMessaging.Routing.IMessageRouter,`0,BearBonesMessaging.Routing.MessageProperties)">
+            <summary>
+            Wrap a message object and delivery tag as a PendingMessage
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Routing.PendingMessage`1.Message">
+            <summary>Message on queue</summary>
+        </member>
+        <member name="P:BearBonesMessaging.Routing.PendingMessage`1.Cancel">
+            <summary>Action to cancel and return message to queue</summary>
+        </member>
+        <member name="P:BearBonesMessaging.Routing.PendingMessage`1.Finish">
+            <summary>Action to complete message and remove from queue</summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.RabbitRouter">
+            <summary>
+            Very simple synchronous message routing over RabbitMq
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.#ctor(BearBonesMessaging.RabbitMq.IChannelAction,BearBonesMessaging.RabbitMq.IRabbitMqConnection)">
+            <summary>
+            Create a new router from config settings
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.RemoveRouting(System.Func{System.String,System.Boolean})">
+            <summary>
+            Deletes all queues and exchanges created or used by this Router.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddSource(System.String)">
+            <summary>
+            Add a new node to which messages can be sent.
+            This node send messages over links that share a routing key.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddBroadcastSource(System.String)">
+            <summary>
+            Add a new node to which messages can be sent.
+            This node sends messages to all its links
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddDestination(System.String)">
+            <summary>
+            Add a new node where messages can be picked up
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddLimitedDestination(System.String,BearBonesMessaging.Expires)">
+            <summary>
+            Add a new node where messages can be picked up, with a limited wait time.
+            Also creates a dead-letter exchange and dead-letter queue.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Link(System.String,System.String)">
+            <summary>
+            Create a link between a source node and a destination node by a routing key
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.RouteSources(System.String,System.String)">
+            <summary>
+            Route a message between two sources.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Send(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Send a message to an established source (will be routed to destinations by key)
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Send(System.String,System.String,System.String,System.String,System.Byte[])">
+            <summary>
+            Send a message to an established source (will be routed to destinations by key)
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Get(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.GetBytes(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <summary>
+            Get a message from a destination. This claims the message without removing it from the destination.
+            Ensure you use `Finish` on the result if you have processed the message
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Finish(System.UInt64)">
+            <summary>
+            Finish a message retrieved by 'Get'.
+            This will remove the message from the queue
+            </summary>
+            <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.GetAndFinish(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <summary>
+            Get a message from a destination, removing it from the queue
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Purge(System.String)">
+            <summary>
+            Delete all waiting messages from a given destination
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Cancel(System.UInt64)">
+            <summary>
+            Cancel a 'Get' by it's tag. The message will remain on the queue and become available for another 'Get'
+            </summary>
+            <param name="deliveryTag">Delivery tag as provided by 'Get'</param>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.TaggedBasicProperties(System.String,System.String,System.String)">
+            <summary>
+            Basic properties object with default settings
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.TypeRouter">
+            <summary>
+            Default type router
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.TypeRouter.#ctor(BearBonesMessaging.Routing.IMessageRouter)">
+            <summary>
+            Create a type router to drive the given message router.
+            You don't need to do this yourself -- Use `MessagingBaseConfiguration`
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.TypeRouter.BuildRoutes(System.Type)">
+            <summary>
+            Build all dependant types into the messaging server
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.ContractStack">
+            <summary>
+            Helper class to read the contract stack from incoming JSON messages
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.Serialisation.ContractStack.Marker">
+            <summary>
+            Marker for JSON documents if types are being stored inline
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.ContractStack.FirstKnownType(System.String,System.String)">
+            <summary>
+            Return the type object for the first contract available in the calling assembly,
+            as read from a supplied JSON message or type description
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.IMessageSerialiser">
+            <summary>
+            Contract for message serialisation
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.IMessageSerialiser.Serialise(System.Object,System.String@)">
+            <summary>Return a JSON string representing a source object</summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.IMessageSerialiser.Deserialise``1(System.String)">
+            <summary>Return an object of a known type based on it's JSON representation</summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.IMessageSerialiser.DeserialiseByStack(System.String,System.String)">
+            <summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.InterfaceStack">
+            <summary>
+            Helper class for reading the definition stack of interfaces.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.InterfaceStack.Of(System.Object)">
+            <summary>
+            Return a string list of all interfaces implemented by the given object
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.InterfaceStack.Shorten(System.Type)">
+            <summary>
+            Get a shortened name (with namespace but excluding Assembly information) for the given type.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.IPreparedMessage">
+            <summary>
+            Contract for serialised messages
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.IPreparedMessage.ToBytes">
+            <summary>
+            Return a storable list of bytes representing the message with metadata
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.IPreparedMessage.ContractType">
+            <summary>
+            Routing type description for AMQP message basic properties 'type'.
+            This is used during deserialisation to get the best available runtime type.
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.IPreparedMessage.TypeName">
+            <summary>
+            Routable type name. This is the entry point to the Exchange graph
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.IPreparedMessage.SerialisedMessage">
+            <summary>
+            Serialised message data
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.IPreparedMessage.CorrelationId">
+            <summary>
+            Message correlation ID. If null, a random ID will be generated when the message is sent.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.MessageSerialiser">
+            <summary>
+            Default serialiser for message objects.
+            Uses ServiceStack.Text
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.#ctor">
+            <summary>
+            Create a message serialiser with no fixed root type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.#ctor(System.Type)">
+            <summary>
+            Create a message serialiser with  a root contract type.
+            All messages in the system should derive from this type.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.Serialise(System.Object,System.String@)">
+            <summary>Return a JSON string representing a source object</summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.Deserialise``1(System.String)">
+            <summary>Return an object of a known type based on it's JSON representation</summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.DeserialiseByStack(System.String,System.String)">
+            <summary>Return an object of an unknown type based on it's claimed hierarchy</summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.WrapperTypeFor``1">
+            <summary>
+            Returns an instatiable class that implements the given interface class
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.MessageSerialiser.WrapperTypeFor(System.Type)">
+            <summary>
+            Returns an instatiable class that implements the given interface class
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Serialisation.PreparedMessage">
+            <summary>
+            A pre-serialised message. This is useful to support store-and-forward on a client.
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.PreparedMessage.ContractType">
+            <summary>
+            Required: Routing type description for AMQP message basic properties 'type'.
+            This is used during deserialisation to get the best available runtime type.
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.PreparedMessage.TypeName">
+            <summary>
+            Required: Routable type name. This is the entry point to the Exchange graph
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.PreparedMessage.SerialisedMessage">
+            <summary>
+            Required: Serialised message data
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.Serialisation.PreparedMessage.CorrelationId">
+            <summary>
+            Optional: Message correlation ID. If null, a random ID will be generated when the message is sent.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.PreparedMessage.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Create a new prepared message from a type name and message string
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.PreparedMessage.FromBytes(System.Byte[])">
+            <summary>
+            Restore a prepared message from bytes
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.PreparedMessage.ToBytes">
+            <summary>
+            Return a storable list of bytes representing the message
+            </summary>
+        </member>
+        <member name="T:SevenDigital.Messaging.Base.TypeExtensions">
+            <summary>
+            Extension methods for reading the interfaces defined in types
+            </summary>
+        </member>
+        <member name="M:SevenDigital.Messaging.Base.TypeExtensions.DirectlyImplementedInterfaces(System.Type)">
+            <summary>
+            Return the list of interfaces explicitly defined by the type of the object;
+            Does not return subinterfaces.
+            </summary>
+        </member>
+        <member name="M:SevenDigital.Messaging.Base.TypeExtensions.DirectlyImplementedInterfaces``1(``0)">
+            <summary>
+            Return the list of interfaces explicitly defined by the type of the object;
+            Does not return subinterfaces.
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.CanBeNullAttribute">
+            <summary>
+            Indicates that the value of the marked element could be <c>null</c>
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.NotNullAttribute">
+            <summary>
+            Indicates that the value of the marked element could never be <c>null</c>.
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.ItemNotNullAttribute">
+            <summary>
+            Can be appplied to symbols of types derived from IEnumerable as well as to symbols of Task
+            and Lazy classes to indicate that the value of a collection item, of the Task.Result property
+            or of the Lazy.Value property can never be null.
+            </summary>
+        </member>
+    </members>
+</doc>
