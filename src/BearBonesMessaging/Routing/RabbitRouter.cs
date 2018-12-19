@@ -67,28 +67,28 @@ namespace BearBonesMessaging.Routing
 		/// Add a new node to which messages can be sent.
 		/// This node send messages over links that share a routing key.
 		/// </summary>
-		public void AddSource(string name)
+		public void AddSource(string name, string metadata)
 		{
             if (string.IsNullOrWhiteSpace(name)) throw new Exception("source name is not valid");
 
 			lock (_lockObject)
 			{
-				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(name, "direct", true, false, noOptions));
+				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(name, "direct", true, false, ArgumentsToStore(metadata)));
 				exchanges.Add(name);
 			}
 		}
 
-		/// <summary>
+        /// <summary>
 		/// Add a new node to which messages can be sent.
 		/// This node sends messages to all its links
 		/// </summary>
-		public void AddBroadcastSource(string className)
+		public void AddBroadcastSource(string className, string metadata)
 		{
             if (string.IsNullOrWhiteSpace(className)) throw new Exception("class name is not valid");
 
 			lock (_lockObject)
 			{
-				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(className, "fanout", true, false, noOptions));
+				_shortTermConnection.WithChannel(channel => channel?.ExchangeDeclare(className, "fanout", true, false, ArgumentsToStore(metadata)));
 				exchanges.Add(className);
 			}
 		}
@@ -275,5 +275,15 @@ namespace BearBonesMessaging.Routing
                 CorrelationId = correlationId ?? Guid.NewGuid().ToString()
             };
 		}
+        
+
+        private IDictionary<string, object> ArgumentsToStore(string metadata)
+        {
+            var outp = new Dictionary<string, object>();
+            if (!string.IsNullOrWhiteSpace(metadata)) {
+                outp.Add(MessagingBaseConfiguration.MetaDataArgument, metadata);
+            }
+            return outp;
+        }
 	}
 }

@@ -13,7 +13,7 @@ namespace BearBonesMessaging.Serialisation
 	public class InterfaceStack
 	{
 		/// <summary>
-		/// Return a string list of all interfaces implemented by the given object
+		/// Return a string list of all interfaces implemented by the given object INSTANCE
 		/// </summary>
 		public static string Of(object source)
 		{
@@ -30,6 +30,25 @@ namespace BearBonesMessaging.Serialisation
 			}
 			return sb.ToString();
 		}
+
+        /// <summary>
+        /// Return a string list of all interfaces implemented by the given type
+        /// </summary>
+        public static string OfInterface(Type source)
+        {
+            var set = new List<Type>();
+            Interfaces(new[] { source }, set);
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < set.Count; i++)
+            {
+                var type = set[i];
+                if (type == null) continue;
+                if (i>0) sb.Append(";");
+                sb.Append(Shorten(type));
+            }
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Get a shortened name (with namespace but excluding Assembly information) for the given type.

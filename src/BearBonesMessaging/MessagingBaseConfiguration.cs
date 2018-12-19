@@ -23,6 +23,11 @@ namespace BearBonesMessaging
         /// A string added at the start of a queue name, to create a dead-letter queue
         /// </summary>
         public const string DeadLetterPrefix = "!-dead-";
+        
+        /// <summary>
+        /// A key for storing metadata in exchanges' argument list
+        /// </summary>
+        public const string MetaDataArgument = "x-meta";
 
         /// <summary>
         /// The most recently created messaging configuration

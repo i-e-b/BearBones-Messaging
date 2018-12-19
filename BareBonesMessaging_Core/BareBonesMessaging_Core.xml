@@ -239,6 +239,11 @@
             A string added at the start of a queue name, to create a dead-letter queue
             </summary>
         </member>
+        <member name="F:BearBonesMessaging.MessagingBaseConfiguration.MetaDataArgument">
+            <summary>
+            A key for storing metadata in exchanges' argument list
+            </summary>
+        </member>
         <member name="F:BearBonesMessaging.MessagingBaseConfiguration.LastConfiguration">
             <summary>
             The most recently created messaging configuration
@@ -676,17 +681,21 @@
             Basic actions to drive a RabbitMQ cluster
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddSource(System.String)">
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddSource(System.String,System.String)">
             <summary>
             Add a new node to which messages can be sent.
             This node send messages over links that share a routing key.
             </summary>
+            <param name="name">Full name of the exchange to write</param>
+            <param name="metadata">Optional: Meta-data to be stored in RMQ. This can be read using the `arguments` dictionary of `IRMExchange`</param>
         </member>
-        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddBroadcastSource(System.String)">
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddBroadcastSource(System.String,System.String)">
             <summary>
             Add a new node to which messages can be sent.
             This node sends messages to all its links
             </summary>
+            <param name="className">Full name of the exchange to write</param>
+            <param name="metadata">Optional: Meta-data to be stored in RMQ. This can be read using the `arguments` dictionary of `IRMExchange`</param>
         </member>
         <member name="M:BearBonesMessaging.Routing.IMessageRouter.AddDestination(System.String)">
             <summary>
@@ -843,13 +852,13 @@
             Deletes all queues and exchanges created or used by this Router.
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddSource(System.String)">
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddSource(System.String,System.String)">
             <summary>
             Add a new node to which messages can be sent.
             This node send messages over links that share a routing key.
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddBroadcastSource(System.String)">
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddBroadcastSource(System.String,System.String)">
             <summary>
             Add a new node to which messages can be sent.
             This node sends messages to all its links
@@ -977,7 +986,12 @@
         </member>
         <member name="M:BearBonesMessaging.Serialisation.InterfaceStack.Of(System.Object)">
             <summary>
-            Return a string list of all interfaces implemented by the given object
+            Return a string list of all interfaces implemented by the given object INSTANCE
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Serialisation.InterfaceStack.OfInterface(System.Type)">
+            <summary>
+            Return a string list of all interfaces implemented by the given type
             </summary>
         </member>
         <member name="M:BearBonesMessaging.Serialisation.InterfaceStack.Shorten(System.Type)">

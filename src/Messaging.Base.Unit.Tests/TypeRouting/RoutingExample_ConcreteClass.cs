@@ -2,6 +2,7 @@
 using Example.Types;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.TypeRouting
 {
@@ -20,20 +21,20 @@ namespace Messaging.Base.Unit.Tests.TypeRouting
 		}
 		
 		[Test]
-		[TestCase("Example.Types.IMetadataFile")]
-		[TestCase("Example.Types.IFile")]
-		[TestCase("Example.Types.IHash")]
-		[TestCase("Example.Types.IPath")]
-		[TestCase("Example.Types.IMsg")]
-		public void Should_create_source_for_each_interface_type(string interfaceFullType)
+		[TestCase("Example.Types.IMetadataFile", "Example.Types.IMetadataFile;Example.Types.IFile;Example.Types.IHash;Example.Types.IPath;Example.Types.IMsg")]
+		[TestCase("Example.Types.IFile", "Example.Types.IFile;Example.Types.IHash;Example.Types.IPath;Example.Types.IMsg")]
+		[TestCase("Example.Types.IHash", "Example.Types.IHash;Example.Types.IMsg")]
+		[TestCase("Example.Types.IPath", "Example.Types.IPath;Example.Types.IMsg")]
+		[TestCase("Example.Types.IMsg", "Example.Types.IMsg")]
+		public void Should_create_source_for_each_interface_type(string interfaceFullType, string chainString)
 		{
-			router.Received().AddSource(interfaceFullType);
+			router.Received().AddSource(interfaceFullType, chainString);
 		}
 
 		[Test]
 		public void Should_not_route_for_concrete_type ()
 		{
-			router.DidNotReceive().AddSource("Example.Types.SuperMetadata");
+			router.DidNotReceive().AddSource("Example.Types.SuperMetadata", Arg.Any<string>());
 		}
 
 

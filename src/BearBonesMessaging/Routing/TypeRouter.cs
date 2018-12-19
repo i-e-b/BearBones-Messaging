@@ -1,4 +1,5 @@
 ﻿using System;
+using BearBonesMessaging.Serialisation;
 using JetBrains.Annotations;
 using SevenDigital.Messaging.Base;
 
@@ -27,7 +28,7 @@ namespace BearBonesMessaging.Routing
 		public void BuildRoutes([NotNull] Type type)
 		{
             if (type == null) throw new ArgumentNullException(nameof(type));
-			if (type.IsInterface) router.AddSource(type.FullName);
+			if (type.IsInterface) router.AddSource(type.FullName, InterfaceStack.OfInterface(type));
 			AddSourcesAndRoute(type);
 		}
 
@@ -38,7 +39,7 @@ namespace BearBonesMessaging.Routing
 
 			foreach (var interfaceType in interfaces)
 			{
-				router.AddSource(interfaceType.FullName);
+				router.AddSource(interfaceType.FullName, InterfaceStack.OfInterface(interfaceType));
 				router.RouteSources(type.FullName, interfaceType.FullName);
 				AddSourcesAndRoute(interfaceType);
 			}

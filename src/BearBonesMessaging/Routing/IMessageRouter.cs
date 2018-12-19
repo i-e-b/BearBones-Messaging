@@ -7,17 +7,21 @@ namespace BearBonesMessaging.Routing
 	/// </summary>
 	public interface IMessageRouter
 	{
-		/// <summary>
-		/// Add a new node to which messages can be sent.
-		/// This node send messages over links that share a routing key.
-		/// </summary>
-		void AddSource(string name);
+        /// <summary>
+        /// Add a new node to which messages can be sent.
+        /// This node send messages over links that share a routing key.
+        /// </summary>
+        /// <param name="name">Full name of the exchange to write</param>
+        /// <param name="metadata">Optional: Meta-data to be stored in RMQ. This can be read using the `arguments` dictionary of `IRMExchange`</param>
+        void AddSource(string name, string metadata);
 
 		/// <summary>
 		/// Add a new node to which messages can be sent.
 		/// This node sends messages to all its links
 		/// </summary>
-		void AddBroadcastSource(string className);
+        /// <param name="className">Full name of the exchange to write</param>
+        /// <param name="metadata">Optional: Meta-data to be stored in RMQ. This can be read using the `arguments` dictionary of `IRMExchange`</param>
+		void AddBroadcastSource(string className, string metadata);
 
 		/// <summary>
 		/// Add a new node where messages can be picked up

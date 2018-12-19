@@ -38,8 +38,8 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void If_I_add_a_source_twice_I_get_one_source_and_no_errors ()
 		{
-			router.AddSource("S");
-			router.AddSource("S");
+			router.AddSource("S", null);
+			router.AddSource("S", null);
 
 			Assert.That(query.ListSources().Count(e=>e.name == "S"), Is.EqualTo(1));
 		}
@@ -47,7 +47,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void If_I_make_a_link_twice_I_only_get_one_copy_of_each_message ()
 		{
-			router.AddSource("src");
+			router.AddSource("src", null);
 			router.AddDestination("dst");
 
 			router.Link("src", "dst");
@@ -62,8 +62,8 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void If_I_make_a_route_between_two_sources_twice_I_only_get_one_copy_of_each_message ()
 		{
-			router.AddSource("srcA");
-			router.AddSource("srcB");
+			router.AddSource("srcA", null);
+			router.AddSource("srcB", null);
 			router.AddDestination("dst");
 
 			router.RouteSources("srcA", "srcB");

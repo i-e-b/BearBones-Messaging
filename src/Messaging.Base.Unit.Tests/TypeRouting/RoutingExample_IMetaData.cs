@@ -1,6 +1,7 @@
 ﻿using BearBonesMessaging.Routing;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace Messaging.Base.Unit.Tests.TypeRouting
 {
@@ -19,17 +20,18 @@ namespace Messaging.Base.Unit.Tests.TypeRouting
 
 			subject.BuildRoutes(typeof(Example.Types.IMetadataFile));
 		}
+        
+        [Test]
+        [TestCase("Example.Types.IMetadataFile", "Example.Types.IMetadataFile;Example.Types.IFile;Example.Types.IHash;Example.Types.IPath;Example.Types.IMsg")]
+        [TestCase("Example.Types.IFile", "Example.Types.IFile;Example.Types.IHash;Example.Types.IPath;Example.Types.IMsg")]
+        [TestCase("Example.Types.IHash", "Example.Types.IHash;Example.Types.IMsg")]
+        [TestCase("Example.Types.IPath", "Example.Types.IPath;Example.Types.IMsg")]
+        [TestCase("Example.Types.IMsg", "Example.Types.IMsg")]
+        public void Should_create_source_for_each_interface_type(string interfaceFullType, string chainString)
+        {
+            router.Received().AddSource(interfaceFullType, chainString);
+        }
 
-		[Test]
-		[TestCase("Example.Types.IMetadataFile")]
-		[TestCase("Example.Types.IFile")]
-		[TestCase("Example.Types.IHash")]
-		[TestCase("Example.Types.IPath")]
-		[TestCase("Example.Types.IMsg")]
-		public void Should_create_source_for_each_interface_type(string interfaceFullType)
-		{
-			router.Received().AddSource(interfaceFullType);
-		}
 
 		[Test]
 		public void Should_link_IMetadataFile_to_IFile_with_IFile_as_parent()

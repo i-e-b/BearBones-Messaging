@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using BearBonesMessaging;
 using BearBonesMessaging.RabbitMq;
 using BearBonesMessaging.RabbitMq.RabbitMqManagement;
 using BearBonesMessaging.Routing;
@@ -32,7 +33,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void Router_can_remove_routing ()
 		{
-			router.AddSource("A");
+			router.AddSource("A", null);
 			router.AddDestination("B");
 
 			Assert.IsTrue(query.ListSources().Any(e=>e.name == "A"), "Exchange not created");
@@ -45,17 +46,32 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			Assert.IsFalse(query.ListDestinations().Any(e=>e.name == "B"), "Queue not cleared");
 		}
 
+        [Test]
+        public void router_can_store_recoverable_metadata ()
+        {
+            router.AddSource("A", "myMetaData");
+
+            var found = query.ListSources().Where(e=>e.name == "A").ToArray();
+
+            Assert.That(found.Length, Is.Not.Zero, "Exchange not created");
+
+            Assert.That(found[0].arguments, Is.Not.Null, "Metadata was lost");
+            Assert.That(found[0].arguments[MessagingBaseConfiguration.MetaDataArgument], Is.EqualTo("myMetaData"), "Metadata was damaged");
+
+            ((RabbitRouter)router).RemoveRouting(n=>true);
+        }
+
 		[Test]
 		public void Should_not_be_able_to_route_a_source_to_itself()
 		{
-			router.AddSource("A");
+			router.AddSource("A", null);
 			Assert.Throws<ArgumentException>(() => router.RouteSources("A", "A"));
 		}
 
 		[Test]
 		public void Can_create_a_single_exchange_and_queue_and_send_a_simple_message()
 		{
-			router.AddSource("exchange_A");
+			router.AddSource("exchange_A", null);
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
@@ -68,7 +84,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void Can_pick_up_a_message_from_a_different_connection_after_its_acknowledged_but_not_received()
 		{
-			router.AddSource("src");
+			router.AddSource("src", null);
 			router.AddDestination("dst");
 			router.Link("src", "dst");
 			router.Send("src", null, null, null, "Hello, World");
@@ -87,7 +103,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void Can_route_a_message_to_two_queues()
 		{
-			router.AddSource("exchange");
+			router.AddSource("exchange", null);
 			router.AddDestination("queue_A");
 			router.AddDestination("queue_B");
 			router.Link("exchange", "queue_A");
@@ -115,7 +131,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test]
 		public void When_sending_multiple_messages_they_are_picked_up_one_at_a_time_in_order ()
 		{
-			router.AddSource("exchange_A");
+			router.AddSource("exchange_A", null);
 			router.AddDestination("queue_A");
 			router.Link("exchange_A", "queue_A");
 
@@ -143,12 +159,12 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			// D2 <- H2
 			// D3 <- B
 
-			router.AddSource("B");
-			router.AddSource("N1");
-			router.AddSource("N2");
-			router.AddSource("H1");
-			router.AddSource("H2");
-			router.AddSource("H3");
+			router.AddSource("B", null);
+			router.AddSource("N1", null);
+			router.AddSource("N2", null);
+			router.AddSource("H1", null);
+			router.AddSource("H2", null);
+			router.AddSource("H3", null);
 
 			router.AddDestination("D1");
 			router.AddDestination("D2");
@@ -184,7 +200,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test, Explicit]
 		public void Can_send_and_receive_1000_messages_synchronously_in_a_minute ()
 		{
-			router.AddSource("A");
+			router.AddSource("A", null);
 			router.AddDestination("B");
 			router.Link("A","B");
 
@@ -204,7 +220,7 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 		[Test, Explicit]
 		public void Multithreaded_get_does_not_provide_duplicate_messages ()
 		{
-			router.AddSource("A");
+			router.AddSource("A", null);
 			router.AddDestination("B");
 			router.Link("A","B");
 
