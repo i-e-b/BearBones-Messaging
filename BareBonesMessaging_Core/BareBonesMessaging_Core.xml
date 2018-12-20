@@ -115,6 +115,13 @@
             The message may be acknowledged or cancelled to finish reception.
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessageRaw(System.String)">
+            <summary>
+            Try to start handling a waiting message. Returns null if no message.
+            This version does no deserialisation.
+            The message may be acknowledged or cancelled to finish reception.
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.IMessagingBase.ResetCaches">
             <summary>
             Ensure that routes and connections are rebuild on next SendMessage or CreateDestination.
@@ -210,6 +217,9 @@
             Try to start handling a waiting message.
             The message may be acknowledged or cancelled to finish reception.
             </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.TryStartMessageRaw(System.String)">
+            <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.MessagingBase.ResetCaches">
             <summary>

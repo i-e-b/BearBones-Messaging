@@ -149,7 +149,17 @@ namespace BearBonesMessaging
 			return new PendingMessage<T>(messageRouter, message, properties);
 		}
 
-		void RouteSource([NotNull] Type routeType)
+        /// <inheritdoc />
+        public IPendingMessage<byte[]> TryStartMessageRaw(string destinationName)
+        {
+            var bytes = messageRouter.GetBytes(destinationName, out var properties);
+
+            if (bytes == null) return null;
+
+            return new PendingMessage<byte[]>(messageRouter, bytes, properties);
+        }
+
+        void RouteSource([NotNull] Type routeType)
 		{
 			lock (RouteCache)
 			{

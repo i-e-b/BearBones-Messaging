@@ -48,6 +48,13 @@ namespace BearBonesMessaging
 		/// The message may be acknowledged or cancelled to finish reception.
 		/// </summary>
 		[CanBeNull] IPendingMessage<T> TryStartMessage<T>(string destinationName);
+        
+        /// <summary>
+        /// Try to start handling a waiting message. Returns null if no message.
+        /// This version does no deserialisation.
+        /// The message may be acknowledged or cancelled to finish reception.
+        /// </summary>
+        [CanBeNull] IPendingMessage<byte[]> TryStartMessageRaw(string destinationName);
 
 		/// <summary>
 		/// Ensure that routes and connections are rebuild on next SendMessage or CreateDestination.
