@@ -1,4 +1,5 @@
 using System;
+using BearBonesMessaging.RabbitMq;
 
 namespace BearBonesMessaging.Routing
 {
@@ -97,5 +98,10 @@ namespace BearBonesMessaging.Routing
 		/// Deletes all queues and exchanges created or used by this Router.
 		/// </summary>
 		void RemoveRouting(Func<string, bool> filter);
-	}
+
+        /// <summary>
+        /// Return connection details being used
+        /// </summary>
+        IRabbitServerTarget ConnectionDetails();
+    }
 }

@@ -27,7 +27,7 @@ namespace Messaging.Base.Integration.Tests.Helpers
             var username = ConfigurationManager.AppSettings["ApiUsername"];
             var password = ConfigurationManager.AppSettings["ApiPassword"];
 
-			return new RabbitMqConnection(hostUri, username, password, vhost);
+            return new RabbitMqConnection(hostUri, 0, username, password, vhost);
 		}
         
         public static RabbitMqConnection RabbitMqConnectionWithConfigSettingsAndCustomCredentials(string username, string password)
@@ -36,7 +36,7 @@ namespace Messaging.Base.Integration.Tests.Helpers
             var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
             var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
 
-            return new RabbitMqConnection(hostUri, username, password, vhost);
+            return new RabbitMqConnection(hostUri, 0, username, password, vhost);
         }
 
 		static readonly IRabbitMqConnection conn;
@@ -53,7 +53,7 @@ namespace Messaging.Base.Integration.Tests.Helpers
             var username = ConfigurationManager.AppSettings["ApiUsername"];
             var password = ConfigurationManager.AppSettings["ApiPassword"];
 
-			return new RabbitMqConnection(hostUri, username, password, vhost);
+			return new RabbitMqConnection(hostUri, 0, username, password, vhost);
 		}
 
 		public static IChannelAction ChannelWithAppConfigSettings()

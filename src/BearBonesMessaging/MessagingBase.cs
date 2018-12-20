@@ -57,6 +57,15 @@ namespace BearBonesMessaging
 			return interfaceTypes.Single()?.FullName;
 		}
 
+        
+        /// <summary>
+        /// Return details of the primary messaging server
+        /// </summary>
+        public IRabbitServerTarget ConnectionDetails()
+        {
+            return messageRouter.ConnectionDetails();
+        }
+
 		/// <summary>
 		/// Ensure a destination exists, and bind it to the exchanges for the given type
 		/// </summary>

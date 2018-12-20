@@ -1,4 +1,5 @@
 using System;
+using BearBonesMessaging.RabbitMq;
 using BearBonesMessaging.Serialisation;
 using JetBrains.Annotations;
 
@@ -73,5 +74,10 @@ namespace BearBonesMessaging
 		/// </summary>
 		/// <param name="message">A message created by PrepareForSend()</param>
 		void SendPrepared(IPreparedMessage message);
+
+        /// <summary>
+        /// Return details of the primary messaging server
+        /// </summary>
+        IRabbitServerTarget ConnectionDetails();
 	}
 }

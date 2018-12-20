@@ -140,6 +140,11 @@
             </summary>
             <param name="message">A message created by PrepareForSend()</param>
         </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.ConnectionDetails">
+            <summary>
+            Return details of the primary messaging server
+            </summary>
+        </member>
         <member name="T:BearBonesMessaging.IPendingMessage`1">
             <summary>
             Represents a message received from RabbitMq.
@@ -178,6 +183,11 @@
         <member name="M:BearBonesMessaging.MessagingBase.ContractTypeName(System.Type)">
             <summary>
             Get the contract name of a type
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.ConnectionDetails">
+            <summary>
+            Return details of the primary messaging server
             </summary>
         </member>
         <member name="M:BearBonesMessaging.MessagingBase.CreateDestination``1(System.String,BearBonesMessaging.Expires)">
@@ -271,6 +281,13 @@
             working system.
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.UsesSecureConnections">
+            <summary>
+            Attempt all connections over HTTPS.
+            If not set, HTTP will be used. This option should be set if any communication
+            leaves a private network.
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithContractRoot``1">
             <summary>
             Set a root contract type, preventing incorrect deserialisation from naming conflicts.
@@ -354,33 +371,41 @@
             Connection provider for RabbitMq
             </summary>
         </member>
-        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.Host">
-            <summary>
-            Rabbit MQ Cluster host name uri fragment
-            </summary>
-        </member>
-        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.VirtualHost">
-            <summary>
-            Target virtual host
-            </summary>
-        </member>
-        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.UserName">
-            <summary>
-            User account used for connection
-            If not supplied, 'guest' will be used. This is appropriate only for development systems
-            </summary>
-        </member>
-        <member name="P:BearBonesMessaging.RabbitMq.IRabbitMqConnection.Password">
-            <summary>
-            Account password used for connection
-            If not supplied, 'guest' will be used. This is appropriate only for development systems
-            </summary>
-        </member>
         <member name="M:BearBonesMessaging.RabbitMq.IRabbitMqConnection.ConfigureConnectionFactory">
             <summary>
             Return a connection factory.
             Use this to connect to the RMQ cluster.
             ALWAYS dispose your connections.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.RabbitMq.IRabbitServerTarget">
+            <summary>
+            Server connection string details
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitServerTarget.Host">
+            <summary>
+            Rabbit MQ Cluster host name uri fragment
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitServerTarget.Port">
+            <summary>
+            Rabbit MQ Cluster TCP/IP port
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitServerTarget.VirtualHost">
+            <summary>
+            Target virtual host
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitServerTarget.UserName">
+            <summary>
+            User account used for connection
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.IRabbitServerTarget.Password">
+            <summary>
+            Account password used for connection
             </summary>
         </member>
         <member name="T:BearBonesMessaging.RabbitMq.ILongTermConnection">
@@ -446,6 +471,11 @@
             Rabbit MQ Cluster host name uri fragment
             </summary>
         </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.Port">
+            <summary>
+            Rabbit MQ Cluster TCP/IP port
+            </summary>
+        </member>
         <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.UserName">
             <summary>
             User account used for connection
@@ -461,7 +491,7 @@
             Target virtual host
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.#ctor(System.String,System.String,System.String,System.String)">
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.#ctor(System.String,System.Int32,System.String,System.String,System.String)">
             <summary>
             Prepare a connection provider
             </summary>
@@ -797,6 +827,11 @@
             Deletes all queues and exchanges created or used by this Router.
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.ConnectionDetails">
+            <summary>
+            Return connection details being used
+            </summary>
+        </member>
         <member name="T:BearBonesMessaging.Routing.ITypeRouter">
             <summary>
             Building contract-type routing tree
@@ -876,6 +911,9 @@
             <summary>
             Deletes all queues and exchanges created or used by this Router.
             </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.ConnectionDetails">
+            <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.Routing.RabbitRouter.AddSource(System.String,System.String)">
             <summary>

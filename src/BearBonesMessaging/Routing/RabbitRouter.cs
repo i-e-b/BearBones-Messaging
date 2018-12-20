@@ -63,7 +63,14 @@ namespace BearBonesMessaging.Routing
 			}
 		}
 
-		/// <summary>
+        /// <inheritdoc />
+        public IRabbitServerTarget ConnectionDetails()
+        {
+            // ReSharper disable once InconsistentlySynchronizedField
+            return _shortTermConnection;
+        }
+
+        /// <summary>
 		/// Add a new node to which messages can be sent.
 		/// This node send messages over links that share a routing key.
 		/// </summary>

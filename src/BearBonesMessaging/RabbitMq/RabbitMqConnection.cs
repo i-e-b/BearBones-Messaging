@@ -14,6 +14,11 @@ namespace BearBonesMessaging.RabbitMq
 		/// Rabbit MQ Cluster host name uri fragment
 		/// </summary>
 		public string Host { get; }
+        
+        /// <summary>
+        /// Rabbit MQ Cluster TCP/IP port
+        /// </summary>
+        public int Port { get; }
 
         /// <summary>
         /// User account used for connection
@@ -33,9 +38,10 @@ namespace BearBonesMessaging.RabbitMq
 		/// <summary>
 		/// Prepare a connection provider
 		/// </summary>
-		public RabbitMqConnection(string hostUri, string userName, string password, string virtualHost)
+		public RabbitMqConnection(string hostUri, int port, string userName, string password, string virtualHost)
 		{
 			Host = hostUri;
+            Port = port;
             UserName = userName;
             Password = password;
             VirtualHost = virtualHost;
@@ -48,7 +54,7 @@ namespace BearBonesMessaging.RabbitMq
 		/// </summary>
 		public ConnectionFactory ConfigureConnectionFactory()
 		{
-			return new ConnectionFactory
+			var fact = new ConnectionFactory
 				{
 					Protocol = Protocols.AMQP_0_9_1,
 					HostName = Host,
@@ -57,6 +63,8 @@ namespace BearBonesMessaging.RabbitMq
                     UserName = UserName ?? "guest",
                     Password = Password ?? "guest"
 				};
+            if (Port > 0) fact.Port = Port;
+            return fact;
 		}
 
 		/// <summary>

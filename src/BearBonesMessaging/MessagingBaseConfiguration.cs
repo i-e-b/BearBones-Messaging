@@ -18,6 +18,7 @@ namespace BearBonesMessaging
         private IMessageRouter _rabbitRouterSingleton;
         private IChannelAction _longConnectionSingleton;
         private string _appGroupName;
+        private bool _useSecure;
 
         /// <summary>
         /// A string added at the start of a queue name, to create a dead-letter queue
@@ -40,6 +41,7 @@ namespace BearBonesMessaging
         public MessagingBaseConfiguration()
         {
             _typeMap = new Dictionary<Type, Func<object>>();
+            _useSecure = false;
             LastConfiguration = this;
         }
 
@@ -60,6 +62,16 @@ namespace BearBonesMessaging
 			return this;
 		}
         
+        /// <summary>
+        /// Attempt all connections over HTTPS.
+        /// If not set, HTTP will be used. This option should be set if any communication
+        /// leaves a private network.
+        /// </summary>
+        [NotNull] public MessagingBaseConfiguration UsesSecureConnections() {
+            _useSecure = true;
+            return this;
+        }
+
         /// <summary>
         /// Set a root contract type, preventing incorrect deserialisation from naming conflicts.
         /// All messages in the system should derive from this type if you set this.
@@ -90,7 +102,7 @@ namespace BearBonesMessaging
         /// <param name="vhost">RabbitMQ virtual host this connection will be targeting. Use "/" if in doubt.</param>
         [NotNull] public MessagingBaseConfiguration WithConnection(string host, int port, string username, string password, string vhost)
         {
-            Set<IRabbitMqConnection>(() => new RabbitMqConnection(host, username, password, vhost));
+            Set<IRabbitMqConnection>(() => new RabbitMqConnection(host, port, username, password, vhost));
             return this;
         }
 
@@ -108,8 +120,10 @@ namespace BearBonesMessaging
         /// <param name="credentialSecret">A private secret used to generate names and passwords of 'Limited' user accounts</param>
         [NotNull] public MessagingBaseConfiguration WithRabbitManagement(string host, int port, string username, string password, string vhost, string credentialSecret)
 		{
-            Set<IRabbitMqQuery>(() =>
-                new RabbitMqQuery("http://" + host + ":" + port, username, password, credentialSecret, vhost)
+            Set<IRabbitMqQuery>(() => {
+                    var scheme = _useSecure ? "https://" : "http://";
+                    return new RabbitMqQuery(scheme + host + ":" + port, username, password, credentialSecret, vhost);
+                }
             );
             return this;
 		}
