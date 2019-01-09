@@ -20,6 +20,7 @@ namespace Messaging.Base.Integration.Tests
         {
             _config = new MessagingBaseConfiguration()
                 .WithDefaults()
+                .UsesSecureConnections()
                 .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
             _messaging = _config.GetMessagingBase();

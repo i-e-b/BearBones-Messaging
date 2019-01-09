@@ -16,7 +16,7 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var port = ConfigurationManager.AppSettings["Messaging.Port"];
 			var vhost = (parts.Length >= 2) ? (parts[1]) : ("/");
 
-			return new RabbitMqQuery("http://" + hostUri + ":" + port, username, password, "testSalt", vhost);
+			return new RabbitMqQuery("https://" + hostUri + ":" + port, username, password, "testSalt", vhost);
 		}
 
 		public static RabbitMqConnection RabbitMqConnectionWithConfigSettings()
