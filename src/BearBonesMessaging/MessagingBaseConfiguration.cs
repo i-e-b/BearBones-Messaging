@@ -35,6 +35,7 @@ namespace BearBonesMessaging
         /// </summary>
         [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
 
+
         /// <summary>
         /// Create a new configuration object
         /// </summary>
@@ -46,6 +47,7 @@ namespace BearBonesMessaging
         }
 
         /// <summary>
+        /// Setup up routing connection and serialisation for a high-privilege user.
         /// Configure all default mappings in this config object
         /// You must also call a `WithConnection...` method to get a
         /// working system.
@@ -61,6 +63,24 @@ namespace BearBonesMessaging
 
 			return this;
 		}
+
+        /// <summary>
+        /// Setup up connection and serialisation for a low-privilege user. Does not allow auto-routing.
+        /// Configure all default mappings in this config object
+        /// You must also call a `WithConnection...` method to get a
+        /// working system.
+        /// </summary>
+        [NotNull] public MessagingBaseConfiguration WithLimitedPermissionDefaults()
+        {
+            Set<IMessageSerialiser>(() => new MessageSerialiser());
+            Set<ITypeRouter>(GetLimitedPermissionRabbitRouterSingleton);
+            Set<IMessagingBase>(() => new MessagingBase(Get<ITypeRouter>(), Get<IMessageRouter>(), Get<IMessageSerialiser>(), _appGroupName));
+
+            Set<IMessageRouter>(GetLimitedPermissionRabbitRouterSingleton);
+            Set<IChannelAction>(GetChannelActionSingleton);
+
+            return this;
+        }
         
         /// <summary>
         /// Attempt all connections over HTTPS.
@@ -189,6 +209,12 @@ namespace BearBonesMessaging
         private IMessageRouter GetRabbitRouterSingleton()
         {
             if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new RabbitRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
+            return _rabbitRouterSingleton;
+        }
+        
+        private IMessageRouter GetLimitedPermissionRabbitRouterSingleton()
+        {
+            if (_rabbitRouterSingleton == null) _rabbitRouterSingleton = new ReducedPermissionRouter(Get<IChannelAction>(), Get<IRabbitMqConnection>());
             return _rabbitRouterSingleton;
         }
 

@@ -276,6 +276,15 @@
         </member>
         <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithDefaults">
             <summary>
+            Setup up routing connection and serialisation for a high-privilege user.
+            Configure all default mappings in this config object
+            You must also call a `WithConnection...` method to get a
+            working system.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithLimitedPermissionDefaults">
+            <summary>
+            Setup up connection and serialisation for a low-privilege user. Does not allow auto-routing.
             Configure all default mappings in this config object
             You must also call a `WithConnection...` method to get a
             working system.
@@ -999,6 +1008,67 @@
             <summary>
             Basic properties object with default settings
             </summary>
+        </member>
+        <member name="T:BearBonesMessaging.Routing.ReducedPermissionRouter">
+            <summary>
+            A router that can be used with reduced permission users.
+            Does not require any "Configure" permissions on RabbitMQ.
+            This ignores all requests to change routing.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.#ctor(BearBonesMessaging.RabbitMq.IChannelAction,BearBonesMessaging.RabbitMq.IRabbitMqConnection)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.AddSource(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.AddBroadcastSource(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.AddDestination(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.AddLimitedDestination(System.String,BearBonesMessaging.Expires)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Link(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.RouteSources(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Send(System.String,System.String,System.String,System.String,System.Byte[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Send(System.String,System.String,System.String,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Get(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.GetBytes(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Finish(System.UInt64)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.GetAndFinish(System.String,BearBonesMessaging.Routing.MessageProperties@)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Purge(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Cancel(System.UInt64)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.RemoveRouting(System.Func{System.String,System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.ConnectionDetails">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.BuildRoutes(System.Type)">
+            <inheritdoc />
         </member>
         <member name="T:BearBonesMessaging.Routing.TypeRouter">
             <summary>

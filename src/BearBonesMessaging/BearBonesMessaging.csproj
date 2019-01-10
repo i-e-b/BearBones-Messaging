@@ -63,6 +63,7 @@
     <Compile Include="RabbitMq\RabbitMqManagement\IRMBinding.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\IRMUser.cs" />
     <Compile Include="RabbitMq\RabbitMqManagement\RabbitMqPasswordHelper.cs" />
+    <Compile Include="Routing\ReducedPermissionRouter.cs" />
     <Compile Include="Routing\MessageProperties.cs" />
     <Compile Include="Serialisation\IPreparedMessage.cs" />
     <Compile Include="MessagingBase.cs" />

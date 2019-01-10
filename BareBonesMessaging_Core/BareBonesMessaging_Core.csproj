@@ -40,6 +40,7 @@
     <Compile Include="..\src\BearBonesMessaging\Routing\MessageProperties.cs" Link="Routing\MessageProperties.cs" />
     <Compile Include="..\src\BearBonesMessaging\Routing\PendingMessage.cs" Link="Routing\PendingMessage.cs" />
     <Compile Include="..\src\BearBonesMessaging\Routing\RabbitRouter.cs" Link="Routing\RabbitRouter.cs" />
+    <Compile Include="..\src\BearBonesMessaging\Routing\ReducedPermissionRouter.cs" Link="Routing\ReducedPermissionRouter.cs" />
     <Compile Include="..\src\BearBonesMessaging\Routing\TypeRouter.cs" Link="Routing\TypeRouter.cs" />
     <Compile Include="..\src\BearBonesMessaging\Serialisation\ContractStack.cs" Link="Serialisation\ContractStack.cs" />
     <Compile Include="..\src\BearBonesMessaging\Serialisation\IMessageSerialiser.cs" Link="Serialisation\IMessageSerialiser.cs" />

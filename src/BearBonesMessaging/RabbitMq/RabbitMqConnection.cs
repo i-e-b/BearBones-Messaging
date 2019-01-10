@@ -74,7 +74,7 @@ namespace BearBonesMessaging.RabbitMq
 				};
             if (Port > 0) fact.Port = Port;
             if (UseSecure) {
-                fact.AmqpUriSslProtocols = SslProtocols.Default;
+                fact.AmqpUriSslProtocols = SslProtocols.Tls12;
                 fact.Ssl = DynamicSsl();
             }
             return fact;
