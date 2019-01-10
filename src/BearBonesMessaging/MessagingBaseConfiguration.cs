@@ -102,7 +102,7 @@ namespace BearBonesMessaging
         /// <param name="vhost">RabbitMQ virtual host this connection will be targeting. Use "/" if in doubt.</param>
         [NotNull] public MessagingBaseConfiguration WithConnection(string host, int port, string username, string password, string vhost)
         {
-            Set<IRabbitMqConnection>(() => new RabbitMqConnection(host, port, username, password, vhost));
+            Set<IRabbitMqConnection>(() => new RabbitMqConnection(host, port, username, password, vhost, _useSecure));
             return this;
         }
 

@@ -491,7 +491,12 @@
             Target virtual host
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.#ctor(System.String,System.Int32,System.String,System.String,System.String)">
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqConnection.UseSecure">
+            <summary>
+            Attempt to use a secure connection
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqConnection.#ctor(System.String,System.Int32,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Prepare a connection provider
             </summary>

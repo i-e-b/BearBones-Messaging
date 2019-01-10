@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using RabbitMQ.Client;
 
 namespace BearBonesMessaging.RabbitMq
@@ -35,17 +38,23 @@ namespace BearBonesMessaging.RabbitMq
 		/// </summary>
 		public string VirtualHost { get; }
 
-		/// <summary>
+        /// <summary>
+        /// Attempt to use a secure connection
+        /// </summary>
+        public bool UseSecure { get; }
+
+        /// <summary>
 		/// Prepare a connection provider
 		/// </summary>
-		public RabbitMqConnection(string hostUri, int port, string userName, string password, string virtualHost)
+		public RabbitMqConnection(string hostUri, int port, string userName, string password, string virtualHost, bool useSecure)
 		{
 			Host = hostUri;
             Port = port;
             UserName = userName;
             Password = password;
             VirtualHost = virtualHost;
-		}
+            UseSecure = useSecure;
+        }
 
 		/// <summary>
 		/// Return a connection factory.
@@ -64,10 +73,30 @@ namespace BearBonesMessaging.RabbitMq
                     Password = Password ?? "guest"
 				};
             if (Port > 0) fact.Port = Port;
+            if (UseSecure) {
+                fact.AmqpUriSslProtocols = SslProtocols.Default;
+                fact.Ssl = DynamicSsl();
+            }
             return fact;
 		}
 
-		/// <summary>
+        private SslOption DynamicSsl()
+        {
+            var outp = new SslOption();
+
+            outp.Enabled=true;
+            outp.AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNotAvailable | SslPolicyErrors.RemoteCertificateChainErrors;
+            outp.CertificateValidationCallback = CertificateValidationCallback;
+
+            return outp;
+        }
+
+        private bool CertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
+        {
+            return true;
+        }
+
+        /// <summary>
 		/// Perform an action against the RMQ cluster, returning no data
 		/// </summary>
 		public void WithChannel(Action<IModel> actions)
