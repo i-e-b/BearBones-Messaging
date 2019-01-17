@@ -120,7 +120,7 @@ namespace Messaging.Base.Integration.Tests
             message.Finish();
         }
         
-        [Test]
+        [Test, Explicit("Slow test")]
         public void a_list_of_dead_letter_queues_can_be_read_with_their_message_counts ()
         {
             var queueName = "Test_Destination_TTL_500";
@@ -131,7 +131,7 @@ namespace Messaging.Base.Integration.Tests
             MessagingBaseConfiguration.LastConfiguration.Get<IMessageRouter>().Purge(deadQueueName);
             messaging.SendMessage(testMessage);
             
-            Thread.Sleep(1000); // enough delay to expire the message
+            Thread.Sleep(2500); // enough delay to expire the message
 
             var message = messaging.TryStartMessage<IMsg>(queueName);
             Assert.That(message, Is.Null, "Message should NOT be in the original queue, but it was");

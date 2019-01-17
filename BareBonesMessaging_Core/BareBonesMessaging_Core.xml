@@ -111,13 +111,13 @@
         </member>
         <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage``1(System.String)">
             <summary>
-            Try to start handling a waiting message. Returns `null` if no message.
+            Try to start handling a waiting message of a specific known type. Returns `null` if no message.
             The message may be acknowledged or cancelled to finish reception.
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage``1">
+        <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage">
             <summary>
-            Try to start handling a waiting message. Returns `null` if no message.
+            Try to start handling a waiting message of any type. Returns `null` if no message.
             The message may be acknowledged or cancelled to finish reception.
             This will use the configured ApplicationGroupName to receive messages.
             If you have not configured an ApplicationGroupName, this method will fail
@@ -230,7 +230,7 @@
             For important messages, use `TryStartMessage`
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.MessagingBase.TryStartMessage``1">
+        <member name="M:BearBonesMessaging.MessagingBase.TryStartMessage">
             <summary>
             Try to start handling a waiting message. Returns `null` if no message.
             The message may be acknowledged or cancelled to finish reception.
@@ -363,6 +363,12 @@
             <summary>
             Return a configured messaging instance.
             This can be used to manage and monitor the host server
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.Shutdown">
+            <summary>
+            Close connections to the message broker.
+            Remember to call this if your application repeatedly connects and disconnects
             </summary>
         </member>
         <member name="M:BearBonesMessaging.MessagingBaseConfiguration.Get``1">
@@ -698,6 +704,12 @@
         <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.CredentialSalt">
             <summary>
             A private key used for generating one-time limited user accounts
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.AcceptInvalidSsl">
+            <summary>
+            If true, invalid SSL certificates will be accepted.
+            This should only be used for testing, and never on production systems.
             </summary>
         </member>
         <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.#ctor(System.Uri,System.Net.NetworkCredential,System.String)">

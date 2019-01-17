@@ -45,18 +45,18 @@ namespace BearBonesMessaging
         [CanBeNull] T GetMessage<T>(string destinationName);
 
 		/// <summary>
-		/// Try to start handling a waiting message. Returns `null` if no message.
+		/// Try to start handling a waiting message of a specific known type. Returns `null` if no message.
 		/// The message may be acknowledged or cancelled to finish reception.
 		/// </summary>
 		[CanBeNull] IPendingMessage<T> TryStartMessage<T>(string destinationName);
         
         /// <summary>
-        /// Try to start handling a waiting message. Returns `null` if no message.
+        /// Try to start handling a waiting message of any type. Returns `null` if no message.
         /// The message may be acknowledged or cancelled to finish reception.
         /// This will use the configured ApplicationGroupName to receive messages.
         /// If you have not configured an ApplicationGroupName, this method will fail
         /// </summary>
-        [CanBeNull] IPendingMessage<T> TryStartMessage<T>();
+        [CanBeNull] IPendingMessage<object> TryStartMessage();
         
         /// <summary>
         /// Try to start handling a waiting message. Returns null if no message.

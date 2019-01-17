@@ -32,7 +32,7 @@ namespace Messaging.Base.Integration.Tests
             _query = ConfigurationHelpers.RabbitMqQueryWithConfigSettings();
         }
 
-        [Test]
+        [Test, Explicit("_Requires a clean VHost")]
         public void can_add_and_remove_users__and_query_for_their_existence ()
         {
             var baseUsers = _query.ListUsers().Where(u => !u.tags.Contains("administrator")).ToList();

@@ -77,7 +77,7 @@ namespace Messaging.Base.Integration.Tests
             messaging.CreateDestination<IMsg>("app-group-name", Expires.Never);
             messaging.SendMessage(testMessage);
 
-            var message = messaging.TryStartMessage<IMsg>();
+            var message = messaging.TryStartMessage();
 
             Assert.That(message, Is.Not.Null);
             Console.WriteLine(message.Properties.OriginalType);

@@ -13,8 +13,8 @@ namespace BearBonesMessaging
 	/// </summary>
 	public class MessagingBaseConfiguration
 	{
-		IRabbitMqConnection configuredConnection;
-        [NotNull] readonly Dictionary<Type, Func<object>> _typeMap;
+		IRabbitMqConnection _configuredConnection;
+        [NotNull] private readonly Dictionary<Type, Func<object>> _typeMap;
         private IMessageRouter _rabbitRouterSingleton;
         private IChannelAction _longConnectionSingleton;
         private string _appGroupName;
@@ -107,8 +107,8 @@ namespace BearBonesMessaging
 		/// </summary>
 		[NotNull] public MessagingBaseConfiguration WithConnection(IRabbitMqConnection connection)
 		{
-			configuredConnection = connection;
-            Set<IRabbitMqConnection>(() => configuredConnection);
+			_configuredConnection = connection;
+            Set<IRabbitMqConnection>(() => _configuredConnection);
 			return this;
 		}
         
@@ -173,6 +173,15 @@ namespace BearBonesMessaging
         public IRabbitMqQuery GetManagement()
         {
             return Get<IRabbitMqQuery>();
+        }
+
+        /// <summary>
+        /// Close connections to the message broker.
+        /// Remember to call this if your application repeatedly connects and disconnects
+        /// </summary>
+        public void Shutdown() {
+            try { _longConnectionSingleton?.Dispose(); } catch { /*ignore*/ }
+            try { _configuredConnection?.Dispose(); } catch { /*ignore*/ }
         }
 
         /// <summary>

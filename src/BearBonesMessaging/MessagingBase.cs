@@ -141,9 +141,9 @@ namespace BearBonesMessaging
         /// This will use the configured ApplicationGroupName to receive messages.
         /// If you have not configured an ApplicationGroupName, this method will fail
         /// </summary>
-        public IPendingMessage<T> TryStartMessage<T>() {
+        public IPendingMessage<object> TryStartMessage() {
             if (string.IsNullOrWhiteSpace(_applicationGroupName)) throw new Exception("Application Group Name must be configured, or a specific destination (queue) name provided");
-            return TryStartMessage<T>(_applicationGroupName);
+            return TryStartMessage<object>(_applicationGroupName);
         }
 
 		/// <summary>
@@ -161,9 +161,10 @@ namespace BearBonesMessaging
 			{
 				message = (T)serialiser.DeserialiseByStack(messageString, properties.OriginalType);
 			}
-			catch
+			catch (Exception)
 			{
 				message = serialiser.Deserialise<T>(messageString);
+                if (message == null) throw;
 			}
 
 			return new PendingMessage<T>(messageRouter, message, properties);

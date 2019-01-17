@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using JetBrains.Annotations;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Impl;
 
 namespace BearBonesMessaging.RabbitMq
 {
@@ -144,10 +145,10 @@ namespace BearBonesMessaging.RabbitMq
                 if (conn == null) return;
                 try
                 {
-                    if (conn.IsOpen) conn.Close();
+                    if (conn.IsOpen) conn.Close(1000);
                     conn.Dispose();
                 }
-                catch (ObjectDisposedException)
+                catch
                 {
                     // Double-dispose. Not a massive problem, RabbitMQ SDK versions do this differently
                 }
@@ -163,10 +164,16 @@ namespace BearBonesMessaging.RabbitMq
                 if (chan == null) return;
                 try
                 {
-                    if (chan.IsOpen) chan.Close();
+                    if (chan.IsOpen) {
+                        if (chan is AutorecoveringModel arm) {
+                            arm.Close(0, "C# Finalizer", true);
+                        } else {
+                            chan.Close();
+                        }
+                    }
                     chan.Dispose();
                 }
-                catch (ObjectDisposedException)
+                catch
                 {
                     // Double-dispose. Not a massive problem, RabbitMQ SDK versions do this differently
                 }

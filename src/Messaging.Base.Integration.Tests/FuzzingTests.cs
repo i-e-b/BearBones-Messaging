@@ -28,6 +28,19 @@ namespace Messaging.Base.Integration.Tests
 		{
 			_conn.Dispose();
 		}
+        
+        [Test]
+        public void can_repeatedly_configure_and_shutdown_messaging ()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                var config = new MessagingBaseConfiguration()
+                    .WithDefaults()
+                    .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
+
+                config.Shutdown();
+            }
+        }
 
 		[Test]
 		public void can_shutdown_and_restart_connections_on_seperate_threads ()

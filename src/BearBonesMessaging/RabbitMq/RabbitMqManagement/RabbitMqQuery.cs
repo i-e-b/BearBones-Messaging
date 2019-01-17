@@ -33,7 +33,13 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
         /// </summary>
         public string CredentialSalt { get; }
 
-		/// <summary>
+        /// <summary>
+        /// If true, invalid SSL certificates will be accepted.
+        /// This should only be used for testing, and never on production systems.
+        /// </summary>
+        public bool AcceptInvalidSsl { get; set; }
+
+        /// <summary>
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
 		/// </summary>
 		public RabbitMqQuery(Uri managementApiHost, NetworkCredential credentials, string credentialSalt)
@@ -41,7 +47,8 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			HostUri = managementApiHost;
 			ManagementCredentials = credentials;
             CredentialSalt = credentialSalt ?? throw new ArgumentNullException(nameof(credentialSalt));
-		}
+            AcceptInvalidSsl = false;
+        }
 		
 		/// <summary>
 		/// Use `MessagingBaseConfiguration` and get an IRabbitMqQuery from ObjectFactory.
@@ -227,7 +234,9 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			request.Credentials = ManagementCredentials;
 
             // To test remotely, with test TLS certificates:
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            if (AcceptInvalidSsl){
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            }
 
             try
             {
@@ -240,9 +249,8 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
                     }
                 }
             }
-            catch (WebException wex)
+            catch (WebException)
             {
-                Console.WriteLine("err: "+wex);
                 return null;
             }
         }
