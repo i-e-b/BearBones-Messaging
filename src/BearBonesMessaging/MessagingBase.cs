@@ -134,6 +134,17 @@ namespace BearBonesMessaging
 				return serialiser.Deserialise<T>(messageString);
 			}
 		}
+        
+        /// <summary>
+        /// Try to start handling a waiting message. Returns `null` if no message.
+        /// The message may be acknowledged or cancelled to finish reception.
+        /// This will use the configured ApplicationGroupName to receive messages.
+        /// If you have not configured an ApplicationGroupName, this method will fail
+        /// </summary>
+        public IPendingMessage<T> TryStartMessage<T>() {
+            if (string.IsNullOrWhiteSpace(_applicationGroupName)) throw new Exception("Application Group Name must be configured, or a specific destination (queue) name provided");
+            return TryStartMessage<T>(_applicationGroupName);
+        }
 
 		/// <summary>
 		/// Try to start handling a waiting message.

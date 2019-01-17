@@ -72,6 +72,19 @@ namespace Messaging.Base.Integration.Tests
         }
 		
         [Test]
+        public void messages_can_be_picked_up_from_application_group_name_queue ()
+        {
+            messaging.CreateDestination<IMsg>("app-group-name", Expires.Never);
+            messaging.SendMessage(testMessage);
+
+            var message = messaging.TryStartMessage<IMsg>();
+
+            Assert.That(message, Is.Not.Null);
+            Console.WriteLine(message.Properties.OriginalType);
+            Assert.That(message.Message is IMetadataFile, Is.True, "Lost type information");
+        }
+
+        [Test]
         public void configured_sender_name_is_returned_with_message ()
         {
             messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);

@@ -226,6 +226,9 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 			request.AutomaticDecompression = DecompressionMethods.GZip;
 			request.Credentials = ManagementCredentials;
 
+            // To test remotely, with test TLS certificates:
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             try
             {
                 using (var response = request.GetResponse())
@@ -237,8 +240,9 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
                     }
                 }
             }
-            catch (WebException)
+            catch (WebException wex)
             {
+                Console.WriteLine("err: "+wex);
                 return null;
             }
         }

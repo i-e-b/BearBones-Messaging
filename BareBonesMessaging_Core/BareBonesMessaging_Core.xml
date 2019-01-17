@@ -111,8 +111,16 @@
         </member>
         <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage``1(System.String)">
             <summary>
-            Try to start handling a waiting message. Returns default(T) if no message.
+            Try to start handling a waiting message. Returns `null` if no message.
             The message may be acknowledged or cancelled to finish reception.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessage``1">
+            <summary>
+            Try to start handling a waiting message. Returns `null` if no message.
+            The message may be acknowledged or cancelled to finish reception.
+            This will use the configured ApplicationGroupName to receive messages.
+            If you have not configured an ApplicationGroupName, this method will fail
             </summary>
         </member>
         <member name="M:BearBonesMessaging.IMessagingBase.TryStartMessageRaw(System.String)">
@@ -220,6 +228,14 @@
             Use this only for non-critical transient messages.
             <para></para>
             For important messages, use `TryStartMessage`
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.TryStartMessage``1">
+            <summary>
+            Try to start handling a waiting message. Returns `null` if no message.
+            The message may be acknowledged or cancelled to finish reception.
+            This will use the configured ApplicationGroupName to receive messages.
+            If you have not configured an ApplicationGroupName, this method will fail
             </summary>
         </member>
         <member name="M:BearBonesMessaging.MessagingBase.TryStartMessage``1(System.String)">

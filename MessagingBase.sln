@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E4D6F7
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BareBonesMessaging_Core", "BareBonesMessaging_Core\BareBonesMessaging_Core.csproj", "{3D23D7AC-2CE3-497A-9B7D-FB2553CB79F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BareBonesMessaging_Core", "BareBonesMessaging_Core\BareBonesMessaging_Core.csproj", "{3D23D7AC-2CE3-497A-9B7D-FB2553CB79F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
