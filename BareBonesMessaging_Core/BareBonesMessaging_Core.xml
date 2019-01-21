@@ -173,6 +173,49 @@
             Message properties
             </summary>
         </member>
+        <member name="T:BearBonesMessaging.TestPendingMessage">
+            <summary>
+            A helper for unit testing of pending messages
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.TestPendingMessage.Wrapper``1(``0)">
+            <summary>
+            Return a test helper for IPendingMessage, with the given message object
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.TestPendingMessage.WrapperAnon(System.Object)">
+            <summary>
+            Return a test helper for IPendingMessage, with the given message object.
+            Uses an explicit boxed type.
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1">
+            <summary>
+            A test hook for pending messages
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.WasFinished">
+            <summary>
+            True if the `Finish` action was invoked
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.WasCancelled">
+            <summary>
+            True if the `Cancel` action was invoked
+            </summary>
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.Message">
+            <inheritdoc />
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.Cancel">
+            <inheritdoc />
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.Finish">
+            <inheritdoc />
+        </member>
+        <member name="P:BearBonesMessaging.TestPendingMessage.PendingMessageWrapper`1.Properties">
+            <inheritdoc />
+        </member>
         <member name="T:BearBonesMessaging.MessagingBase">
             <summary>
             Default messaging base.
