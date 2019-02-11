@@ -19,6 +19,7 @@ namespace BearBonesMessaging
         private IChannelAction _longConnectionSingleton;
         private string _appGroupName;
         private bool _useSecure;
+        private SslConnectionStrictness _strictness;
 
         /// <summary>
         /// A string added at the start of a queue name, to create a dead-letter queue
@@ -85,10 +86,22 @@ namespace BearBonesMessaging
         /// <summary>
         /// Attempt all connections over HTTPS.
         /// If not set, HTTP will be used. This option should be set if any communication
-        /// leaves a private network.
+        /// leaves a private network. Uses strict SSL certificate checks.
         /// </summary>
         [NotNull] public MessagingBaseConfiguration UsesSecureConnections() {
             _useSecure = true;
+            _strictness = SslConnectionStrictness.Strict;
+            return this;
+        }
+        
+        /// <summary>
+        /// Attempt all connections over HTTPS.
+        /// If not set, HTTP will be used. This option should be set if any communication
+        /// leaves a private network.
+        /// </summary>
+        [NotNull] public MessagingBaseConfiguration UsesSecureConnections(SslConnectionStrictness strict) {
+            _useSecure = true;
+            _strictness = strict;
             return this;
         }
 
@@ -142,7 +155,9 @@ namespace BearBonesMessaging
 		{
             Set<IRabbitMqQuery>(() => {
                     var scheme = _useSecure ? "https://" : "http://";
-                    return new RabbitMqQuery(scheme + host + ":" + port, username, password, credentialSecret, vhost);
+                    var query = new RabbitMqQuery(scheme + host + ":" + port, username, password, credentialSecret, vhost);
+                    if (_strictness == SslConnectionStrictness.Relaxed) {query.AcceptInvalidSsl = true; }
+                    return query;
                 }
             );
             return this;

@@ -48,6 +48,7 @@
     <Compile Include="..\src\BearBonesMessaging\Serialisation\IPreparedMessage.cs" Link="Serialisation\IPreparedMessage.cs" />
     <Compile Include="..\src\BearBonesMessaging\Serialisation\MessageSerialiser.cs" Link="Serialisation\MessageSerialiser.cs" />
     <Compile Include="..\src\BearBonesMessaging\Serialisation\PreparedMessage.cs" Link="Serialisation\PreparedMessage.cs" />
+    <Compile Include="..\src\BearBonesMessaging\SslConnectionStrictness.cs" Link="SslConnectionStrictness.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -53,6 +53,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationTests.cs" />
     <Compile Include="CorrelationIdentifiers.cs" />
     <Compile Include="DeadLetterHandling.cs" />
     <Compile Include="EndToEnd_WithInferredContracts.cs" />

@@ -69,7 +69,7 @@ namespace Messaging.Base.Integration.Tests
         }
 
         [Test]
-        public void if_a_time_restriction_set_has_been_set__an_expired_message_will_be_written_to_a_dead_letter_queue ()
+        public void if_a_time_restriction_has_been_set__an_expired_message_will_be_written_to_a_dead_letter_queue ()
         {
             var queueName = "Test_Destination_TTL_500";
             var deadQueueName = MessagingBaseConfiguration.DeadLetterPrefix + queueName;

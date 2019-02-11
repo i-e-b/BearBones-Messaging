@@ -353,6 +353,13 @@
             <summary>
             Attempt all connections over HTTPS.
             If not set, HTTP will be used. This option should be set if any communication
+            leaves a private network. Uses strict SSL certificate checks.
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.UsesSecureConnections(BearBonesMessaging.SslConnectionStrictness)">
+            <summary>
+            Attempt all connections over HTTPS.
+            If not set, HTTP will be used. This option should be set if any communication
             leaves a private network.
             </summary>
         </member>
@@ -1314,6 +1321,22 @@
         <member name="M:BearBonesMessaging.Serialisation.PreparedMessage.ToBytes">
             <summary>
             Return a storable list of bytes representing the message
+            </summary>
+        </member>
+        <member name="T:BearBonesMessaging.SslConnectionStrictness">
+            <summary>
+            Indicate how strict the checks for SSL certificates should be
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.SslConnectionStrictness.Strict">
+            <summary>
+            Certificate must be correct and valid, from a machine-level trusted certificate chain
+            </summary>
+        </member>
+        <member name="F:BearBonesMessaging.SslConnectionStrictness.Relaxed">
+            <summary>
+            Certificate must be valid, but self-signed certificates will be accepted.
+            This setting should only be used on test and development environments.
             </summary>
         </member>
         <member name="T:SevenDigital.Messaging.Base.TypeExtensions">
