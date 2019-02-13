@@ -77,6 +77,5 @@ namespace Messaging.Base.Integration.Tests
 			Assert.That(b.Join(TimeSpan.FromSeconds(20)));
 			Assert.False(anyFails, "channel was closed during an operation");
 		}
-
 	}
 }

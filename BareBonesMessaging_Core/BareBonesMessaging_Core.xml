@@ -994,6 +994,11 @@
             Very simple synchronous message routing over RabbitMq
             </summary>
         </member>
+        <member name="F:BearBonesMessaging.Routing.RabbitRouter.RoutingHeaderKey">
+            <summary>
+            Header key for the complete list of types for a message
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.Routing.RabbitRouter.#ctor(BearBonesMessaging.RabbitMq.IChannelAction,BearBonesMessaging.RabbitMq.IRabbitMqConnection)">
             <summary>
             Create a new router from config settings
@@ -1085,6 +1090,19 @@
         <member name="M:BearBonesMessaging.Routing.RabbitRouter.TaggedBasicProperties(System.String,System.String,System.String)">
             <summary>
             Basic properties object with default settings
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.LimitShortString(System.String)">
+            <summary>
+            RabbitMQ short strings can only be 255 characters or less.
+            If the contract type is too long, we shorten it here.
+            A full-length version is always held in the header dictionary
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.LongStringHeaders(System.String)">
+            <summary>
+            RabbitMQ short strings can only be 255 characters or less.
+            A full-length version of the contract type is always held in the header dictionary
             </summary>
         </member>
         <member name="T:BearBonesMessaging.Routing.ReducedPermissionRouter">

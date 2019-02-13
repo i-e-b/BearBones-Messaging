@@ -21,6 +21,11 @@ namespace BearBonesMessaging.Routing
 		[NotNull] readonly IRabbitMqConnection _shortTermConnection;
 		[NotNull] readonly object _lockObject;
 
+        /// <summary>
+        /// Header key for the complete list of types for a message
+        /// </summary>
+        const string RoutingHeaderKey = "all-types";
+
 		/// <summary>
 		/// Create a new router from config settings
 		/// </summary>
@@ -191,11 +196,13 @@ namespace BearBonesMessaging.Routing
         {
             if (data == null) data = new byte[0];
 
+            var properties = TaggedBasicProperties(typeDescription ?? sourceName, senderName, correlationId);
+
             _longTermConnection.WithChannel(channel => channel?.BasicPublish(
                 exchange: sourceName,
                 routingKey: "",
                 mandatory: false, // if true, there must be at least one routing output otherwise the send will error
-                basicProperties: TaggedBasicProperties(typeDescription ?? sourceName, senderName, correlationId),
+                basicProperties: properties,
                 body: data)
             );
         }
@@ -223,15 +230,26 @@ namespace BearBonesMessaging.Routing
 			}
 
             properties.DeliveryTag = result.DeliveryTag;
-            properties.OriginalType = result.BasicProperties?.Type;
             properties.Exchange = result.Exchange;
             properties.CorrelationId = result.BasicProperties?.CorrelationId;
             properties.SenderName = result.BasicProperties?.ReplyTo;
 
+            // 'OriginalType' tries to hold all contract types that match the message
+            // BasicProperties.Type is limited to 255 chars, but is easier for clients to send.
+            // Headers don't have this restriction, so we use them preferentially if they exist.
+            properties.OriginalType = Coalesce(result.BasicProperties?.Headers?[RoutingHeaderKey], result.BasicProperties?.Type);
+
             return result.Body;
 		}
 
-		/// <summary>
+        private string Coalesce(object a, string b) {
+            if (a == null) return b;
+            if (a is byte[] bytes) return Encoding.UTF8.GetString(bytes);
+            if (a is string str) return str;
+            return b;
+        }
+
+        /// <summary>
 		/// Finish a message retrieved by 'Get'.
 		/// This will remove the message from the queue
 		/// </summary>
@@ -277,12 +295,44 @@ namespace BearBonesMessaging.Routing
 		public IBasicProperties TaggedBasicProperties(string contractTypeDescription, string senderName, string correlationId)
 		{
 			return new BasicProperties{
-                Type = contractTypeDescription,
+                Type = LimitShortString(contractTypeDescription ?? "<unknown>"),
                 ReplyTo = senderName,
-                CorrelationId = correlationId ?? Guid.NewGuid().ToString()
+                CorrelationId = correlationId ?? Guid.NewGuid().ToString(),
+                Headers = LongStringHeaders(contractTypeDescription)
             };
 		}
+
+        /// <summary>
+        /// RabbitMQ short strings can only be 255 characters or less.
+        /// If the contract type is too long, we shorten it here.
+        /// A full-length version is always held in the header dictionary
+        /// </summary>
+        private string LimitShortString([NotNull]string contractTypeDescription)
+        {
+            if (contractTypeDescription.Length < 255) return contractTypeDescription; // no problem
+
+            // ReSharper disable once ConstantNullCoalescingCondition
+            var parts = contractTypeDescription.Split(';') ?? new string[0];
+            var sb = new StringBuilder();
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (parts[i] == null) continue;
+                if (sb.Length + parts[i].Length > 253) return sb.ToString();
+                if (i != 0) sb.Append(';');
+                sb.Append(parts[i]);
+            }
+            return sb.ToString();
+        }
         
+        /// <summary>
+        /// RabbitMQ short strings can only be 255 characters or less.
+        /// A full-length version of the contract type is always held in the header dictionary
+        /// </summary>
+        private IDictionary<string, object> LongStringHeaders(string contractTypeDescription)
+        {
+            return new Dictionary<string, object> {{RoutingHeaderKey, contractTypeDescription}};
+        }
+
 
         private IDictionary<string, object> ArgumentsToStore(string metadata)
         {
