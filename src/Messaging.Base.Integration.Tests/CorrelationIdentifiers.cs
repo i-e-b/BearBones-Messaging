@@ -2,6 +2,7 @@
 using System.Threading;
 using BearBonesMessaging;
 using BearBonesMessaging.Routing;
+using BearBonesMessaging.Serialisation;
 using Example.Types;
 using Messaging.Base.Integration.Tests.Helpers;
 using NUnit.Framework;
@@ -69,6 +70,32 @@ namespace Messaging.Base.Integration.Tests
 
             messaging.SendMessage(testMessage, staticId);
             messaging.SendMessage(testMessage, staticId);
+
+            var message1 = messaging.TryStartMessage<IMsg>("Test_Destination");
+
+            Assert.That(message1, Is.Not.Null, "did not get message 1");
+            Assert.That(message1.Properties.CorrelationId, Is.EqualTo(staticId), "message 1 had an unexpected correlation ID");
+
+            var message2 = messaging.TryStartMessage<IMsg>("Test_Destination");
+            
+            Assert.That(message2, Is.Not.Null, "did not get message 2");
+            Assert.That(message2.Properties.CorrelationId, Is.EqualTo(staticId), "message 2 had an unexpected correlation ID");
+
+
+            message1.Finish();
+            message2.Finish();
+        }
+        
+
+        [Test]
+        public void sending_a_prepared_message_with_a_fixed_correlation_id_always_uses_that_value ()
+        {
+            messaging.CreateDestination<IMsg>("Test_Destination", Expires.Never);
+
+            var staticId = "OhMyCorrelation!";
+
+            messaging.SendPrepared(new PreparedMessage("Example.Types.IMsg", "{\"CorrelationId\":null}", "Example.Types.IMsg") { CorrelationId = staticId });
+            messaging.SendPrepared(new PreparedMessage("Example.Types.IMsg", "{\"CorrelationId\":null}", "Example.Types.IMsg") { CorrelationId = staticId });
 
             var message1 = messaging.TryStartMessage<IMsg>("Test_Destination");
 
