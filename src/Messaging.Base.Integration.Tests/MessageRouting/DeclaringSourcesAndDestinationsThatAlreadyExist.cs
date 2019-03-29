@@ -76,6 +76,25 @@ namespace Messaging.Base.Integration.Tests.MessageRouting
 			Assert.That(router.GetAndFinish("dst", out _), Is.Null);
 		}
 
+        [Test]
+        public void If_I_delete_a_route_between_a_source_and_destination_I_no_longer_get_new_messages () {
+            
+            router.AddSource("src_1", null);
+            router.AddSource("src_2", null);
+            router.AddDestination("dst");
+
+            router.Link("src_1", "dst");
+            router.Link("src_2", "dst");
+
+            router.Unlink("src_1", "dst");
+
+            router.Send("src_1", null, null, null, "Hello1");
+            router.Send("src_2", null, null, null, "Hello2");
+            
+            Assert.That(router.GetAndFinish("dst", out _), Is.EqualTo("Hello2"));
+            Assert.That(router.GetAndFinish("dst", out _), Is.Null);
+        }
+
 		[TearDown]
 		public void CleanUp()
 		{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 {
@@ -22,6 +23,7 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		bool durable { get; set; }
 		string vhost { get; set; }
 		string node { get; set; }
+        Dictionary<string, object> arguments { get; set; }
 #pragma warning restore 1591
-	}
+    }
 }

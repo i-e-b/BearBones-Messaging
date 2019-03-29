@@ -70,7 +70,8 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
 		/// </summary>
 		public IRMQueue[] ListDestinations()
 		{
-            return Json.Defrost<IRMQueue[]>(Get("/api/queues" + VirtualHost));
+            var raw = Get("/api/queues" + VirtualHost);
+            return Json.Defrost<IRMQueue[]>(raw);
 		}
         
         /// <summary>

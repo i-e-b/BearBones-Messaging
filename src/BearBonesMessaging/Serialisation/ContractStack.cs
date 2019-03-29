@@ -31,10 +31,15 @@ namespace BearBonesMessaging.Serialisation
             
             if (left >= message.Length) return null;
 
-			while (left < message.Length)
+            if (message.IndexOfAny(new[] { ';', '"' }) == -1)
+            {   // direct type name, not inline with message body
+                TryGetTypeByName(message, contractAssemblyName);
+            }
+
+            while (left < message.Length)
 			{
 				var right = message.IndexOfAny(new[] { ';', '"' }, left);
-				if (right <= left) return null;
+				if (right <= left) right = message.Length;
 
                 var name = message.Substring(left, right - left);
                 var t = TryGetTypeByName(name, contractAssemblyName);

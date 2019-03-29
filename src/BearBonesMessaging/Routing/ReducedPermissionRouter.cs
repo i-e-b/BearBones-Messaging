@@ -34,6 +34,9 @@ namespace BearBonesMessaging.Routing
         public void Link(string sourceName, string destinationName) { }
 
         /// <inheritdoc />
+        public void Unlink(string sourceName, string destinationName) { }
+
+        /// <inheritdoc />
         public void RouteSources(string child, string parent) { }
 
         /// <inheritdoc />

@@ -17,19 +17,34 @@ namespace Messaging.Base.Unit.Tests.Serialisation
 		                "Example.Types.IPath, Example.Types; " +
 		                "Example.Types.IMsg, Example.Types\"}";
 
-		Type _foundType;
-
 		[SetUp]
 		public void setup ()
 		{
-			_foundType = ContractStack.FirstKnownType(sample, null);
 		}
 
 		[Test]
 		public void can_get_first_available_real_type ()
 		{
-			Assert.That(_foundType,
+            var foundType = ContractStack.FirstKnownType(sample, null);
+
+			Assert.That(foundType,
 				Is.EqualTo(typeof(IMetadataFile)));
 		}
+
+        [Test]
+        public void can_read_a_direct_type_name () {
+            var foundType = ContractStack.FirstKnownType("Example.Types.IMetadataFile", null);
+
+            Assert.That(foundType,
+                Is.EqualTo(typeof(IMetadataFile)));
+        }
+
+        [Test]
+        public void can_read_a_direct_type_name_with_options () {
+            var foundType = ContractStack.FirstKnownType("Example.Types.IMetadataFile;Example.Types.IFile", null);
+
+            Assert.That(foundType,
+                Is.EqualTo(typeof(IMetadataFile)));
+        }
 	}
 }

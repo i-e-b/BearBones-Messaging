@@ -860,6 +860,12 @@
             Create a link between a source node and a destination node by a routing key
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.Routing.IMessageRouter.Unlink(System.String,System.String)">
+            <summary>
+            Remove an existing link between a source node and a destination node by a routing key.
+            If no link exists, this call will do nothing.
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.Routing.IMessageRouter.RouteSources(System.String,System.String)">
             <summary>
             Route a message between two sources.
@@ -1040,6 +1046,12 @@
             Create a link between a source node and a destination node by a routing key
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.Routing.RabbitRouter.Unlink(System.String,System.String)">
+            <summary>
+            Remove an existing link between a source node and a destination node by a routing key.
+            If no link exists, this call will do nothing.
+            </summary>
+        </member>
         <member name="M:BearBonesMessaging.Routing.RabbitRouter.RouteSources(System.String,System.String)">
             <summary>
             Route a message between two sources.
@@ -1128,6 +1140,9 @@
             <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Link(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.Unlink(System.String,System.String)">
             <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.Routing.ReducedPermissionRouter.RouteSources(System.String,System.String)">

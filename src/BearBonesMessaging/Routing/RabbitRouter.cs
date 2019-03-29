@@ -149,7 +149,18 @@ namespace BearBonesMessaging.Routing
                     channel.QueueBind(dlqName, dlqName, "");
 
                     // the actual queue:
-                    channel.QueueDeclare(name, true, false, false, ttlOptions);
+                    try
+                    {
+                        channel.QueueDeclare(name, true, false, false, ttlOptions);
+                    }
+                    catch (RabbitMQ.Client.Exceptions.OperationInterruptedException ex)
+                    {
+                        if (ex.ShutdownReason?.ReplyCode != 406) {
+                            throw;
+                        }
+                        // TTL has already been set -- we don't support changing at run-time yet.
+                        // Thought -- stage, delete and re-stage to change ttl?
+                    }
                 });
 
 				queues.Add(name);
@@ -168,6 +179,18 @@ namespace BearBonesMessaging.Routing
 				_shortTermConnection.WithChannel(channel => channel.QueueBind(destinationName, sourceName, ""));
 			}
 		}
+
+        /// <summary>
+        /// Remove an existing link between a source node and a destination node by a routing key.
+        /// If no link exists, this call will do nothing.
+        /// </summary>
+        public void Unlink(string sourceName, string destinationName)
+        {
+            lock (_lockObject)
+            {
+                _shortTermConnection.WithChannel(channel => channel.QueueUnbind(destinationName, sourceName, ""));
+            }
+        }
 
 		/// <summary>
 		/// Route a message between two sources.
@@ -237,10 +260,17 @@ namespace BearBonesMessaging.Routing
             // 'OriginalType' tries to hold all contract types that match the message
             // BasicProperties.Type is limited to 255 chars, but is easier for clients to send.
             // Headers don't have this restriction, so we use them preferentially if they exist.
-            properties.OriginalType = Coalesce(result.BasicProperties?.Headers?[RoutingHeaderKey], result.BasicProperties?.Type);
+            properties.OriginalType = Coalesce(TryGet(result.BasicProperties?.Headers, RoutingHeaderKey), result.BasicProperties?.Type);
 
             return result.Body;
 		}
+
+        private TValue TryGet<TKey,TValue>(IDictionary<TKey,TValue> dict, TKey key)
+        {
+            if (dict == null || key == null) return default(TValue);
+            if (!dict.ContainsKey(key)) return default(TValue);
+            return dict[key];
+        }
 
         private string Coalesce(object a, string b) {
             if (a == null) return b;

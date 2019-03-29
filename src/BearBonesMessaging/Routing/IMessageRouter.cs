@@ -39,6 +39,12 @@ namespace BearBonesMessaging.Routing
 		/// Create a link between a source node and a destination node by a routing key
 		/// </summary>
 		void Link(string sourceName, string destinationName);
+        
+        /// <summary>
+        /// Remove an existing link between a source node and a destination node by a routing key.
+        /// If no link exists, this call will do nothing.
+        /// </summary>
+        void Unlink(string sourceName, string destinationName);
 
 		/// <summary>
 		/// Route a message between two sources.
