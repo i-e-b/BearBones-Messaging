@@ -24,7 +24,7 @@ namespace Messaging.Base.Integration.Tests
         {
             _config = new MessagingBaseConfiguration()
                 .WithDefaults()
-                .UsesSecureConnections() // If you don't have HTTPS set up, comment out this line
+                //.UsesSecureConnections() // If you don't have HTTPS set up, comment out this line
                 .WithConnection(ConfigurationHelpers.RabbitMqConnectionWithConfigSettings());
 
             _messaging = _config.GetMessagingBase();

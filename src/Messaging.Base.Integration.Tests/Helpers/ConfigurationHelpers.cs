@@ -16,18 +16,25 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var port = ConfigurationManager.AppSettings["Messaging.Port"];
 			var vhost = (parts.Length >= 2) ? (parts[1]) : ("/");
 
-			return new RabbitMqQuery("https://" + hostUri + ":" + port, username, password, "testSalt", vhost);
-		}
+            if (port == "15672")
+            {
+                return new RabbitMqQuery("http://" + hostUri + ":" + port, username, password, "testSalt", vhost);
+            }
+            return new RabbitMqQuery("https://" + hostUri + ":" + port, username, password, "testSalt", vhost);
+        }
 
-		public static RabbitMqConnection RabbitMqConnectionWithConfigSettings()
+        public static RabbitMqConnection RabbitMqConnectionWithConfigSettings()
 		{
 			var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
 			var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
 			var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
             var username = ConfigurationManager.AppSettings["ApiUsername"];
             var password = ConfigurationManager.AppSettings["ApiPassword"];
+            
+            var port = ConfigurationManager.AppSettings["Messaging.Port"];
+            var useSecure = (port != "15672");
 
-            return new RabbitMqConnection(hostUri, 5671, username, password, vhost, true);
+            return new RabbitMqConnection(hostUri, 0, username, password, vhost, useSecure);
 		}
         
         public static RabbitMqConnection RabbitMqConnectionWithConfigSettingsAndCustomCredentials(string username, string password)
@@ -35,8 +42,11 @@ namespace Messaging.Base.Integration.Tests.Helpers
             var parts = ConfigurationManager.AppSettings["Messaging.Host"].Split('/');
             var hostUri = (parts.Length >= 1) ? (parts[0]) : ("localhost");
             var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
+            
+            var port = ConfigurationManager.AppSettings["Messaging.Port"];
+            var useSecure = (port != "15672");
 
-            return new RabbitMqConnection(hostUri, 0, username, password, vhost, true);
+            return new RabbitMqConnection(hostUri, 0, username, password, vhost, useSecure);
         }
 
 		static readonly IRabbitMqConnection conn;
@@ -52,8 +62,11 @@ namespace Messaging.Base.Integration.Tests.Helpers
 			var vhost = (parts.Length >= 2 && parts[1].Length > 0) ? (parts[1]) : ("/");
             var username = ConfigurationManager.AppSettings["ApiUsername"];
             var password = ConfigurationManager.AppSettings["ApiPassword"];
+            
+            var port = ConfigurationManager.AppSettings["Messaging.Port"];
+            var useSecure = (port != "15672");
 
-			return new RabbitMqConnection(hostUri, 0, username, password, vhost, true);
+			return new RabbitMqConnection(hostUri, 0, username, password, vhost, useSecure);
 		}
 
 		public static IChannelAction ChannelWithAppConfigSettings()

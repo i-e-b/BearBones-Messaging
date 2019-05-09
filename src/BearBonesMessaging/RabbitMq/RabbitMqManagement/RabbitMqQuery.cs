@@ -182,13 +182,26 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
             if (response == null) throw new Exception("Failed to create new user");
 
             // Set write + read permissions, but no configure for the current VHost
-            var encVhost = Uri.EscapeDataString(VirtualHost ?? "/");
+            var encHost = EncodeVHost();
             body = Json.Freeze(new {configure = "", write = ".*", read = ".*"}); // these are regexes to match resources
-            response = Put("/api/permissions/" + encVhost + "/" + expectedUser, body);
+            response = Put($"/api/permissions/{encHost}/{expectedUser}", body);
             if (response == null) throw new Exception("Failed to give permissions to new user");
 
             var existing = TryGetUser(expectedUser);
             if (existing == null) throw new Exception("Failed to read new user");
+        }
+
+        /// <summary>
+        /// Make a URL encoded version of the VHost
+        /// </summary>
+        /// <returns></returns>
+        private string EncodeVHost()
+        {
+            if (VirtualHost == "/") return "%2F";
+            var trimHost = VirtualHost?.Trim(' ', '/') ?? "/";
+            if (trimHost.Length < 1) trimHost = "/";
+            var encHost = Uri.EscapeDataString(trimHost);
+            return encHost;
         }
 
         string DeleteRequest(string endpoint)
@@ -288,8 +301,9 @@ namespace BearBonesMessaging.RabbitMq.RabbitMqManagement
                     }
                 }
             }
-            catch (WebException)
+            catch (WebException ex)
             {
+                Console.WriteLine(ex);
                 return null;
             }
         }

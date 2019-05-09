@@ -818,6 +818,12 @@
             Delete a user from the system
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.EncodeVHost">
+            <summary>
+            Make a URL encoded version of the VHost
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:BearBonesMessaging.RabbitMq.RabbitMqManagement.RabbitMqQuery.prospector32s(System.Char[],System.UInt32)">
             <summary>
             Low bias 32 bit hash

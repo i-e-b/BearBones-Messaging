@@ -46,7 +46,7 @@ namespace BearBonesMessaging.Serialisation
                 if (t != null) return t;
 
 				left = right + 1;
-				while (char.IsWhiteSpace(message[left]))
+				while (left < message.Length && char.IsWhiteSpace(message[left]))
 				{
 					left++;
 				}
