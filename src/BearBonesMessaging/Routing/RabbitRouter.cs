@@ -328,7 +328,9 @@ namespace BearBonesMessaging.Routing
                 Type = LimitShortString(contractTypeDescription ?? "<unknown>"),
                 ReplyTo = senderName,
                 CorrelationId = correlationId ?? Guid.NewGuid().ToString(),
-                Headers = LongStringHeaders(contractTypeDescription)
+                Headers = LongStringHeaders(contractTypeDescription),
+                ContentType = "application/json",
+                ContentEncoding = "utf-8"
             };
 		}
 
