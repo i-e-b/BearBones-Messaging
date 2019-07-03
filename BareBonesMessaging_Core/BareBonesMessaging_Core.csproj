@@ -61,7 +61,7 @@
 
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
-    <PackageReference Include="SkinnyJson" Version="1.6.9" />
+    <PackageReference Include="SkinnyJson" Version="1.7.0" />
   </ItemGroup>
 
 </Project>

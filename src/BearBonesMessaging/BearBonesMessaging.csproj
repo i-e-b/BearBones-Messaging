@@ -46,7 +46,7 @@
       <HintPath>..\..\packages\RabbitMQ.Client.5.1.0\lib\net451\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="SkinnyJson, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SkinnyJson.1.6.9\lib\net40\SkinnyJson.dll</HintPath>
+      <HintPath>..\..\packages\SkinnyJson.1.7.0\lib\net40\SkinnyJson.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
