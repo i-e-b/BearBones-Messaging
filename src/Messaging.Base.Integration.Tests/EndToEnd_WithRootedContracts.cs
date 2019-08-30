@@ -185,7 +185,7 @@ namespace Messaging.Base.Integration.Tests
             Assert.That(pending_1, Is.Not.Null);
 
             pending_1.Cancel();
-            pending_1.Cancel();
+            Assert.Throws<InvalidOperationException>(() => pending_1.Cancel());
 
             pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
             Assert.That(pending_1, Is.Not.Null);
@@ -204,7 +204,7 @@ namespace Messaging.Base.Integration.Tests
             Assert.That(pending_1, Is.Not.Null);
 
             pending_1.Finish();
-            pending_1.Finish();
+            Assert.Throws<InvalidOperationException>(() => pending_1.Finish());
 
             messaging.SendMessage(testMessage);
 
@@ -225,7 +225,7 @@ namespace Messaging.Base.Integration.Tests
             Assert.That(pending_1, Is.Not.Null);
 
             pending_1.Cancel();
-            pending_1.Finish();
+            Assert.Throws<InvalidOperationException>(() => pending_1.Finish());
 
             pending_1 = messaging.TryStartMessage<IMsg>("Test_Destination");
             Assert.That(pending_1, Is.Not.Null);
@@ -244,7 +244,7 @@ namespace Messaging.Base.Integration.Tests
             Assert.That(pending_1, Is.Not.Null);
 
             pending_1.Finish();
-            pending_1.Cancel();
+            Assert.Throws<InvalidOperationException>(() => pending_1.Cancel());
 
             messaging.SendMessage(testMessage);
 
