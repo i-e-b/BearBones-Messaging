@@ -61,6 +61,7 @@
     <Compile Include="DeadLetterHandling.cs" />
     <Compile Include="EndToEnd_WithInferredContracts.cs" />
     <Compile Include="EndToEnd_WithRootedContracts.cs" />
+    <Compile Include="FailoverTests.cs" />
     <Compile Include="FuzzingTests.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\ConfigurationHelpers.cs" />

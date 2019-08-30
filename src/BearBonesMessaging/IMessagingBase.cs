@@ -87,5 +87,15 @@ namespace BearBonesMessaging
         /// Return details of the primary messaging server
         /// </summary>
         IRabbitServerTarget ConnectionDetails();
+
+        /// <summary>
+        /// Set a maximum time for the client to complete a message before it is automatically unlocked.
+        /// If this is set to `TimeSpan.MaxValue` or `TimeSpan.Zero`, the client retains the lock for as long as it is connected.
+        /// Otherwise, if the client fails to either `Cancel` or `Finish` a pending message, the message will be automatically cancelled.
+        /// <para></para>
+        /// The default timeout is 5 minutes.
+        /// </summary>
+        void SetAcknowledgeTimeout(TimeSpan maxWait);
+        
 	}
 }

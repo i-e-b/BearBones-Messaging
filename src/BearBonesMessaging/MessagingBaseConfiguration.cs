@@ -36,6 +36,8 @@ namespace BearBonesMessaging
         /// </summary>
         [CanBeNull] public static MessagingBaseConfiguration LastConfiguration;
 
+        internal static TimeSpan DefaultAckTimeout = TimeSpan.FromMinutes(5);
+
 
         /// <summary>
         /// Create a new configuration object
@@ -169,6 +171,19 @@ namespace BearBonesMessaging
         [NotNull] public MessagingBaseConfiguration WithApplicationGroupName(string appGroupName)
         {
             _appGroupName = appGroupName;
+            return this;
+        }
+
+        /// <summary>
+        /// Set a maximum time for the client to complete a message before it is automatically unlocked.
+        /// If this is set to `TimeSpan.MaxValue` or `TimeSpan.Zero`, the client retains the lock for as long as it is connected.
+        /// Otherwise, if the client fails to either `Cancel` or `Finish` a pending message, the message will be automatically cancelled.
+        /// <para></para>
+        /// The default timeout is 5 minutes.
+        /// </summary>
+        public MessagingBaseConfiguration SetDefaultAcknowledgeTimeout(TimeSpan maxWait)
+        {
+            DefaultAckTimeout = maxWait;
             return this;
         }
 

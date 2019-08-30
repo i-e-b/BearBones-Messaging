@@ -153,6 +153,15 @@
             Return details of the primary messaging server
             </summary>
         </member>
+        <member name="M:BearBonesMessaging.IMessagingBase.SetAcknowledgeTimeout(System.TimeSpan)">
+            <summary>
+            Set a maximum time for the client to complete a message before it is automatically unlocked.
+            If this is set to `TimeSpan.MaxValue` or `TimeSpan.Zero`, the client retains the lock for as long as it is connected.
+            Otherwise, if the client fails to either `Cancel` or `Finish` a pending message, the message will be automatically cancelled.
+            <para></para>
+            The default timeout is 5 minutes.
+            </summary>
+        </member>
         <member name="T:BearBonesMessaging.IPendingMessage`1">
             <summary>
             Represents a message received from RabbitMq.
@@ -240,6 +249,9 @@
             <summary>
             Return details of the primary messaging server
             </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBase.SetAcknowledgeTimeout(System.TimeSpan)">
+            <inheritdoc />
         </member>
         <member name="M:BearBonesMessaging.MessagingBase.CreateDestination``1(System.String,BearBonesMessaging.Expires)">
             <summary>
@@ -401,6 +413,15 @@
         <member name="M:BearBonesMessaging.MessagingBaseConfiguration.WithApplicationGroupName(System.String)">
             <summary>
             Add an application group name. This will be used as a reply-to address in any messages sent
+            </summary>
+        </member>
+        <member name="M:BearBonesMessaging.MessagingBaseConfiguration.SetDefaultAcknowledgeTimeout(System.TimeSpan)">
+            <summary>
+            Set a maximum time for the client to complete a message before it is automatically unlocked.
+            If this is set to `TimeSpan.MaxValue` or `TimeSpan.Zero`, the client retains the lock for as long as it is connected.
+            Otherwise, if the client fails to either `Cancel` or `Finish` a pending message, the message will be automatically cancelled.
+            <para></para>
+            The default timeout is 5 minutes.
             </summary>
         </member>
         <member name="M:BearBonesMessaging.MessagingBaseConfiguration.GetMessagingBase">
@@ -987,7 +1008,7 @@
             Message properties
             </summary>
         </member>
-        <member name="M:BearBonesMessaging.Routing.PendingMessage`1.#ctor(BearBonesMessaging.Routing.IMessageRouter,`0,BearBonesMessaging.Routing.MessageProperties)">
+        <member name="M:BearBonesMessaging.Routing.PendingMessage`1.#ctor(BearBonesMessaging.Routing.IMessageRouter,`0,BearBonesMessaging.Routing.MessageProperties,System.TimeSpan)">
             <summary>
             Wrap a message object and delivery tag as a PendingMessage
             </summary>

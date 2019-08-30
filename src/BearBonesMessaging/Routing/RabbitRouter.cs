@@ -245,25 +245,33 @@ namespace BearBonesMessaging.Routing
         /// </summary>
         public byte[] GetBytes(string destinationName, out MessageProperties properties)
 		{
-			var result = _longTermConnection.GetWithChannel(channel => channel?.BasicGet(destinationName, false));
-			if (result == null)
-			{
-				properties = default(MessageProperties);
-				return null;
-			}
+            try
+            {
+                var result = _longTermConnection.GetWithChannel(channel => channel?.BasicGet(destinationName, false));
+                if (result == null)
+                {
+                    properties = default;
+                    return null;
+                }
 
-            properties.DeliveryTag = result.DeliveryTag;
-            properties.Exchange = result.Exchange;
-            properties.CorrelationId = result.BasicProperties?.CorrelationId;
-            properties.SenderName = result.BasicProperties?.ReplyTo;
+                properties.DeliveryTag = result.DeliveryTag;
+                properties.Exchange = result.Exchange;
+                properties.CorrelationId = result.BasicProperties?.CorrelationId;
+                properties.SenderName = result.BasicProperties?.ReplyTo;
 
-            // 'OriginalType' tries to hold all contract types that match the message
-            // BasicProperties.Type is limited to 255 chars, but is easier for clients to send.
-            // Headers don't have this restriction, so we use them preferentially if they exist.
-            properties.OriginalType = Coalesce(TryGet(result.BasicProperties?.Headers, RoutingHeaderKey), result.BasicProperties?.Type);
+                // 'OriginalType' tries to hold all contract types that match the message
+                // BasicProperties.Type is limited to 255 chars, but is easier for clients to send.
+                // Headers don't have this restriction, so we use them preferentially if they exist.
+                properties.OriginalType = Coalesce(TryGet(result.BasicProperties?.Headers, RoutingHeaderKey), result.BasicProperties?.Type);
 
-            return result.Body;
-		}
+                return result.Body;
+            }
+            catch
+            {
+                properties = default;
+                return null;
+            }
+        }
 
         private TValue TryGet<TKey,TValue>(IDictionary<TKey,TValue> dict, TKey key)
         {

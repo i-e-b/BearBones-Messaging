@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace BearBonesMessaging.Routing
 {
@@ -8,7 +9,10 @@ namespace BearBonesMessaging.Routing
 	/// </summary>
 	public class PendingMessage<T> : IPendingMessage<T>
 	{
-		volatile IMessageRouter _router;
+		[CanBeNull] private volatile IMessageRouter _router;
+        [NotNull]   private readonly CancellationTokenSource _source;
+        private CancellationToken _token;
+        private volatile bool _cancelled = false;
 
         /// <summary>
         /// Message properties
@@ -18,24 +22,49 @@ namespace BearBonesMessaging.Routing
         /// <summary>
         /// Wrap a message object and delivery tag as a PendingMessage
         /// </summary>
-        public PendingMessage(IMessageRouter router, T message, MessageProperties properties)
+        public PendingMessage(IMessageRouter router, T message, MessageProperties properties, TimeSpan ackTimeout)
 		{
             Message = message;
 			_router = router ?? throw new ArgumentException("Must supply a valid router.", "router");
             Properties = properties;
 			Cancel = DoCancel;
 			Finish = DoFinish;
-		}
 
-		void DoCancel()
-		{
-			var router = Interlocked.Exchange(ref _router, null);
+            _source = new CancellationTokenSource();
+            _token = _source.Token;
+            if (ackTimeout > TimeSpan.Zero && ackTimeout < TimeSpan.MaxValue){
+                _source.CancelAfter(ackTimeout);
+                _token.Register(OnTimeout, false);
+            }
+        }
+
+        private void OnTimeout()
+        {
+            if (!_cancelled) DoCancel();
+        }
+
+        void DoCancel()
+        {
+            _cancelled = true;
+            if (_source.IsCancellationRequested) Finish = Cancel = TimeoutCancelled;
+            else Finish = Cancel = DoubleCancel;
+
+            var router = Interlocked.Exchange(ref _router, null);
 			if (router == null) return;
 			router.Cancel(Properties.DeliveryTag);
 		}
 
-		void DoFinish()
+        void DoubleCancel() => throw new InvalidOperationException("This message has already been cancelled.");
+        void DoubleFinish() => throw new InvalidOperationException("This message has already been finished.");
+        void TimeoutCancelled() => throw new InvalidOperationException("This message has been cancelled by timeout. See MessagingBase.SetAcknowledgeTimeout()");
+
+        void DoFinish()
 		{
+            Finish = Cancel = DoubleFinish;
+
+            _token.ThrowIfCancellationRequested();
+            _source.Dispose();
+
 			var router = Interlocked.Exchange(ref _router, null);
 			if (router == null) return;
 			router.Finish(Properties.DeliveryTag);

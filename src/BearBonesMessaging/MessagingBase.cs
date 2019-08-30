@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BearBonesMessaging.RabbitMq;
 using BearBonesMessaging.Routing;
 using BearBonesMessaging.Serialisation;
@@ -20,6 +21,8 @@ namespace BearBonesMessaging
         [NotNull] readonly string _applicationGroupName;
         [NotNull] static readonly IDictionary<Type, RateLimitedAction> RouteCache = new Dictionary<Type, RateLimitedAction>();
 
+        private TimeSpan _messagePendingTimeout;
+
 		/// <summary>
 		/// Create with `MessagingBaseConfiguration.GetMessagingBase()`
 		/// </summary>
@@ -29,6 +32,8 @@ namespace BearBonesMessaging
 			this.messageRouter = messageRouter ?? throw new ArgumentNullException(nameof(messageRouter));
 			this.serialiser = serialiser ?? throw new ArgumentNullException(nameof(serialiser));
             _applicationGroupName = applicationGroupName ?? "AnonymousSender";
+
+            _messagePendingTimeout = MessagingBaseConfiguration.DefaultAckTimeout;
         }
 
 		/// <summary>
@@ -66,7 +71,13 @@ namespace BearBonesMessaging
             return messageRouter.ConnectionDetails();
         }
 
-		/// <summary>
+        /// <inheritdoc />
+        public void SetAcknowledgeTimeout(TimeSpan maxWait)
+        {
+            _messagePendingTimeout = maxWait;
+        }
+
+        /// <summary>
 		/// Ensure a destination exists, and bind it to the exchanges for the given type
 		/// </summary>
 		public void CreateDestination<T>([NotNull] string destinationName, [NotNull] Expires messageExpiry)
@@ -167,7 +178,7 @@ namespace BearBonesMessaging
                 if (message == null) throw;
 			}
 
-			return new PendingMessage<T>(messageRouter, message, properties);
+			return new PendingMessage<T>(messageRouter, message, properties, _messagePendingTimeout);
 		}
 
         /// <inheritdoc />
@@ -177,7 +188,7 @@ namespace BearBonesMessaging
 
             if (bytes == null) return null;
 
-            return new PendingMessage<byte[]>(messageRouter, bytes, properties);
+            return new PendingMessage<byte[]>(messageRouter, bytes, properties, _messagePendingTimeout);
         }
 
         void RouteSource([NotNull] Type routeType)
